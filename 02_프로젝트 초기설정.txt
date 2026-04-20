@@ -1,0 +1,34 @@
+#1 app.js 초기 설정 코드
+    // 패키지 불러오기
+    const express = require('express');
+    const path = require('path');
+
+    // app 생성
+    const app = express();
+
+    // 뷰 엔진 설정
+    app.set('view engine', 'ejs');
+    app.set('views', path.join(__dirname, "views"));
+
+    // 미들웨어
+    app.use(express.static(path.join(__dirname, 'public')));//정적 파일
+
+    //라우터 등록
+    app.get('/', (req, res)=>{
+        res.render('index', {title : '메인페이지'});
+    });
+
+    //서버 시작
+    app.listen(3000, ()=>{
+        console.log(`3000번 포트에서 서버가 실행 중입니다`)
+    });
+
+
+#2 헤더/푸터 분리
+
+#3 DB 연결
+.env에 DB url 변수 저장
+config/database.js에 DB 연결 코드 추가
+app.js에 require('dotenv').config(); 추가
+app.js에 connectDB(); 추가
+models 폴더에 컬렉션 스키마 규칙을 정의한 model 파일 들 생성

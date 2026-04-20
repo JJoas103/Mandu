@@ -1,0 +1,32 @@
+# 기능
+- 회원가입
+- 로그인/로그아웃
+- 게시글 작성/수정/삭제(로그인한 회원)
+- 게시글 조회(모든 사람)
+- 댓글 작성/삭제(로그인한 회원)
+- oAuth 기능
+
+# DB 구성
+- 회원(email, password, name, address)
+- 게시글(title, content, author-회원참조, category)
+- 댓글(author-회원, board-게시글, content)
+
+# 화면 구성
+
+# 프로젝트 초기 설정
+npm init -y
+npm install express dotenv mongoose ejs
+- express: 웹서버 프레임워크
+- dotenv: .env 파일의 환경변수를 불러오는 모듈
+- mongoose: mongodb 모듈
+- ejs: 템플릿 엔진
+
+# 노드몬 설치
+npm install --save-dev nodemon
+package.json에 scripts에 값 추가
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  }
+npm run dev로 서버 실행

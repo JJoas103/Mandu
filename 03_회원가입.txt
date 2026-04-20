@@ -1,0 +1,36 @@
+# 0 header.ejs에 회원가입 버튼 링크 설정
+    <li class="nav-item"><a class="nav-link" href="/user/join">회원가입</a></li>
+# 0 join.ejs에 form 태그 action 속성값 추가
+    <form action="/user/join" method="post">
+
+# 1 app.js에 urlencoded 미들웨어 등록
+app.use(express.urlencoded({extended : true}));
+
+#2 userRouter 생성
+    //회원가입 페이지
+    router.get('/join', (req, res) => {
+        res.render('user/join');
+    });
+
+    //회원가입 처리
+    router.post('/join', async (req, res) => {
+
+        try {
+            const { email, password, name, address } = req.body;
+            //회원 생성
+            const newUser = new User({
+                email,
+                password,
+                name,
+                address
+            });
+            await newUser.save();
+            console.log('회원가입 완료');
+        } catch (error) {
+            console.error('가입 실패', error.message);
+        }
+    });
+
+#3 app.js에 userRouter import 및 등록
+const userRouter = require('./routes/userRouter');
+app.use('/user', userRouter);

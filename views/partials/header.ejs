@@ -1,0 +1,23 @@
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">솔데스크</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav">
+            <ul class="navbar-nav ms-auto">
+
+                <% if(user) {%>
+                    <!-- 인증된 사용자 -->
+                    <li class="nav-item"><a class="nav-link" href="/user/info">마이페이지</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/user/logout">로그아웃</a></li>
+                <% } else{ %>
+                    <!-- 인증되지 않은 사용자 -->
+                    <li class="nav-item"><a class="nav-link" href="/user/login">로그인</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/user/join">회원가입</a></li>
+                <% } %>
+
+            </ul>
+        </div>
+    </div>
+</nav>

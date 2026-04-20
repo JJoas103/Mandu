@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- 헤더 -->
+    <%- include('../partials/header') %>
+
+    <main class="container my-4">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-6">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h4 class="mb-3">회원가입</h4>
+
+                    <form action="/user/join" method="post" enctype="multipart/form-data"> 
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">이메일 <span class="text-danger">*</span></label>
+
+                                    <div class="input-group">
+                                        <input type="email" class="form-control" name="email"
+                                            placeholder="이메일을 입력하세요" id="emailInput" />
+                                        <button type="button" class="btn btn-outline-secondary" id="emailCheckBtn"
+                                            onclick="">중복확인</button>
+
+                                        
+                                    </div>
+                                    <div id="emailFeedback"></div>
+                                    <!-- 서버 바인딩 에러 메시지 -->
+                                     <% if(errors.email){ %>
+                                        <div class="form-text text-danger"><%= errors.email %></div>
+                                    <% } %>
+
+                                </div>
+
+                                <!-- 비밀번호 -->
+                                <div class="col-md-12">
+                                    <label class="form-label">비밀번호 <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="password"
+                                        placeholder="비밀번호를 입력하세요" id="passwordInput" />
+                                    <small class="text-muted">영문, 숫자, 특수문자 조합 8자 이상</small>
+
+                                    <% if(errors.password) { %>
+                                        <div class="form-text text-danger"><%= errors.password %></div>
+                                    <% } %>
+
+                                </div>
+
+                                <!-- 비밀번호 확인 -->
+                                <div class="col-md-12">
+                                    <label class="form-label">비밀번호 확인 <span class="text-danger">*</span></label>
+                                    <input type="password" class="form-control" name="password2"
+                                        placeholder="비밀번호를 다시 입력하세요" id="passwordConfirmInput" required>
+
+                                    <% if(errors.password2){ %>    
+                                        <div class="form-text text-danger"><%=errors.password2 %></div>
+                                    <%} %>
+                                    
+                                </div>
+
+                                <!-- 이름 -->
+                                <div class="col-12">
+                                    <label class="form-label">이름 <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="name"
+                                        placeholder="이름을 입력하세요" />
+
+                                    <% if(errors.name){ %>
+                                        <div class="form-text text-danger"><%= errors.name %></div>
+                                    <% } %>
+
+                                </div>
+
+                                <!-- 주소 -->
+                                <div class="col-12">
+                                    <label class="form-label">주소</label>
+                                    <input type="text" class="form-control" name="address"
+                                        placeholder="주소를 입력하세요" />
+                                </div>
+
+                                <!-- 프로필 이미지 -->
+                                <div class="col-12">
+                                    <label class="form-label">프로필 이미지</label>
+                                    <input type="file" class="form-control" accept="image/*" name="uploadFile">
+                                </div> 
+                            </div>
+
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-brand" id="submitBtn">가입하기</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 푸터 -->
+    <%- include('../partials/footer') %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const emailInput = document.getElementById('emailInput');
+        const emailCheckBtn = document.getElementById('emailCheckBtn');
+        const emailFeedback = document.getElementById('emailFeedback');
+        let isChecked = false;//중복확인 통과 여부
+
+        emailCheckBtn.addEventListener('click', async() =>{
+            const email = emailInput.value.trim();
+            try {
+                const res = await fetch(`/user/check-email?email=${encodeURIComponent(email)}`);
+                const data = await res.json();
+
+                if(data.avalilabe){
+                    emailFeedback.textContent = '사용 가능한 이메일입니다';
+                    isChecked = true;
+                    emailInput.readOnly = true;//입력창 읽기전용으로
+                    emailCheckBtn.disabled = true;//중복확인 버튼 비활성화
+                    console.log('사용 가능한 이메일');
+                }else{
+                    emailFeedback.textContent = '이미 가입된 이메일입니다';
+                    isChecked = false;//중복확인 실패
+                    console.log('이미 가입된 이메일');
+                }
+            } catch (error) {
+                console.error('서버 오류 발생');
+                emailFeedback.textContent = '서버 오류 발생했습니다';
+            }
+
+            emailInput.addEventListener('input', ()=>{
+                isChecked = false;
+                emailFeedback = '';
+                emailInput.readOnly = false;//input 읽기전용 해제
+                emailCheckBtn.disable = false;//중복확인 버튼 재활성화
+            });//이메일 입력창에 타이핑할 때마다 실행
+
+            //가입하기 버튼 이벤트(중복확인 통과해야 활성화)
+            document.querySelector('form').addEventListener('submit', (e)=>{
+                if(!isChecked){
+                    e.preventDefault();
+                    emailFeedback.textContent = '이메일 중복확인을 해주세요';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
