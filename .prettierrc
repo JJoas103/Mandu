@@ -1,0 +1,7 @@
+{
+  "printWidth": 200,
+  "tabWidth": 2,
+  "singleAttributePerLine": false,
+  "htmlWhitespaceSensitivity": "css",
+  "plugins": ["prettier-plugin-ejs"]
+}

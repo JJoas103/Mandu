@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>모여봄 — 서울 모임 플랫폼</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f6f9;
+  --surface: #ffffff;
+  --surface2: #f8fafc;
+  --border: #e2e8f0;
+  --border2: #cbd5e1;
+  --text: #1e293b;
+  --text-sub: #64748b;
+  --text-dim: #94a3b8;
+  --green: #16a34a;
+  --green-light: #22c55e;
+  --green-bg: #f0fdf4;
+  --green-border: #bbf7d0;
+  --yellow: #ca8a04;
+  --yellow-bg: #fefce8;
+  --yellow-border: #fde68a;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --red-border: #fecaca;
+  --blue: #2563eb;
+  --blue-bg: #eff6ff;
+  --blue-border: #bfdbfe;
+  --accent: #1d9e75;
+  --accent-bg: #e6f9f4;
+  --accent-border: #6ee7c7;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --nav-h: 60px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans KR', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+/* ── SCREEN MANAGER ── */
+.screen { display: none; min-height: calc(100vh - var(--nav-h)); }
+.screen.active { display: block; }
+
+/* ── TOP NAV ── */
+.gnav {
+  position: sticky; top: 0; z-index: 200;
+  height: var(--nav-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 32px; gap: 0;
+}
+.gnav-logo {
+  font-size: 18px; font-weight: 700; color: var(--accent);
+  letter-spacing: -0.3px; margin-right: 36px; flex-shrink: 0;
+}
+.gnav-tabs { display: flex; align-items: stretch; height: 100%; gap: 0; flex: 1; }
+.nav-tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 16px; font-size: 14px; font-weight: 500;
+  color: var(--text-sub); cursor: pointer; border: none;
+  background: none; font-family: inherit;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.nav-tab .nav-icon { font-size: 15px; }
+.gnav-right { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+.btn-ghost {
+  padding: 7px 14px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: none;
+  color: var(--text-sub); font-size: 13px; cursor: pointer;
+  font-family: inherit; transition: all 0.15s;
+}
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+.btn-primary {
+  padding: 8px 18px; border-radius: var(--radius-sm);
+  border: none; background: var(--accent);
+  color: #fff; font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+}
+.btn-primary:hover { opacity: 0.88; }
+
+/* ── SHARED ── */
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 100px;
+  font-size: 11px; font-weight: 500;
+}
+.chip-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.chip-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.chip-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.chip-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.chip-accent { background: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
+.dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: var(--green); }
+.dot-yellow { background: var(--yellow); }
+.dot-red { background: var(--red); }
+.tag {
+  display: inline-block; padding: 3px 9px; border-radius: 6px;
+  font-size: 11px; background: var(--surface2);
+  border: 1px solid var(--border); color: var(--text-sub);
+}
+.sec-title {
+  font-size: 13px; font-weight: 700; color: var(--text-sub);
+  letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 12px;
+}
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+/* ─────────────────────────────────────
+   SCREEN 1: 지도 탐색
+───────────────────────────────────── */
+#screen-main { display: none; }
+#screen-main.active { display: flex; height: calc(100vh - var(--nav-h)); overflow: hidden; }
+
+/* 왼쪽 사이드바 */
+.main-sidebar {
+  width: 400px; flex-shrink: 0;
+  overflow-y: auto; border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+.main-sidebar::-webkit-scrollbar { width: 4px; }
+.main-sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.sidebar-search {
+  padding: 14px 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0;
+  background: var(--surface); z-index: 10;
+}
+.search-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 9px 12px;
+}
+.search-wrap input {
+  flex: 1; background: none; border: none; outline: none;
+  font-family: inherit; font-size: 14px; color: var(--text);
+}
+.search-wrap input::placeholder { color: var(--text-dim); }
+
+.sidebar-section { padding: 16px 16px 8px; }
+.sidebar-section-hd {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
+}
+.sidebar-section-hd .sec-title { margin-bottom: 0; }
+.see-all { font-size: 12px; color: var(--accent); cursor: pointer; }
+
+/* 명소 카드 슬라이드 */
+.slide-row {
+  display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; margin: 0 -2px;
+}
+.slide-row::-webkit-scrollbar { display: none; }
+.slide-card {
+  min-width: 130px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); overflow: hidden; flex-shrink: 0; cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+.slide-card:hover { border-color: var(--accent); transform: translateY(-1px); }
+.slide-card-img {
+  height: 72px; display: flex; align-items: center; justify-content: center; font-size: 26px;
+}
+.slide-card-body { padding: 8px 10px; }
+.slide-card-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+
+/* 모임 목록 */
+.meeting-list { display: flex; flex-direction: column; gap: 8px; }
+.meeting-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.meeting-card:hover { border-color: var(--accent-border); }
+.mc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.mc-title { font-size: 14px; font-weight: 600; line-height: 1.4; }
+.mc-count { font-size: 12px; color: var(--text-sub); flex-shrink: 0; margin-left: 8px; }
+.mc-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.mc-place { font-size: 12px; color: var(--text-sub); }
+.mc-time { font-size: 12px; color: var(--text-dim); }
+.mc-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+
+/* 오른쪽 지도 */
+.main-map {
+  flex: 1; position: relative;
+  background: #dce8d4; overflow: hidden;
+}
+.map-svg { width: 100%; height: 100%; position: absolute; }
+.map-marker {
+  position: absolute; display: flex; flex-direction: column; align-items: center;
+  cursor: pointer; transform: translate(-50%, -100%); transition: transform 0.2s;
+}
+.map-marker:hover { transform: translate(-50%, -100%) scale(1.12); }
+.marker-bubble {
+  padding: 5px 11px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+.marker-bubble.green { background: var(--green); color: #fff; }
+.marker-bubble.yellow { background: var(--yellow); color: #fff; }
+.marker-bubble.red { background: var(--red); color: #fff; }
+.marker-tail { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; }
+.marker-tail.green { border-top: 6px solid var(--green); }
+.marker-tail.yellow { border-top: 6px solid var(--yellow); }
+.marker-tail.red { border-top: 6px solid var(--red); }
+.map-label { position: absolute; font-size: 11px; color: #5a7a5a; font-weight: 500; }
+.map-legend {
+  position: absolute; bottom: 16px; left: 16px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  display: flex; gap: 12px;
+}
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-sub); }
+.map-mypos {
+  position: absolute; bottom: 16px; right: 16px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--surface); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.map-hotspot-panel {
+  position: absolute; top: 16px; right: 16px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px; width: 200px;
+}
+.hotspot-title { font-size: 11px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.hotspot-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.hotspot-row:last-child { border-bottom: none; }
+.hotspot-name { font-size: 12px; font-weight: 500; }
+.hotspot-chg { font-size: 11px; font-weight: 600; }
+.chg-up { color: var(--red); }
+.chg-dn { color: var(--green); }
+
+/* ─────────────────────────────────────
+   SCREEN 2: 장소 상세
+───────────────────────────────────── */
+#screen-detail .detail-wrap {
+  max-width: 1100px; margin: 0 auto; padding: 28px 32px;
+}
+.back-link {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-sub); cursor: pointer;
+  margin-bottom: 20px; background: none; border: none;
+  font-family: inherit; transition: color 0.15s;
+}
+.back-link:hover { color: var(--text); }
+.detail-header-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 24px; margin-bottom: 20px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.detail-place-name { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+.detail-place-sub { font-size: 14px; color: var(--text-sub); margin-bottom: 12px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 340px; gap: 20px; }
+
+/* 혼잡도 블록 */
+.cong-block {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+}
+.cong-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+.cong-status { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.cong-big { font-size: 28px; font-weight: 700; color: var(--green); }
+.cong-desc { font-size: 13px; color: var(--text-sub); line-height: 1.5; margin-bottom: 14px; }
+.hour-bars { display: flex; align-items: flex-end; gap: 4px; height: 52px; }
+.hour-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.hour-bar { width: 100%; border-radius: 3px 3px 0 0; }
+.hour-bar.green { background: var(--green-light); }
+.hour-bar.yellow { background: #facc15; }
+.hour-bar.red { background: #f87171; }
+.hour-bar.active { outline: 2px solid var(--accent); outline-offset: 1px; }
+.hour-label { font-size: 9px; color: var(--text-dim); }
+
+/* 인프라 그리드 */
+.infra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.infra-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.infra-card:hover { border-color: var(--accent-border); }
+.infra-icon { font-size: 20px; margin-bottom: 6px; }
+.infra-name { font-size: 11px; color: var(--text-sub); font-weight: 600; margin-bottom: 4px; }
+.infra-val { font-size: 22px; font-weight: 700; }
+.infra-val.green { color: var(--green); }
+.infra-val.yellow { color: var(--yellow); }
+.infra-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+/* 사이드 패널 */
+.detail-side .card { padding: 16px; margin-bottom: 12px; }
+.side-sec-title { font-size: 12px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+.nearby-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.nearby-item:last-child { border-bottom: none; }
+.nearby-icon { width: 34px; height: 34px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.nearby-info { flex: 1; }
+.nearby-name { font-size: 13px; font-weight: 500; }
+.nearby-detail { font-size: 11px; color: var(--text-sub); margin-top: 1px; }
+.nearby-dist { font-size: 12px; color: var(--blue); font-weight: 500; flex-shrink: 0; }
+
+/* ─────────────────────────────────────
+   SCREEN 3: 모임 만들기
+───────────────────────────────────── */
+#screen-create .create-wrap {
+  max-width: 720px; margin: 0 auto; padding: 32px;
+}
+.create-header { margin-bottom: 28px; }
+.create-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+.create-sub { font-size: 14px; color: var(--text-sub); }
+.form-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; }
+.form-section { margin-bottom: 20px; }
+.form-section:last-child { margin-bottom: 0; }
+.form-label { font-size: 12px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+.form-input {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 11px 14px;
+  color: var(--text); font-family: inherit; font-size: 14px; outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus { border-color: var(--accent); }
+.form-input::placeholder { color: var(--text-dim); }
+textarea.form-input { resize: none; height: 100px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.place-selected {
+  background: var(--accent-bg); border: 1px solid var(--accent-border);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.place-selected-name { font-size: 14px; font-weight: 600; }
+.place-selected-sub { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+.place-badges { display: flex; gap: 5px; margin-top: 6px; }
+.tag-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+.tag-select {
+  padding: 6px 14px; border-radius: 100px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text-sub);
+  font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+}
+.tag-select:hover { border-color: var(--accent-border); color: var(--accent); }
+.tag-select.on { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
+.hc-row { display: flex; align-items: center; gap: 12px; }
+.hc-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.hc-val { font-size: 22px; font-weight: 700; min-width: 30px; text-align: center; }
+.submit-btn {
+  width: 100%; height: 52px; border-radius: var(--radius);
+  background: var(--accent); border: none; color: #fff;
+  font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: opacity 0.15s; margin-top: 4px;
+}
+.submit-btn:hover { opacity: 0.88; }
+
+/* ─────────────────────────────────────
+   SCREEN 4: 실시간 제보
+───────────────────────────────────── */
+#screen-feed .feed-wrap {
+  max-width: 1000px; margin: 0 auto; padding: 28px 32px;
+  display: grid; grid-template-columns: 1fr 280px; gap: 24px;
+}
+.feed-left {}
+.feed-tabs {
+  display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 16px;
+}
+.feed-tab {
+  padding: 10px 16px; font-size: 13px; font-weight: 500;
+  color: var(--text-dim); cursor: pointer; border: none; background: none;
+  font-family: inherit; border-bottom: 2px solid transparent; transition: all 0.15s;
+}
+.feed-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.feed-list { display: flex; flex-direction: column; gap: 10px; }
+.feed-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+}
+.feed-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.feed-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+}
+.feed-author { font-size: 13px; font-weight: 600; }
+.feed-time { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+.feed-loc-tag {
+  margin-left: auto; padding: 3px 9px; border-radius: 6px;
+  background: var(--accent-bg); color: var(--accent);
+  font-size: 11px; font-weight: 600; border: 1px solid var(--accent-border); white-space: nowrap;
+}
+.feed-text { font-size: 14px; line-height: 1.65; color: var(--text); }
+.feed-img {
+  margin-top: 10px; border-radius: var(--radius-sm); height: 160px;
+  background: var(--surface2); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--text-dim);
+}
+.feed-actions { display: flex; gap: 8px; margin-top: 10px; }
+.react-btn {
+  padding: 5px 11px; border-radius: 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text-sub); font-size: 12px; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.react-btn:hover { border-color: var(--accent-border); color: var(--accent); }
+.react-btn.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); }
+.write-feed-btn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px; border-radius: var(--radius);
+  background: var(--surface); border: 1px dashed var(--border2);
+  color: var(--text-dim); font-family: inherit; font-size: 14px;
+  cursor: pointer; width: 100%; margin-bottom: 16px; transition: border-color 0.15s;
+}
+.write-feed-btn:hover { border-color: var(--accent-border); color: var(--accent); }
+.feed-right {}
+.feed-sidebar-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+.feed-sidebar-title { font-size: 12px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+.hot-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--border); }
+.hot-item:last-child { border-bottom: none; }
+.hot-rank { font-size: 12px; font-weight: 700; color: var(--text-dim); width: 16px; }
+.hot-rank.r1 { color: var(--red); }
+.hot-rank.r2 { color: var(--yellow); }
+.hot-rank.r3 { color: var(--accent); }
+.hot-name { font-size: 13px; font-weight: 500; flex: 1; }
+.hot-chg { font-size: 11px; font-weight: 600; }
+.loc-filter-list { display: flex; flex-direction: column; gap: 5px; }
+.loc-filter {
+  padding: 7px 10px; border-radius: var(--radius-sm); font-size: 13px;
+  cursor: pointer; border: 1px solid var(--border); background: var(--surface2);
+  color: var(--text-sub); transition: all 0.15s; font-family: inherit;
+}
+.loc-filter.active { background: var(--accent-bg); border-color: var(--accent-border); color: var(--accent); font-weight: 500; }
+.loc-filter:hover { border-color: var(--accent-border); }
+
+/* ─────────────────────────────────────
+   SCREEN 5: 마이페이지
+───────────────────────────────────── */
+#screen-my .my-wrap { max-width: 900px; margin: 0 auto; padding: 32px; }
+.profile-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px 32px;
+  display: flex; align-items: center; gap: 24px; margin-bottom: 24px;
+}
+.profile-avatar {
+  width: 72px; height: 72px; border-radius: 50%; font-size: 30px;
+  background: var(--accent-bg); border: 2px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.profile-name { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+.profile-handle { font-size: 13px; color: var(--text-sub); margin-bottom: 12px; }
+.profile-stats { display: flex; gap: 24px; }
+.stat-item { text-align: center; }
+.stat-val { font-size: 20px; font-weight: 700; color: var(--text); }
+.stat-label { font-size: 11px; color: var(--text-dim); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+.my-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.my-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+.my-card-title { font-size: 13px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+
+/* 매너점수 */
+.manner-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
+.manner-score { font-size: 36px; font-weight: 700; color: var(--green); line-height: 1; }
+.manner-desc { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+.manner-bar-bg { height: 8px; background: var(--surface2); border-radius: 100px; overflow: hidden; border: 1px solid var(--border); }
+.manner-bar-fill { height: 100%; border-radius: 100px; background: var(--green-light); }
+
+/* 배지 그리드 */
+.badge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.badge-item {
+  aspect-ratio: 1; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface2); display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 4px; padding: 8px; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.badge-item.earned { border-color: #fde68a; background: var(--yellow-bg); }
+.badge-item:hover { border-color: var(--accent-border); }
+.badge-emoji { font-size: 22px; }
+.badge-name { font-size: 9px; color: var(--text-sub); text-align: center; line-height: 1.3; }
+.badge-item.locked .badge-emoji { opacity: 0.25; filter: grayscale(1); }
+.badge-item.locked .badge-name { opacity: 0.35; }
+
+/* 방문기록 */
+.history-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.history-item:last-child { border-bottom: none; }
+.history-icon { font-size: 18px; flex-shrink: 0; }
+.history-info { flex: 1; }
+.history-title { font-size: 13px; font-weight: 500; }
+.history-date { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.history-score { font-size: 12px; color: var(--green); font-weight: 600; flex-shrink: 0; }
+
+/* ── 방문인증 팝업 ── */
+.verify-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.45); align-items: center; justify-content: center;
+}
+.verify-overlay.show { display: flex; }
+.verify-modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px; width: 380px; text-align: center;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+.verify-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.verify-sub { font-size: 14px; color: var(--text-sub); margin-bottom: 20px; }
+.verify-place-box {
+  background: var(--accent-bg); border: 1px solid var(--accent-border);
+  border-radius: var(--radius-sm); padding: 14px; margin-bottom: 20px;
+}
+.verify-place-name { font-size: 16px; font-weight: 600; }
+.verify-gps { font-size: 11px; color: var(--accent); margin-top: 4px; }
+.verify-btn {
+  width: 100%; height: 48px; border-radius: var(--radius-sm);
+  background: var(--accent); border: none; color: #fff;
+  font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  margin-bottom: 8px; transition: opacity 0.15s;
+}
+.verify-btn:hover { opacity: 0.88; }
+.verify-cancel {
+  width: 100%; padding: 10px; background: none; border: none;
+  color: var(--text-sub); font-family: inherit; font-size: 14px; cursor: pointer;
+}
+
+/* 성공 오버레이 */
+.success-overlay {
+  display: none; position: fixed; inset: 0; z-index: 600;
+  background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
+}
+.success-overlay.show { display: flex; }
+.success-modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 40px 36px; text-align: center;
+  animation: fadeIn 0.25s ease;
+}
+.success-badge-big { font-size: 64px; margin-bottom: 12px; }
+.success-title { font-size: 22px; font-weight: 700; color: var(--yellow); margin-bottom: 6px; }
+.success-sub { font-size: 14px; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px; }
+.success-close {
+  padding: 10px 28px; border-radius: 100px; background: var(--surface2);
+  border: 1px solid var(--border); color: var(--text);
+  font-family: inherit; font-size: 14px; cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════ TOP NAV ════════════ -->
+<nav class="gnav">
+  <div class="gnav-logo">모여봄</div>
+  <div class="gnav-tabs">
+    <button class="nav-tab active" id="nav-main" onclick="goScreen('main')">
+      <span class="nav-icon">🗺️</span> 지도 탐색
+    </button>
+    <button class="nav-tab" id="nav-feed" onclick="goScreen('feed')">
+      <span class="nav-icon">📡</span> 실시간 제보
+    </button>
+    <button class="nav-tab" id="nav-create" onclick="goScreen('create')">
+      <span class="nav-icon">✏️</span> 모임 만들기
+    </button>
+    <button class="nav-tab" id="nav-my" onclick="goScreen('my')">
+      <span class="nav-icon">👤</span> 마이페이지
+    </button>
+  </div>
+  <div class="gnav-right">
+    <button class="btn-ghost">🔔</button>
+    <button class="btn-primary" onclick="goScreen('create')">+ 모임 만들기</button>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════
+     SCREEN 1: 지도 탐색
+════════════════════════════════ -->
+<div id="screen-main" class="screen active">
+  <!-- 왼쪽 사이드바 -->
+  <div class="main-sidebar">
+    <div class="sidebar-search">
+      <div class="search-wrap">
+        <span>🔍</span>
+        <input type="text" placeholder="지역·장소·모임 검색">
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-hd">
+        <div class="sec-title">🌿 지금 한산한 명소</div>
+        <span class="see-all">전체보기</span>
+      </div>
+      <div class="slide-row">
+        <div class="slide-card" onclick="goScreen('detail')">
+          <div class="slide-card-img" style="background:#e8f5e9;">🌳</div>
+          <div class="slide-card-body">
+            <div class="slide-card-name">연남동</div>
+            <span class="chip chip-green"><div class="dot dot-green"></div>여유</span>
+          </div>
+        </div>
+        <div class="slide-card" onclick="goScreen('detail')">
+          <div class="slide-card-img" style="background:#e3f2fd;">🏘️</div>
+          <div class="slide-card-body">
+            <div class="slide-card-name">서래마을</div>
+            <span class="chip chip-green"><div class="dot dot-green"></div>여유</span>
+          </div>
+        </div>
+        <div class="slide-card">
+          <div class="slide-card-img" style="background:#f3e5f5;">🌸</div>
+          <div class="slide-card-body">
+            <div class="slide-card-name">성수동</div>
+            <span class="chip chip-yellow"><div class="dot dot-yellow"></div>보통</span>
+          </div>
+        </div>
+        <div class="slide-card">
+          <div class="slide-card-img" style="background:#e8f5e9;">🎋</div>
+          <div class="slide-card-body">
+            <div class="slide-card-name">익선동</div>
+            <span class="chip chip-yellow"><div class="dot dot-yellow"></div>보통</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-hd">
+        <div class="sec-title">📌 근처 모임</div>
+        <span class="see-all">전체보기</span>
+      </div>
+      <div class="meeting-list">
+        <div class="meeting-card" onclick="goScreen('detail')">
+          <div class="mc-top">
+            <div class="mc-title">연남동 산책 + 카페 탐방</div>
+            <div class="mc-count">2/5명</div>
+          </div>
+          <div class="mc-meta">
+            <span class="mc-place">📍 연남동</span>
+            <span class="chip chip-green" style="font-size:10px;"><div class="dot dot-green"></div>여유</span>
+            <span class="mc-time">오늘 15:00</span>
+          </div>
+          <div class="mc-tags">
+            <span class="tag">조용한카페</span>
+            <span class="tag">주차가능</span>
+            <span class="tag">2시간</span>
+          </div>
+        </div>
+
+        <div class="meeting-card">
+          <div class="mc-top">
+            <div class="mc-title">서래마을 브런치 모임</div>
+            <div class="mc-count">3/4명</div>
+          </div>
+          <div class="mc-meta">
+            <span class="mc-place">📍 서래마을</span>
+            <span class="chip chip-green" style="font-size:10px;"><div class="dot dot-green"></div>여유</span>
+            <span class="mc-time">오늘 11:00</span>
+          </div>
+          <div class="mc-tags">
+            <span class="tag">대중교통</span>
+            <span class="tag">실내위주</span>
+          </div>
+        </div>
+
+        <div class="meeting-card" style="opacity:0.65;">
+          <div class="mc-top">
+            <div class="mc-title">강남역 쇼핑 같이해요</div>
+            <div class="mc-count">1/4명</div>
+          </div>
+          <div class="mc-meta">
+            <span class="mc-place">📍 강남역</span>
+            <span class="chip chip-red" style="font-size:10px;"><div class="dot dot-red"></div>혼잡 주의</span>
+            <span class="mc-time">오늘 14:00</span>
+          </div>
+          <div class="mc-tags"><span class="tag">쇼핑</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="height:24px;"></div>
+  </div>
+
+  <!-- 오른쪽 지도 -->
+  <div class="main-map">
+    <svg class="map-svg" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+      <rect width="900" height="600" fill="#dce8d4"/>
+      <path d="M0,300 Q220,240 450,300 Q680,360 900,300 L900,600 L0,600Z" fill="#c8dbbf" opacity="0.5"/>
+      <rect x="80" y="120" width="80" height="58" rx="4" fill="#b8ccb0"/>
+      <rect x="200" y="90" width="120" height="75" rx="4" fill="#b8ccb0"/>
+      <rect x="360" y="130" width="85" height="60" rx="4" fill="#b8ccb0"/>
+      <rect x="500" y="105" width="110" height="70" rx="4" fill="#b8ccb0"/>
+      <rect x="660" y="115" width="95" height="65" rx="4" fill="#b8ccb0"/>
+      <rect x="790" y="110" width="85" height="60" rx="4" fill="#b8ccb0"/>
+      <path d="M160,145 L860,145" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M120,250 L800,250" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+      <path d="M380,80 L380,520" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+      <path d="M600,70 L600,500" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+      <circle cx="270" cy="165" r="60" fill="#dc2626" opacity="0.12"/>
+      <circle cx="270" cy="165" r="36" fill="#dc2626" opacity="0.16"/>
+      <circle cx="560" cy="155" r="50" fill="#ca8a04" opacity="0.12"/>
+      <circle cx="180" cy="260" r="42" fill="#16a34a" opacity="0.14"/>
+      <circle cx="700" cy="140" r="38" fill="#16a34a" opacity="0.14"/>
+    </svg>
+
+    <span class="map-label" style="top:22%;left:12%;">은평구</span>
+    <span class="map-label" style="top:16%;left:36%;">종로구</span>
+    <span class="map-label" style="top:28%;left:26%;">마포구</span>
+    <span class="map-label" style="top:35%;left:48%;">중구</span>
+    <span class="map-label" style="top:46%;left:36%;">영등포</span>
+    <span class="map-label" style="top:44%;left:62%;">강남구</span>
+    <span class="map-label" style="top:60%;left:56%;">송파구</span>
+
+    <div class="map-marker" style="top:40%;left:29%" onclick="goScreen('detail')">
+      <div class="marker-bubble green">연남동 · 여유</div>
+      <div class="marker-tail green"></div>
+    </div>
+    <div class="map-marker" style="top:33%;left:44%">
+      <div class="marker-bubble yellow">북촌 · 보통</div>
+      <div class="marker-tail yellow"></div>
+    </div>
+    <div class="map-marker" style="top:50%;left:62%">
+      <div class="marker-bubble red">강남역 · 혼잡</div>
+      <div class="marker-tail red"></div>
+    </div>
+    <div class="map-marker" style="top:54%;left:46%" onclick="goScreen('detail')">
+      <div class="marker-bubble green">서래마을 · 여유</div>
+      <div class="marker-tail green"></div>
+    </div>
+    <div class="map-marker" style="top:63%;left:60%">
+      <div class="marker-bubble yellow">잠실 · 보통</div>
+      <div class="marker-tail yellow"></div>
+    </div>
+    <div class="map-marker" style="top:27%;left:76%">
+      <div class="marker-bubble green">서울숲 · 여유</div>
+      <div class="marker-tail green"></div>
+    </div>
+
+    <div class="map-legend">
+      <div class="leg-item"><div class="dot dot-green"></div>여유</div>
+      <div class="leg-item"><div class="dot dot-yellow"></div>보통</div>
+      <div class="leg-item"><div class="dot dot-red"></div>혼잡</div>
+    </div>
+    <div class="map-mypos">📍</div>
+
+    <div class="map-hotspot-panel">
+      <div class="hotspot-title">실시간 급증 TOP</div>
+      <div class="hotspot-row">
+        <span class="hotspot-name">명동</span>
+        <span class="hotspot-chg chg-up">+42%</span>
+      </div>
+      <div class="hotspot-row">
+        <span class="hotspot-name">홍대입구</span>
+        <span class="hotspot-chg chg-up">+28%</span>
+      </div>
+      <div class="hotspot-row">
+        <span class="hotspot-name">강남역</span>
+        <span class="hotspot-chg chg-up">+19%</span>
+      </div>
+      <div class="hotspot-row">
+        <span class="hotspot-name">서래마을</span>
+        <span class="hotspot-chg chg-dn">-8%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 2: 장소 상세
+════════════════════════════════ -->
+<div id="screen-detail" class="screen">
+  <div class="detail-wrap">
+    <button class="back-link" onclick="goScreen('main')">← 지도로 돌아가기</button>
+
+    <div class="detail-header-card">
+      <div>
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:4px;">마포구 · 연남동 일대</div>
+        <div class="detail-place-name">연남동 🌳</div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <span class="chip chip-green"><div class="dot dot-green"></div>현재 여유</span>
+          <span class="chip chip-accent">🅿️ 주차 가능</span>
+          <span class="chip chip-blue">🚻 화장실 5곳</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="goScreen('create')">이 장소에서 모임 만들기</button>
+    </div>
+
+    <div class="detail-grid">
+      <div class="detail-left">
+        <!-- 혼잡도 -->
+        <div class="cong-block">
+          <div class="cong-label">실시간 혼잡도</div>
+          <div class="cong-status">
+            <div class="cong-big">여유</div>
+            <span class="chip chip-green">지금 적합</span>
+          </div>
+          <div class="cong-desc">현재 방문자 수가 평소보다 적음 — 모임하기 좋은 시간대입니다.</div>
+          <div class="hour-bars">
+            <div class="hour-bar-wrap"><div class="hour-bar green" style="height:25%"></div><div class="hour-label">9시</div></div>
+            <div class="hour-bar-wrap"><div class="hour-bar green" style="height:32%"></div><div class="hour-label">10시</div></div>
+            <div class="hour-bar-wrap"><div class="hour-bar yellow" style="height:55%"></div><div class="hour-label">11시</div></div>
+            <div class="hour-bar-wrap"><div class="hour-bar yellow" style="height:72%"></div><div class="hour-label">12시</div></div>
+            <div class="hour-bar-wrap"><div class="hour-bar yellow" style="height:62%"></div><div class="hour-label">13시</div></div>
+            <div class="hour-bar-wrap"><div class="hour-bar green active" style="height:34%"></div><div class="hour-label" style="color:var(--accent);font-weight:600;">지금</div></div>
+            <div class="hour-bar-wrap"><div class="hour-bar red" style="height:86%"></div><div class="hour-label">15시</div></div>
+            <div class="hour-bar-wrap"><div class="hour-bar red" style="height:94%"></div><div class="hour-label">16시</div></div>
+            <div class="hour-bar-wrap"><div class="hour-bar yellow" style="height:68%"></div><div class="hour-label">17시</div></div>
+            <div class="hour-bar-wrap"><div class="hour-bar yellow" style="height:50%"></div><div class="hour-label">18시</div></div>
+            <div class="hour-bar-wrap"><div class="hour-bar green" style="height:28%"></div><div class="hour-label">19시</div></div>
+          </div>
+        </div>
+
+        <!-- 인프라 그리드 -->
+        <div class="infra-grid">
+          <div class="infra-card">
+            <div class="infra-icon">🅿️</div>
+            <div class="infra-name">공영 주차장</div>
+            <div class="infra-val green">잔여 23</div>
+            <div class="infra-sub">250m 이내 · 3곳</div>
+          </div>
+          <div class="infra-card">
+            <div class="infra-icon">🚻</div>
+            <div class="infra-name">개방 화장실</div>
+            <div class="infra-val green">5곳</div>
+            <div class="infra-sub">반경 500m 이내</div>
+          </div>
+          <div class="infra-card">
+            <div class="infra-icon">🚌</div>
+            <div class="infra-name">대중교통</div>
+            <div class="infra-val" style="font-size:16px;color:var(--text);">홍대입구역</div>
+            <div class="infra-sub">도보 8분</div>
+          </div>
+          <div class="infra-card">
+            <div class="infra-icon">🌤️</div>
+            <div class="infra-name">오늘 날씨</div>
+            <div class="infra-val yellow">21°C</div>
+            <div class="infra-sub">맑음 · 습도 45%</div>
+          </div>
+        </div>
+
+        <!-- 이 장소 모임 -->
+        <div class="cong-block">
+          <div class="cong-label">이 장소 모임</div>
+          <div class="meeting-list">
+            <div class="meeting-card">
+              <div class="mc-top">
+                <div class="mc-title">연남동 산책 + 카페 탐방</div>
+                <div class="mc-count">2/5명</div>
+              </div>
+              <div class="mc-meta"><span class="mc-time">오늘 15:00</span></div>
+              <div class="mc-tags"><span class="tag">조용한카페</span><span class="tag">주차가능</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-side">
+        <div class="card">
+          <div class="side-sec-title">☕ 주변 편의시설</div>
+          <div class="nearby-item">
+            <div class="nearby-icon">☕</div>
+            <div class="nearby-info">
+              <div class="nearby-name">연남동 카페거리</div>
+              <div class="nearby-detail">카페 밀집 · 야외 좌석 다수</div>
+            </div>
+            <div class="nearby-dist">120m</div>
+          </div>
+          <div class="nearby-item">
+            <div class="nearby-icon">🍜</div>
+            <div class="nearby-info">
+              <div class="nearby-name">경의선 숲길 맛집거리</div>
+              <div class="nearby-detail">음식점 30+</div>
+            </div>
+            <div class="nearby-dist">200m</div>
+          </div>
+          <div class="nearby-item">
+            <div class="nearby-icon">🏪</div>
+            <div class="nearby-info">
+              <div class="nearby-name">GS25 연남점</div>
+              <div class="nearby-detail">편의점 · 24시간</div>
+            </div>
+            <div class="nearby-dist">80m</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="side-sec-title">📡 실시간 제보</div>
+          <div class="feed-item" style="border:none;padding:0;">
+            <div class="feed-top" style="margin-bottom:8px;">
+              <div class="feed-avatar">🧑</div>
+              <div>
+                <div class="feed-author">user_42</div>
+                <div class="feed-time">3분 전</div>
+              </div>
+            </div>
+            <div class="feed-text" style="font-size:13px;">경의선 숲길 쪽은 지금 한산해요. 카페 자리도 넉넉합니다 👍</div>
+          </div>
+        </div>
+
+        <button class="btn-primary" style="width:100%;margin-top:12px;height:44px;" onclick="showVerify()">📍 방문 인증하기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 3: 모임 만들기
+════════════════════════════════ -->
+<div id="screen-create" class="screen">
+  <div class="create-wrap">
+    <div class="create-header">
+      <div class="create-title">모임 만들기</div>
+      <div class="create-sub">장소를 선택하면 주차장·화장실 정보가 자동으로 첨부됩니다</div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-section">
+        <div class="form-label">모임 제목</div>
+        <input type="text" class="form-input" placeholder="어떤 모임인지 간단히 적어주세요">
+      </div>
+
+      <div class="form-section">
+        <div class="form-label">장소</div>
+        <div class="place-selected">
+          <span style="font-size:20px;">📍</span>
+          <div style="flex:1;">
+            <div class="place-selected-name">연남동</div>
+            <div class="place-selected-sub">마포구 연남동 일대</div>
+            <div class="place-badges">
+              <span class="chip chip-green" style="font-size:10px;"><div class="dot dot-green"></div>현재 여유</span>
+              <span class="chip chip-accent" style="font-size:10px;">🅿️ 주차 가능 · 23석</span>
+              <span class="chip chip-blue" style="font-size:10px;">🚻 화장실 5곳</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-label">소개글</div>
+        <textarea class="form-input" placeholder="모임을 소개해주세요. 어떤 활동을 하나요?"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-section">
+          <div class="form-label">모집 인원</div>
+          <div class="hc-row">
+            <button class="hc-btn">−</button>
+            <div class="hc-val">4</div>
+            <div style="font-size:14px;color:var(--text-sub);">명</div>
+            <button class="hc-btn">+</button>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-label">모임 일시</div>
+          <input type="datetime-local" class="form-input" style="color:var(--text);">
+        </div>
+      </div>
+
+      <div class="form-section" style="margin-bottom:0;">
+        <div class="form-label">태그</div>
+        <div class="tag-grid">
+          <button class="tag-select on">주차 가능</button>
+          <button class="tag-select on">조용한 카페</button>
+          <button class="tag-select">반려동물 동반</button>
+          <button class="tag-select">야외 활동</button>
+          <button class="tag-select">실내 위주</button>
+          <button class="tag-select">대중교통 추천</button>
+          <button class="tag-select">2시간 이내</button>
+          <button class="tag-select">식사 포함</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="goScreen('main')">모임 게시하기</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 4: 실시간 제보
+════════════════════════════════ -->
+<div id="screen-feed" class="screen">
+  <div class="feed-wrap">
+    <div class="feed-left">
+      <div class="feed-tabs">
+        <button class="feed-tab active">전체</button>
+        <button class="feed-tab">연남동</button>
+        <button class="feed-tab">강남</button>
+        <button class="feed-tab">성수</button>
+        <button class="feed-tab">홍대</button>
+      </div>
+
+      <button class="write-feed-btn">✏️ &nbsp;지금 현장 상황을 제보해주세요</button>
+
+      <div class="feed-list">
+        <div class="feed-item">
+          <div class="feed-top">
+            <div class="feed-avatar">🧑</div>
+            <div>
+              <div class="feed-author">user_42</div>
+              <div class="feed-time">방금 전</div>
+            </div>
+            <div class="feed-loc-tag">연남동</div>
+          </div>
+          <div class="feed-text">경의선 숲길 쪽은 지금 한산해요. 벤치 자리도 많고 카페도 대기 없이 들어갈 수 있어요 ☀️</div>
+          <div class="feed-actions">
+            <button class="react-btn active">👍 도움됐어요 12</button>
+            <button class="react-btn">💬 3</button>
+          </div>
+        </div>
+
+        <div class="feed-item">
+          <div class="feed-top">
+            <div class="feed-avatar">👩</div>
+            <div>
+              <div class="feed-author">seoul_walker</div>
+              <div class="feed-time">8분 전</div>
+            </div>
+            <div class="feed-loc-tag">강남역</div>
+          </div>
+          <div class="feed-text">강남역 10번 출구 앞 갑자기 이벤트 생겨서 사람 엄청 몰리기 시작해요! 피하시는 게 좋을 것 같아요 🚨</div>
+          <div class="feed-img">📸</div>
+          <div class="feed-actions">
+            <button class="react-btn">👍 도움됐어요 28</button>
+            <button class="react-btn active">💬 7</button>
+          </div>
+        </div>
+
+        <div class="feed-item">
+          <div class="feed-top">
+            <div class="feed-avatar">🧔</div>
+            <div>
+              <div class="feed-author">park_explorer</div>
+              <div class="feed-time">23분 전</div>
+            </div>
+            <div class="feed-loc-tag">서래마을</div>
+          </div>
+          <div class="feed-text">서래마을 공영주차장 토요일 오후 기준 아직 여유있어요. 지하 2층 많이 비어있음.</div>
+          <div class="feed-actions">
+            <button class="react-btn">👍 도움됐어요 9</button>
+            <button class="react-btn">💬 1</button>
+          </div>
+        </div>
+
+        <div class="feed-item">
+          <div class="feed-top">
+            <div class="feed-avatar">🧕</div>
+            <div>
+              <div class="feed-author">익선동러버</div>
+              <div class="feed-time">1시간 전</div>
+            </div>
+            <div class="feed-loc-tag">익선동</div>
+          </div>
+          <div class="feed-text">익선동 골목 현재 사람 꽤 많아짐. 주말 오후 피크는 2시~5시 정도인 것 같아요.</div>
+          <div class="feed-actions">
+            <button class="react-btn">👍 도움됐어요 16</button>
+            <button class="react-btn">💬 2</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="feed-right">
+      <div class="feed-sidebar-card">
+        <div class="feed-sidebar-title">실시간 급증 TOP 5</div>
+        <div class="hot-item"><span class="hot-rank r1">1</span><span class="hot-name">명동</span><span class="hot-chg chg-up">+42%</span></div>
+        <div class="hot-item"><span class="hot-rank r2">2</span><span class="hot-name">홍대입구</span><span class="hot-chg chg-up">+28%</span></div>
+        <div class="hot-item"><span class="hot-rank r3">3</span><span class="hot-name">강남역</span><span class="hot-chg chg-up">+19%</span></div>
+        <div class="hot-item"><span class="hot-rank">4</span><span class="hot-name">잠실</span><span class="hot-chg chg-up">+12%</span></div>
+        <div class="hot-item"><span class="hot-rank">5</span><span class="hot-name">서래마을</span><span class="hot-chg chg-dn">-8%</span></div>
+      </div>
+
+      <div class="feed-sidebar-card">
+        <div class="feed-sidebar-title">지역 필터</div>
+        <div class="loc-filter-list">
+          <button class="loc-filter active">전체 보기</button>
+          <button class="loc-filter">연남동 / 홍대</button>
+          <button class="loc-filter">강남 / 서초</button>
+          <button class="loc-filter">성수 / 건대</button>
+          <button class="loc-filter">종로 / 인사동</button>
+          <button class="loc-filter">잠실 / 송파</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════
+     SCREEN 5: 마이페이지
+════════════════════════════════ -->
+<div id="screen-my" class="screen">
+  <div class="my-wrap">
+    <div class="profile-card">
+      <div class="profile-avatar">😊</div>
+      <div style="flex:1;">
+        <div class="profile-name">연남동러버</div>
+        <div class="profile-handle">@연남동러버 · 서울</div>
+        <div class="profile-stats">
+          <div class="stat-item"><div class="stat-val">12</div><div class="stat-label">모임</div></div>
+          <div class="stat-item"><div class="stat-val">8</div><div class="stat-label">제보</div></div>
+          <div class="stat-item"><div class="stat-val">24</div><div class="stat-label">방문지</div></div>
+        </div>
+      </div>
+      <button class="btn-ghost">⚙️ 설정</button>
+    </div>
+
+    <div class="my-grid">
+      <!-- 매너점수 -->
+      <div class="my-card">
+        <div class="my-card-title">⭐ 매너 점수</div>
+        <div class="manner-row">
+          <div>
+            <div class="manner-score">87.4</div>
+            <div class="manner-desc">상위 15% · 매너왕 근접</div>
+          </div>
+          <span class="chip chip-green">↑ +2.1 이번주</span>
+        </div>
+        <div class="manner-bar-bg" style="margin-top:14px;">
+          <div class="manner-bar-fill" style="width:87%"></div>
+        </div>
+      </div>
+
+      <!-- 방문 기록 -->
+      <div class="my-card">
+        <div class="my-card-title">📍 방문 기록</div>
+        <div class="history-item" onclick="showVerify()" style="cursor:pointer;">
+          <div class="history-icon">🌳</div>
+          <div class="history-info">
+            <div class="history-title">연남동 방문 인증</div>
+            <div class="history-date">오늘 14:23</div>
+          </div>
+          <div class="history-score">+2 매너점수</div>
+        </div>
+        <div class="history-item">
+          <div class="history-icon">🏘️</div>
+          <div class="history-info">
+            <div class="history-title">서래마을 방문 인증</div>
+            <div class="history-date">어제 11:05</div>
+          </div>
+          <div class="history-score">+1 매너점수</div>
+        </div>
+        <div class="history-item">
+          <div class="history-icon">🎋</div>
+          <div class="history-info">
+            <div class="history-title">익선동 방문 인증</div>
+            <div class="history-date">3일 전 16:40</div>
+          </div>
+          <div class="history-score">+2 매너점수</div>
+        </div>
+      </div>
+
+      <!-- 획득 배지 -->
+      <div class="my-card" style="grid-column: 1 / -1;">
+        <div class="my-card-title">🏅 획득 배지</div>
+        <div class="badge-grid">
+          <div class="badge-item earned"><div class="badge-emoji">🌳</div><div class="badge-name">연남동 정복</div></div>
+          <div class="badge-item earned"><div class="badge-emoji">☕</div><div class="badge-name">카페 탐험가</div></div>
+          <div class="badge-item earned"><div class="badge-emoji">📡</div><div class="badge-name">첫 제보</div></div>
+          <div class="badge-item earned"><div class="badge-emoji">🤝</div><div class="badge-name">모임 주최 5회</div></div>
+          <div class="badge-item locked"><div class="badge-emoji">🏙️</div><div class="badge-name">서울 탐험가</div></div>
+          <div class="badge-item locked"><div class="badge-emoji">⭐</div><div class="badge-name">매너왕</div></div>
+          <div class="badge-item locked"><div class="badge-emoji">🗺️</div><div class="badge-name">25개 구 완주</div></div>
+          <div class="badge-item locked"><div class="badge-emoji">🌟</div><div class="badge-name">레전드</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── 방문 인증 팝업 ── -->
+<div class="verify-overlay" id="verifyOverlay">
+  <div class="verify-modal">
+    <div class="verify-title">방문 인증 📍</div>
+    <div class="verify-sub">현재 위치를 확인하고 인증합니다</div>
+    <div class="verify-place-box">
+      <div class="verify-place-name">연남동</div>
+      <div class="verify-gps">GPS 확인 중... 37.5614° N, 126.9244° E</div>
+    </div>
+    <button class="verify-btn" onclick="doVerify()">인증하기 (+2 매너점수)</button>
+    <button class="verify-cancel" onclick="hideVerify()">취소</button>
+  </div>
+</div>
+
+<!-- ── 인증 성공 ── -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-modal">
+    <div class="success-badge-big">🌳</div>
+    <div class="success-title">연남동 정복!</div>
+    <div class="success-sub">매너점수 +2 획득<br>'연남동 정복' 배지를 획득했습니다</div>
+    <button class="success-close" onclick="hideSuccess()">닫기</button>
+  </div>
+</div>
+
+
+<script>
+const screens = ['main','detail','create','feed','my'];
+const navMap = { main:'nav-main', feed:'nav-feed', create:'nav-create', my:'nav-my' };
+
+function goScreen(name) {
+  screens.forEach(s => document.getElementById('screen-'+s).classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+  if (navMap[name]) document.getElementById(navMap[name]).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showVerify() { document.getElementById('verifyOverlay').classList.add('show'); }
+function hideVerify() { document.getElementById('verifyOverlay').classList.remove('show'); }
+function doVerify() { hideVerify(); document.getElementById('successOverlay').classList.add('show'); }
+function hideSuccess() { document.getElementById('successOverlay').classList.remove('show'); }
+
+document.querySelectorAll('.tag-select').forEach(btn => {
+  btn.addEventListener('click', () => btn.classList.toggle('on'));
+});
+
+document.querySelectorAll('.feed-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+
+document.querySelectorAll('.loc-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.loc-filter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+document.querySelectorAll('.react-btn').forEach(btn => {
+  btn.addEventListener('click', () => btn.classList.toggle('active'));
+});
+</script>
+</body>
+</html>

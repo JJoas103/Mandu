@@ -1,7 +1,7 @@
 {
-  "name": "node-board",
+  "name": "board",
   "version": "1.0.0",
-  "description": "",
+  "description": "> 실시간 혼잡도 기반으로 서울 곳곳의 여유로운 동네에서 모임을 만들고 찾을 수 있는 플랫폼",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -13,13 +13,13 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
-    "dotenv": "^17.3.1",
-    "ejs": "^5.0.1",
+    "dotenv": "^17.4.2",
+    "ejs": "^5.0.2",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "express-validation": "^4.1.1",
     "express-validator": "^7.3.1",
-    "mongoose": "^9.3.3",
+    "mongoose": "^9.5.0",
     "multer": "^2.1.1",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
@@ -27,6 +27,16 @@
     "passport-naver-v2": "^2.0.8"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
-  }
+    "nodemon": "^3.1.14",
+    "prettier-plugin-ejs": "^1.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JJoas103/moyeobom.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/JJoas103/moyeobom/issues"
+  },
+  "homepage": "https://github.com/JJoas103/moyeobom#readme"
 }
