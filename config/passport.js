@@ -1,5 +1,6 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;//인증 방법 정의 - 로컬
+<<<<<<< HEAD
 const GoogleStrategy = require('passport-google-oauth20').Strategy;//인증 방법 정의 - 구글
 const NaverStrategy = require('passport-naver-v2').Strategy;//인증 방법 정의 - 네이버
 const bcrypt = require('bcrypt');
@@ -18,17 +19,38 @@ passport.use(new LocalStrategy({
             //null: 서버에러가 아님 / false: 인증 실패
         }
         //비밀번호 일치확인
+=======
+const bcrypt = require('bcrypt');
+const userService = require('../services/userService');
+
+passport.use(new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password'
+}, async(email, password, done) => {
+    try {
+        const user = await userService.findUserByEmail(email);
+        if(!user){
+            return done(null, false, {message : '이메일 또는 비밀번호가 일치하지 않습니다'});
+            //null: 서버에러가 아님 / false : 인증 실패
+        }
+        //비밀번호 일치 확인
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
         const isMatch = await bcrypt.compare(password, user.password);
         if(!isMatch){
             return done(null, false, {message : '비밀번호가 일치하지 않습니다'});
         }
+<<<<<<< HEAD
         done(null, user);// 인증 성공 사용자 객체 반환
 
+=======
+        done(null, user);
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
     } catch (error) {
         return done(error);//서버 오류(DB 연결 실패 등)
     }
 }));
 
+<<<<<<< HEAD
 // 구글 로그인
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -93,18 +115,27 @@ passport.use(new NaverStrategy({
     }
 }));
 // 세션에 인증된 사용자 정보 쿠키에 저장
+=======
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 
+<<<<<<< HEAD
 // 쿠키에 저장된 정보를 토대로 DB에서 인증된 사용자인지 확인
+=======
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await userService.findUserById(id);
         done(null, user);
     } catch (error) {
         done(error);
+<<<<<<< HEAD
     }   
+=======
+    }
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
 });
 
 module.exports = passport;

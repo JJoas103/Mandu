@@ -1,8 +1,15 @@
 {
+<<<<<<< HEAD
   "name": "board",
   "version": "1.0.0",
   "description": "> 실시간 혼잡도 기반으로 서울 곳곳의 여유로운 동네에서 모임을 만들고 찾을 수 있는 플랫폼",
   "main": "index.js",
+=======
+  "name": "moyeobom",
+  "version": "1.0.0",
+  "description": "> 실시간 혼잡도 기반으로 서울 곳곳의 여유로운 동네에서 모임을 만들고 찾을 수 있는 플랫폼",
+  "main": "app.js",
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
@@ -11,12 +18,17 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+<<<<<<< HEAD
+=======
+  "type": "commonjs",
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
   "dependencies": {
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "ejs": "^5.0.2",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
+<<<<<<< HEAD
     "express-validation": "^4.1.1",
     "express-validator": "^7.3.1",
     "mongoose": "^9.5.0",
@@ -39,4 +51,16 @@
     "url": "https://github.com/JJoas103/moyeobom/issues"
   },
   "homepage": "https://github.com/JJoas103/moyeobom#readme"
+=======
+    "express-validator": "^7.3.2",
+    "mongodb": "^7.2.0",
+    "mongoose": "^9.5.0",
+    "npm": "^11.12.1",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
 }
