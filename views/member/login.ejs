@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-	<!-- 헤더 -->
-    <%- include('../partials/header') %>
-=======
 <!doctype html>
 <html lang="ko">
 <head>
@@ -13,44 +9,13 @@
 </head>
 <body>
 
-	<!-- 헤더 -->
 	<%- include('../partials/header') %>
->>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
 
 	<main class="container my-4">
 		<div class="row justify-content-center">
 			<div class="col-md-6 col-lg-5">
 				<div class="card shadow-sm">
 					<div class="card-body p-4">
-<<<<<<< HEAD
-						<h4 class="mb-3">로그인</h4>
-						
-						<form action="/member/login" method="post">
-
-							<% if(errorMessage) { %>
-								<div class="alert alert-danger"><%= errorMessage %></div>
-							<% } %>
-
-							<div class="mb-3">
-								<label for="member_email" class="form-label">이메일</label> 
-								<input type="email" class="form-control" name="email" id="member_email" placeholder="이메일을 입력하세요">
-							</div>
-							<div class="mb-3">
-								<label for="member_pass" class="form-label">비밀번호</label> 
-								<input type="password" class="form-control" name="password" id="member_pass" placeholder="비밀번호를 입력하세요" >
-							</div>
-							<div class="d-grid gap-2">
-								<input class="btn btn-brand" type="submit" value="로그인">
-							</div>
-						</form>
-
-						<hr class="my-3">
-						<div class="d-grid gap-2">
-							<a href="/auth/google" class="btn btn-outline-danger">Google로 로그인</a>
-							<a href="/auth/kakao" class="btn btn-warning">카카오로 로그인</a>
-							<a href="/auth/naver" class="btn btn-success">네이버로 로그인</a>
-						</div>
-=======
 						<div class="text-center mb-4">
 							<div style="font-size:48px;">🌿</div>
 							<h4 class="mt-2">모여봄 로그인</h4>
@@ -58,6 +23,10 @@
 						</div>
 
 						<form action="/member/login" method="post">
+							<% if(locals.errorMessage) { %>
+								<div class="alert alert-danger py-2 small"><%= errorMessage %></div>
+							<% } %>
+
 							<div class="mb-3">
 								<label for="member_email" class="form-label">이메일</label>
 								<input type="email" class="form-control" name="email" id="member_email" placeholder="이메일을 입력하세요" required>
@@ -67,47 +36,30 @@
 								<input type="password" class="form-control" name="password" id="member_pass" placeholder="비밀번호를 입력하세요" required>
 							</div>
 
-							<div class="form-check mb-3">
-								<input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
-								<label class="form-check-label small" for="rememberMe">로그인 상태 유지</label>
-							</div>
-
-							<div class="d-grid gap-2 mb-3">
+							<div class="d-grid gap-2 mb-4">
 								<button type="submit" class="btn btn-brand btn-lg">로그인</button>
 							</div>
                             
-                            <div class="d-grid gap-2">
+                            <div class="d-grid gap-2 mb-3">
                                 <a href="/auth/google" class="btn btn-outline-danger">Google로 로그인</a>
                                 <a href="/auth/naver" class="btn btn-success">네이버로 로그인</a>
                             </div>
+
                             <hr class="my-3">
 
 							<div class="text-center small">
-								<a href="#" class="text-decoration-none text-muted">비밀번호 찾기</a>
-								<span class="text-muted">·</span>
-								<a href="/member/join" class="text-decoration-none" style="color:var(--brand);">회원가입</a>
+								<span class="text-muted">아직 회원이 아니신가요?</span>
+								<a href="/member/join" class="text-decoration-none fw-bold" style="color:var(--brand);">회원가입</a>
 							</div>
 						</form>
-
->>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
 					</div>
 				</div>
 			</div>
 		</div>
 	</main>
 
-<<<<<<< HEAD
-    <!-- 푸터 -->
     <%- include('../partials/footer') %>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
-=======
-	<!-- 푸터 -->
-    <%- include('../partials/footer') %>
-
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
->>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
 </html>

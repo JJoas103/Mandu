@@ -1,0 +1,33 @@
+<%- include('../partials/header') %>
+
+<main class="container my-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h4 class="mb-4">📡 실시간 제보하기</h4>
+          <form action="/feed/write" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label class="form-label">📍 장소 태그 <span class="text-danger">*</span></label>
+              <input type="text" name="locationTag" class="form-control" placeholder="예: 연남동 경의선 숲길" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">내용 <span class="text-danger">*</span></label>
+              <textarea name="content" class="form-control" rows="5" placeholder="현재 장소의 분위기, 혼잡도 등을 공유해주세요" required></textarea>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">사진 첨부</label>
+              <input type="file" name="uploadFile" class="form-control" accept="image/*" />
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-brand btn-lg">제보 등록</button>
+              <a href="/feed/list" class="btn btn-outline-secondary">취소</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

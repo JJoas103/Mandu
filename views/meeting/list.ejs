@@ -1,91 +1,75 @@
-	<!-- 헤더 -->
-    <%- include('../partials/header') %>
+<%- include('../partials/header') %>
 
-<!-- 메인 -->
-	<main class="container my-4">
+<main class="container my-4">
+  <!-- 히어로 -->
+  <section class="hero p-5 mb-4">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <h1 class="display-5 mb-3">모임 게시판</h1>
+        <p class="lead">여유로운 시간대, 한산한 동네에서 함께할 사람을 찾아보세요</p>
+      </div>
+      <div class="col-lg-5 d-none d-lg-block text-center">
+        <div style="font-size: 100px">🤝</div>
+      </div>
+    </div>
+  </section>
 
-		<!-- 히어로 -->
-		<section class="hero p-5 mb-4">
-			<div class="row align-items-center">
-				<div class="col-lg-7">
-					<h1 class="display-5 mb-3">모임 게시판</h1>
-					<p class="lead">여유로운 시간대, 한산한 동네에서 함께할 사람을 찾아보세요</p>
-				</div>
-				<div class="col-lg-5 d-none d-lg-block text-center">
-					<div style="font-size:100px;">🤝</div>
-				</div>
-			</div>
-		</section>
+  <!-- 필터 + 글쓰기 -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div class="d-flex flex-wrap gap-2">
+      <a href="/meeting/list" class="btn btn-brand active-board">전체</a>
+      <a href="/meeting/list?status=recruit" class="btn btn-outline-brand">모집중</a>
+    </div>
+    <a class="btn btn-lg btn-brand" href="/meeting/write">+ 모임 만들기</a>
+  </div>
 
-		<!-- 필터 + 글쓰기 -->
-		<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-			<div class="d-flex flex-wrap gap-2">
-				<a href="meeting_list.html"                 class="btn btn-brand active-board">전체</a>
-				<a href="meeting_list.html?status=recruit"  class="btn btn-outline-brand">모집중</a>
-				<a href="meeting_list.html?status=full"     class="btn btn-outline-brand">마감임박</a>
-				<a href="meeting_list.html?area=uncrowded"  class="btn btn-outline-brand">🌿 한산한 지역만</a>
-			</div>
-			<a class="btn btn-lg btn-brand" href="./write">+ 모임 만들기</a>
-		</div>
+  <hr class="my-4" />
 
-		<!-- 검색 -->
-		<form action="meeting_list.html" method="get" class="d-flex gap-2 mb-4">
-			<select name="area" class="form-select" style="max-width:180px;">
-				<option value="">지역 전체</option>
-				<option value="마포구">마포구</option>
-				<option value="종로구">종로구</option>
-				<option value="강남구">강남구</option>
-				<option value="성동구">성동구</option>
-				<option value="서초구">서초구</option>
-			</select>
-			<input type="text" name="keyword" class="form-control" placeholder="🔍 모임 제목·태그 검색">
-			<button type="submit" class="btn btn-brand">검색</button>
-		</form>
+  <!-- 모임 카드 목록 -->
+  <div class="row g-3">
+    <% if(meetings.length === 0) { %>
+    <div class="col-12 text-center py-5">
+      <p class="text-muted">현재 등록된 모임이 없습니다.</p>
+    </div>
+    <% } %>
+    <% meetings.forEach(meeting => { %>
+    <div class="col-md-6">
+      <a href="/meeting/info/<%= meeting._id %>" class="text-decoration-none text-dark">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+              <h6 class="card-title mb-0"><%= meeting.title %></h6>
+              <span class="chip chip-green"><span class="dot dot-green"></span><%= meeting.congestionLevel %></span>
+            </div>
+            <div class="small text-muted mb-2">
+              📍 <%= meeting.area %> · <%= meeting.meetingDate ? new Date(meeting.meetingDate).toLocaleDateString() : '' %> · 
+              <%= meeting.participants.length %>/<%= meeting.maxParticipants %>명
+            </div>
+            <p class="small mb-2 text-truncate"><%= meeting.content %></p>
+            <div>
+              <% meeting.tags.forEach(tag => { %>
+              <span class="tag-soft"><%= tag %></span>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      </a>
+    </div>
+    <% }) %>
+  </div>
 
-		<hr class="my-4">
+  <!-- 페이징 -->
+  <% if(totalPages > 1) { %>
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center">
+      <% for(let i=1; i<=totalPages; i++) { %>
+      <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+        <a class="page-link" href="/meeting/list?page=<%= i %>"><%= i %></a>
+      </li>
+      <% } %>
+    </ul>
+  </nav>
+  <% } %>
+</main>
 
-		<!-- 모임 카드 목록 생성 -->
-		<div class="row g-3">
-			<% meetings.forEach(meeting => { %>
-			<div class="col-md-6">
-				<a href="meeting_info.html?meeting_id=1" class="text-decoration-none text-dark">
-					<div class="card h-100 shadow-sm">
-						<div class="card-body">
-							<div class="d-flex justify-content-between mb-2">
-								<h6 class="card-title mb-0"><%= meeting.title %></h6>
-								<span class="chip chip-green"><span class="dot dot-green"></span><%= meeting.congestionLevel %></span>
-							</div>
-							<div class="small text-muted mb-2">📍 <%=meeting.area%> · <%= meeting.meetingDate.toLocaleDateString() %> · <%=meeting.participants.length%>/<%=meeting.maxParticipants%>명</div>
-							<p class="small mb-2"><%=meeting.content %></p>
-							<div>
-								<% meeting.tags.forEach(tag => { %>
-								<span class="tag-soft"><%= tag %></span>
-								<% }) %>
-							</div>
-						</div>
-					</div>
-				</a>
-			</div>
-			<% }) %>
-		</div>
-
-		<!-- 페이징 -->
-		<nav class="mt-4">
-			<ul class="pagination justify-content-center">
-				<li class="page-item"><a class="page-link" href="?page=${pageBean.prevPage}">이전</a></li>
-				<li class="page-item active"><a class="page-link" href="?page=1">1</a></li>
-				<li class="page-item"><a class="page-link" href="?page=2">2</a></li>
-				<li class="page-item"><a class="page-link" href="?page=3">3</a></li>
-				<li class="page-item"><a class="page-link" href="?page=4">4</a></li>
-				<li class="page-item"><a class="page-link" href="?page=5">5</a></li>
-				<li class="page-item"><a class="page-link" href="?page=${pageBean.nextPage}">다음</a></li>
-			</ul>
-		</nav>
-	</main>
-
-    <!-- 푸터 -->
-    <%- include('../partials/footer') %>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
-</html>
+<%- include('../partials/footer') %>

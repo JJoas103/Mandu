@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
-<<<<<<< HEAD
-const userScema = new mongoose.Schema(
+const userSchema = new mongoose.Schema(
     {
         email: {
             type: String,
@@ -11,9 +10,15 @@ const userScema = new mongoose.Schema(
         password: {
             type: String
         },
-        name: {
+        nickname: {
             type: String,
-            required: true
+            required: true,
+            unique: true
+        },
+        city: {
+            type: String,
+            enum: ['서울', '경기', '인천', '기타'],
+            default: '서울'
         },
         address: {
             type: String
@@ -22,10 +27,18 @@ const userScema = new mongoose.Schema(
             type: String,
             default: 'default-profile.png'
         },
-        provider : {
-            type : String,
-            enum : ['local', 'google', 'naver'],
-            default : 'local'
+        avatar_emoji: {
+            type: String,
+            default: '😊'
+        },
+        manner_score: {
+            type: Number,
+            default: 50.00
+        },
+        provider: {
+            type: String,
+            enum: ['local', 'google', 'naver'],
+            default: 'local'
         }
     }, 
     {
@@ -33,49 +46,5 @@ const userScema = new mongoose.Schema(
     }
 );
 
-const User = mongoose.model('User', userScema);
-module.exports = User;
-
-=======
-const userSchema = new mongoose.Schema(
-    {
-        email : {
-            type : String,
-            require : true,
-            unique : true
-        },
-        password : {
-            type : String,
-            require : true
-        },     
-        nickname : {
-            type : String,
-            require : true,
-            unique : true
-        },
-        city : {
-            type : String,
-            enum : ['서울', '경기', '인천', '기타'],
-            default : '서울'
-        },
-        avatar_emoji : {
-            type : String,
-            default : '😊'
-        },
-        manner_score : {
-            type : Number,
-            default : 50.00
-        },
-        manner_rank : {
-            type : String,
-            default : null
-        },
-          
-    },{
-        timestamps : true
-    }
-);
-
 const User = mongoose.model('User', userSchema);
 module.exports = User;
->>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
