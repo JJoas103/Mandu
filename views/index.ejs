@@ -48,23 +48,9 @@
 					 </div>
 				</div>
 				<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%= process.env.KAKAO_MAP_API %>"></script>
-				<script>
-					var mapContainer = document.getElementById('map');
-					const lat = 37.5665;
-					const lng = 126.9780;
-					var mapOption = {
-						center : new kakao.maps.LatLng(lat, lng),
-						level : 8
-					};
-					var map = new kakao.maps.Map(mapContainer, mapOption);	//지도 생성
-					
-					var markerPosition = new kakao.maps.LatLng(lat, lng);//마커 표시 좌표값
-					var marker = new kakao.maps.Marker({
-						position: markerPosition
-					});
-
-					marker.setMap(map);
-				</script>
+				<!-- 마커 자바스크립트 -->
+				<div id="markerInfo" data-markers='<%- JSON.stringify(markerInfo) %>'></div>
+				<script src="/js/main.js"></script>	
 			</div>
 
 			<!-- 실시간 급증 TOP 패널 -->

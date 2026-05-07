@@ -18,4 +18,13 @@ const getLocation = async (req, res, next) => {
         next(error);
     }
 }
-module.exports = { getMapView };
+
+const getMarker = async (req, res, next) => {
+    try {
+        const markerInfo = await placeService.getAllMarker();
+        res.render('index', { markerInfo });
+    } catch (error) {
+        next(error);
+    }
+}
+module.exports = { getMapView, getMarker };

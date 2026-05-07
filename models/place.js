@@ -10,8 +10,7 @@ const placeSchema = new mongoose.Schema(
         eng_name : {type: String},
         latitude : {type: Number},
         longitude : {type: Number},
-        congestion_level : {enum: ['여유', '보통', '혼잡'], default: '보통'},
-        congestion_desc : {type: String , default: null},
+        congest_lvl : {type: String},
     },{
         timestamps: true
     }
