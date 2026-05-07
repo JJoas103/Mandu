@@ -21,4 +21,5 @@ router.post('/login', passport.authenticate('local', {
 //로그아웃 처리
 router.get('/logout', userController.logout);
 
+
 module.exports = router;
