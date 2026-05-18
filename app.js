@@ -12,6 +12,7 @@ const app = express();
 
 //라우터/미들웨어 import
 const userRouter = require('./routes/userRouter');
+const mainRouter = require('./routes/mainRouter');
 
 const { notFoundHandler, errorHandler } = require('./middlewares/errorMiddleware')
 //DB 연결
@@ -44,6 +45,7 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
     res.render('index', {title : '메인페이지'});
 });
+app.use('/', mainRouter);
 app.use('/member', userRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);

@@ -33,6 +33,14 @@ const userSchema = new mongoose.Schema(
             type : String,
             default : null
         },
+        // 알림 설정 필드 추가
+        congestion_alert: { type: String, default: 'uncrowded' },
+        notify_start: { type: String, default: '08:00' },
+        notify_end: { type: String, default: '22:00' },
+        alert_meeting: { type: Boolean, default: true },
+        alert_comment: { type: Boolean, default: true },
+        alert_badge: { type: Boolean, default: true },
+        alert_marketing: { type: Boolean, default: false }
           
     },{
         timestamps : true
