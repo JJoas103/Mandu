@@ -1,11 +1,10 @@
 const mongoose = require('mongoose');
-
 const placeSchema = new mongoose.Schema(
     {
         area_cd: {
             type: String, require: true, unique: true
         },
-        categoey: {type: String},
+        category: {type: String},
         name : {type: String, requie: true},
         eng_name : {type: String},
         latitude : {type: Number},
@@ -17,4 +16,4 @@ const placeSchema = new mongoose.Schema(
 );
  
 const Place = mongoose.model('Place', placeSchema);
-module.exports = Place;
+module.exports = Place; 

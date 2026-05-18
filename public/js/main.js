@@ -31,7 +31,7 @@ var mk_img_crowded = "./images/marker_crowdede.png";
 //마커 표시 
 for(var i=0; i< positions.length; i++){
     //마커 이미지의 이미지크기
-    var imageSize = new kakao.maps.Size(24,35);
+    var imageSize = new kakao.maps.Size(50,50);
     //마커 이미지 생성
     if(positions[i].congest_lvl == '혼잡'){
         var markerImage = new kakao.maps.MarkerImage(mk_img_crowded, imageSize);
