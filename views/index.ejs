@@ -41,16 +41,15 @@
 			<div class="col-lg-9">
 				<div class="map-wrap" id="map">
 					<!-- 범례 -->
-					 <div class="map-legend">
-						<span><span class="dot dot-green"></span>여유</span>
-						<span><span class="dot dot-yellow"></span>보통</span>
-						<span><span class="dot dot-red"></span>혼잡</span>
-					 </div>
+					<div class="map-legend">
+						<span><span class="dot dot-green"></span> 여유</span>
+						<span><span class="dot dot-yellow"></span> 보통</span>
+						<span><span class="dot dot-red"></span> 혼잡</span>
+					</div>
 				</div>
 				<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%= process.env.KAKAO_MAP_API %>"></script>
-				<!-- 마커 자바스크립트 -->
 				<div id="markerInfo" data-markers='<%- JSON.stringify(markerInfo) %>'></div>
-				<script src="/js/main.js"></script>	
+				<script src="/js/main.js"></script>
 			</div>
 
 			<!-- 실시간 급증 TOP 패널 -->
@@ -195,5 +194,6 @@
 	<!-- 푸터 -->
     <%- include('partials/footer') %>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	
 </body>
 </html>
