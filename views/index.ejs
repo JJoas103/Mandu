@@ -48,14 +48,8 @@
 					</div>
 				</div>
 				<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%= process.env.KAKAO_MAP_API %>"></script>
-				<script>
-					var mapContainer = document.getElementById('map');
-					var mapOption = {
-						center: new kakao.maps.LatLng(37.5665, 126.9780),
-						level: 8
-					};
-					var map = new kakao.maps.Map(mapContainer, mapOption);
-				</script>
+				<div id="markerInfo" data-markers='<%- JSON.stringify(markerInfo) %>'></div>
+				<script src="/js/main.js"></script>
 			</div>
 
 			<!-- 실시간 급증 TOP 패널 -->
