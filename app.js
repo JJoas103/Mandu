@@ -42,6 +42,9 @@ app.use((req, res, next) => {
 })
 
 //라우터 등록
+app.get('/', (req, res) => {
+    res.render('index', {title : '메인페이지'});
+});
 app.use('/', mainRouter);
 app.use('/member', userRouter);
 app.use(notFoundHandler);

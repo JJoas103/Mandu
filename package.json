@@ -6,15 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "dev": "nodemon app.js",
-    "seed:places": "node scripts/seedPlaces.js"
+    "dev": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "axios": "^1.16.0",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "ejs": "^5.0.2",
@@ -25,9 +23,7 @@
     "mongoose": "^9.5.0",
     "npm": "^11.12.1",
     "passport": "^0.7.0",
-    "passport-local": "^1.0.0",
-    "xml2js": "^0.6.2",
-    "xlsx": "^0.18.5"
+    "passport-local": "^1.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

@@ -1,10 +1,12 @@
-const Place = require("../models/place");
+const axios = require('axios');
 
-async function getAllMarker(){
-    const markerInfo = await Place.find({})
-                            .select('name latitude longitude congest_lvl')
-                            .sort({updatedAt : -1});
-    return markerInfo;
+async function getCityData(areaNm) {
+    const apiKey = process.env.SEOUL_RTD_API;
+    const url = `http://openapi.seoul.go.kr:8088/${apiKey}/json/citydata/1/1/${encodeURIComponent(areaNm)}`;
+
+    const response = await axios.get(url);
+    const data = response.data.CITYDATA;
+    return data;
 }
 
-module.exports = { getAllMarker };
+module.exports = { getCityData };
