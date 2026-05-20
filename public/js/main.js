@@ -1,7 +1,7 @@
 const appDiv = document.getElementById('markerInfo');
 const markerInfo = JSON.parse(appDiv.dataset.markers);
 
-console.log(markerInfo);
+//console.log(markerInfo);
 var mapContainer = document.getElementById('map');
 
 const lat = 37.5665;

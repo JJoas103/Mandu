@@ -1,30 +1,15 @@
 const placeService = require('../services/placeService');
+const placeApiService = require('../services/placeApiService');
 
-const getMapView = async (req, res, next) => {
-    try {
-        const Mapview = await placeService.getMapView();
-        res.render('/', { Mapview });
-    } catch(error) {
-        next(error);
-    }
-}
+// const getMarker = async (req, res, next) => {
+//     try {
+//         const markerInfo = await placeService.getAllMarker();
+//         const relaxedPlaces = await placeService.getRelaxedPlaces();
+//         res.render('index', { markerInfo, relaxedPlaces });
+//         console.log(relaxedPlaces);
+//     } catch (error) {
+//         next(error);
+//     }
+// }
 
-const getLocation = async (req, res, next) => {
-
-    try {
-        const Location = await placeService.getLocation();
-        res.render('/', { Location });
-    } catch(error) {
-        next(error);
-    }
-}
-
-const getMarker = async (req, res, next) => {
-    try {
-        const markerInfo = await placeService.getAllMarker();
-        res.render('index', { markerInfo });
-    } catch (error) {
-        next(error);
-    }
-}
-module.exports = { getMapView, getMarker };
+// module.exports = { getMarker };

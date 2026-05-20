@@ -91,51 +91,21 @@
 			<h5 class="mb-0">🌿 지금 한산한 명소</h5>
 			<a href="#" class="small text-decoration-none" style="color:var(--brand);">전체보기</a>
 		</div>
+
 		<div class="row g-3 mb-4">
+			<% placeInfoLimt.forEach(place => { %>
 			<div class="col-md-3 col-6">
-				<a href="place_info.html?place_id=1" class="text-decoration-none text-dark">
+				<a href="#" class="text-decoration-none text-dark">
 					<div class="card h-100 shadow-sm">
 						<div class="placeholder-img">🌳</div>
 						<div class="card-body">
-							<h6 class="card-title mb-1">연남동</h6>
-							<span class="chip chip-green"><span class="dot dot-green"></span> 여유</span>
+							<h6 class="card-title mb-1"><%= place.name %></h6>
+							<span class="chip chip-green"><span class="dot dot-green"></span><%= place.congest_lvl %></span>
 						</div>
 					</div>
 				</a>
 			</div>
-			<div class="col-md-3 col-6">
-				<a href="place_info.html?place_id=4" class="text-decoration-none text-dark">
-					<div class="card h-100 shadow-sm">
-						<div class="placeholder-img">🏘️</div>
-						<div class="card-body">
-							<h6 class="card-title mb-1">서래마을</h6>
-							<span class="chip chip-green"><span class="dot dot-green"></span> 여유</span>
-						</div>
-					</div>
-				</a>
-			</div>
-			<div class="col-md-3 col-6">
-				<a href="place_info.html?place_id=7" class="text-decoration-none text-dark">
-					<div class="card h-100 shadow-sm">
-						<div class="placeholder-img">🌸</div>
-						<div class="card-body">
-							<h6 class="card-title mb-1">성수동</h6>
-							<span class="chip chip-yellow"><span class="dot dot-yellow"></span> 보통</span>
-						</div>
-					</div>
-				</a>
-			</div>
-			<div class="col-md-3 col-6">
-				<a href="place_info.html?place_id=8" class="text-decoration-none text-dark">
-					<div class="card h-100 shadow-sm">
-						<div class="placeholder-img">🎋</div>
-						<div class="card-body">
-							<h6 class="card-title mb-1">익선동</h6>
-							<span class="chip chip-yellow"><span class="dot dot-yellow"></span> 보통</span>
-						</div>
-					</div>
-				</a>
-			</div>
+			<% }) %>
 		</div>
 
 		<hr class="my-4">

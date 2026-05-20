@@ -7,4 +7,12 @@ async function getAllMarker(){
     return markerInfo;
 }
 
-module.exports = { getAllMarker };
+async function getPlaceInfoLimt() {
+    const placeInfoLimt = await Place.find({ congest_lvl: '여유'})
+                            .select('name congest_lvl')
+                            .sort({updateAt : -1})
+                            .limit(4);
+    return placeInfoLimt;
+}   
+
+module.exports = { getAllMarker, getPlaceInfoLimt };

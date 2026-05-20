@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const placeController = require('../controllers/placeController');
+const mainController = require('../controllers/mainController');
 
-router.get('/', placeController.getMarker);
+router.get('/', mainController.getPlaceInfo);
 
 module.exports = router;
