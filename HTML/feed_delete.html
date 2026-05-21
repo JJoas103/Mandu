@@ -5,80 +5,91 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>제보 삭제 - 모여봄</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-	<link href="css/style.css" rel="stylesheet">
+	<link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
 
-	<!-- 헤더 -->
-	<nav class="navbar navbar-expand-lg">
-		<div class="container">
-			<a class="navbar-brand" href="index.html">🌿 모여봄</a>
-			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="nav">
-				<ul class="navbar-nav me-auto">
-					<li class="nav-item"><a class="nav-link" href="index.html">지도 탐색</a></li>
-					<li class="nav-item"><a class="nav-link" href="meeting_list.html">모임 게시판</a></li>
-					<li class="nav-item"><a class="nav-link active" href="feed_list.html">실시간 제보</a></li>
-				</ul>
-				<ul class="navbar-nav ms-auto">
-					<li class="nav-item"><a class="nav-link" href="member_info.html">마이페이지</a></li>
-					<li class="nav-item"><a class="nav-link" href="member_login.html">로그아웃</a></li>
-					<li class="nav-item"><a class="nav-link" href="member_login.html">로그인</a></li>
-					<li class="nav-item"><a class="nav-link" href="member_join.html">회원가입</a></li>
-				</ul>
-			</div>
-		</div>
-	</nav>
+<nav class="navbar navbar-expand-lg">
+	<div class="container">
+		<a class="navbar-brand" href="/">🌿 모여봄</a>
+	</div>
+</nav>
 
-	<main class="container my-4">
-		<div class="row justify-content-center">
-			<div class="col-md-7 col-lg-6">
-				<div class="card shadow-sm">
-					<div class="card-body p-4">
-						<h4 class="mb-3">제보 삭제</h4>
-						<p class="text-muted mb-4">제보를 삭제하면 댓글도 함께 삭제되며, 되돌릴 수 없습니다.</p>
+<main class="container my-4">
+	<div class="row justify-content-center">
+		<div class="col-lg-7">
+			<div class="card shadow-sm">
+				<div class="card-body p-4">
+					<h4 class="mb-3 text-danger">제보 삭제</h4>
+					<p class="text-muted">아래 제보를 정말 삭제하시겠습니까?</p>
 
-						<form action="/feed/delete" method="post"
-							onsubmit="return confirm('정말로 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
-
-							<input type="hidden" name="feed_id" value="${feed.feed_id}">
-
-							<div class="mb-3">
-								<label class="form-label">비밀번호 확인 <span class="text-danger">*</span></label>
-								<input type="password" class="form-control" name="password" placeholder="비밀번호를 입력하세요" required>
-								<div class="form-text text-danger">비밀번호가 일치하지 않습니다</div>
-							</div>
-
-							<div class="form-check mb-3">
-								<input class="form-check-input" type="checkbox" id="showPwChk" onchange="togglePassword()">
-								<label class="form-check-label" for="showPwChk">비밀번호 표시</label>
-							</div>
-
-							<div class="d-grid gap-2">
-								<button type="submit" class="btn btn-outline-danger">삭제하기</button>
-								<a href="feed_info.html?feed_id=1" class="btn btn-outline-secondary">취소</a>
-							</div>
-						</form>
+					<div id="feedPreview" class="border rounded p-3 mb-4">
+						제보 정보를 불러오는 중입니다...
 					</div>
+
+					<form action="/feed/delete" method="post">
+						<input type="hidden" name="feed_id" id="feed_id">
+						<div class="d-flex gap-2">
+							<button type="submit" class="btn btn-danger btn-lg">삭제하기</button>
+							<a id="cancelBtn" class="btn btn-outline-secondary btn-lg" href="/feed">취소</a>
+						</div>
+					</form>
+
 				</div>
 			</div>
 		</div>
-	</main>
+	</div>
+</main>
 
-	<footer class="py-4 mt-5">
-		<div class="container text-center footer">
-			<div class="small">© 2025 모여봄 · 1조 프로젝트</div>
-		</div>
-	</footer>
+<script>
+	function getFeedId() {
+		return new URLSearchParams(window.location.search).get('feed_id');
+	}
 
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-	<script>
-		function togglePassword() {
-			const pw = document.querySelector('input[name="password"]');
-			pw.type = pw.type === 'password' ? 'text' : 'password';
+	function escapeHtml(text) {
+		return String(text || '')
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;')
+			.replaceAll("'", '&#039;');
+	}
+
+	async function loadFeed() {
+		const feedId = getFeedId();
+
+		if (!feedId) {
+			alert('제보 ID가 없습니다.');
+			location.href = '/feed';
+			return;
 		}
-	</script>
+
+		const response = await fetch(`/feed/api/${feedId}`);
+		const result = await response.json();
+
+		if (!result.success) {
+			alert('제보를 찾을 수 없습니다.');
+			location.href = '/feed';
+			return;
+		}
+
+		const feed = result.feed;
+
+		document.getElementById('feed_id').value = feed._id;
+		document.getElementById('cancelBtn').href = `/feed/info?feed_id=${feed._id}`;
+
+		document.getElementById('feedPreview').innerHTML = `
+			<div class="mb-2">
+				<span class="badge bg-success">${escapeHtml(feed.category)}</span>
+				<span class="badge bg-secondary">${escapeHtml(feed.place_name)}</span>
+			</div>
+			<p class="mb-0">${escapeHtml(feed.content)}</p>
+		`;
+	}
+
+	loadFeed();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

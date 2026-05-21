@@ -13,6 +13,7 @@ const app = express();
 //라우터/미들웨어 import
 const userRouter = require('./routes/userRouter');
 const mainRouter = require('./routes/mainRouter');
+const feedRouter = require('./routes/feedRouter');
 
 const { notFoundHandler, errorHandler } = require('./middlewares/errorMiddleware')
 //DB 연결
@@ -25,6 +26,7 @@ app.set('views', path.join(__dirname, "views"));
 //미들웨어
 app.use(express.static(path.join(__dirname, 'public')));//정적 파일
 app.use(express.urlencoded({extended : true}));
+app.use(express.json());
 
 //세션 설정
 app.use(session({
@@ -39,13 +41,15 @@ app.use(passport.session()); //세션 미들웨어 추가
 app.use((req, res, next) => {
     res.locals.user = req.user || null;
     next();
-})
+});
 
 //라우터 등록
 app.use('/', mainRouter);
 app.use('/member', userRouter);
+app.use('/feed', feedRouter);
 app.use(notFoundHandler);
 app.use(errorHandler);
+
 //서버 시작
 app.listen(3000, () => {
     console.log('서버 실행 중: http://localhost:3000');
