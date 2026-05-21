@@ -1,0 +1,74 @@
+<%- include('../partials/header') %>
+
+<main class="container my-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-4">
+        <% if(feed.image) { %>
+        <img src="/images/upload/<%= feed.image %>" class="card-img-top" alt="제보 이미지">
+        <% } %>
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-3">
+            <span class="fs-2 me-2"><%= feed.author.avatar_emoji %></span>
+            <div>
+              <div class="fw-bold"><%= feed.author.nickname %></div>
+              <div class="text-muted small">📍 <%= feed.locationTag %> · <%= new Date(feed.createdAt).toLocaleString() %></div>
+            </div>
+            <% if(user && user.id === feed.author._id.toString()) { %>
+            <div class="ms-auto">
+              <a href="/feed/modify/<%= feed._id %>" class="btn btn-sm btn-outline-secondary">수정</a>
+              <form action="/feed/delete/<%= feed._id %>" method="post" class="d-inline" onsubmit="return confirm('정말 삭제하시겠습니까?')">
+                <button type="submit" class="btn btn-sm btn-outline-danger">삭제</button>
+              </form>
+            </div>
+            <% } %>
+          </div>
+          <p class="fs-5"><%= feed.content %></p>
+        </div>
+      </div>
+
+      <!-- 댓글 섹션 -->
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h6 class="mb-3">댓글</h6>
+          
+          <% if(user) { %>
+          <form action="/comment/write" method="post" class="mb-4">
+            <input type="hidden" name="boardId" value="<%= feed._id %>">
+            <input type="hidden" name="onModel" value="Feed">
+            <div class="input-group">
+              <textarea name="content" class="form-control" placeholder="댓글을 남겨보세요" rows="2" required></textarea>
+              <button type="submit" class="btn btn-brand">등록</button>
+            </div>
+          </form>
+          <% } %>
+
+          <ul class="list-group list-group-flush">
+            <% if(comments.length === 0) { %>
+            <li class="list-group-item text-center text-muted py-3">첫 댓글을 남겨보세요!</li>
+            <% } %>
+            <% comments.forEach(comment => { %>
+            <li class="list-group-item px-0">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="fw-bold small"><%= comment.author.avatar_emoji %> <%= comment.author.nickname %></span>
+                <span class="text-muted small"><%= new Date(comment.createdAt).toLocaleString() %></span>
+              </div>
+              <p class="mb-1"><%= comment.content %></p>
+              <% if(user && user.id === comment.author._id.toString()) { %>
+              <form action="/comment/delete" method="post" class="text-end">
+                <input type="hidden" name="commentId" value="<%= comment._id %>">
+                <input type="hidden" name="boardId" value="<%= feed._id %>">
+                <input type="hidden" name="onModel" value="Feed">
+                <button type="submit" class="btn btn-link btn-sm text-danger p-0 text-decoration-none">삭제</button>
+              </form>
+              <% } %>
+            </li>
+            <% }) %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

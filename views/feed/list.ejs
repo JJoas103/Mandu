@@ -1,0 +1,53 @@
+<%- include('../partials/header') %>
+
+<main class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h4>📡 실시간 제보 피드</h4>
+    <a href="/feed/write" class="btn btn-brand">제보하기</a>
+  </div>
+
+  <div class="row g-3">
+    <% if(feeds.length === 0) { %>
+    <div class="col-12 text-center py-5">
+      <p class="text-muted">아직 제보가 없습니다. 첫 제보를 남겨보세요!</p>
+    </div>
+    <% } %>
+    
+    <% feeds.forEach(feed => { %>
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <% if(feed.image) { %>
+        <img src="/images/upload/<%= feed.image %>" class="card-img-top" alt="제보 이미지" style="height: 200px; object-fit: cover;">
+        <% } %>
+        <div class="card-body">
+          <div class="d-flex align-items-center mb-2">
+            <span class="me-2"><%= feed.author.avatar_emoji %></span>
+            <span class="fw-bold small"><%= feed.author.nickname %></span>
+            <span class="ms-auto text-muted small"><%= new Date(feed.createdAt).toLocaleDateString() %></span>
+          </div>
+          <p class="card-text text-truncate"><%= feed.content %></p>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="tag-soft">📍 <%= feed.locationTag %></span>
+            <a href="/feed/info/<%= feed._id %>" class="btn btn-sm btn-outline-brand">상세보기</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+  </div>
+
+  <!-- 페이징 (생략 가능하지만 기본 틀 유지) -->
+  <% if(totalPages > 1) { %>
+  <nav class="mt-4">
+    <ul class="pagination justify-content-center">
+      <% for(let i=1; i<=totalPages; i++) { %>
+      <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+        <a class="page-link" href="/feed/list?page=<%= i %>"><%= i %></a>
+      </li>
+      <% } %>
+    </ul>
+  </nav>
+  <% } %>
+</main>
+
+<%- include('../partials/footer') %>

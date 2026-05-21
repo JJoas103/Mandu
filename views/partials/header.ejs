@@ -1,28 +1,28 @@
-<!-- 헤더 -->
-<nav class="navbar navbar-expand-lg">
-    <div class="container">
+    <!-- 헤더 -->
+    <nav class="navbar navbar-expand-lg">
+      <div class="container">
         <a class="navbar-brand" href="/">🌿 모여봄</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-            <span class="navbar-toggler-icon"></span>
+          <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="nav">
-            <ul class="navbar-nav me-auto">
-
-                <li class="nav-item"><a class="nav-link active" href="/">지도 탐색</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">모임 게시판</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">실시간 제보</a></li>
-            </ul>
-            <ul class="navbar-nav ms-auto">
-                <% if(user) { %>
-                    <!-- 인증된 사용자 -->
-                    <li class="nav-item"><a class="nav-link" href="/member/info">마이페이지</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/member/logout">로그아웃</a></li>
-                <% } else { %>
-                    <!--인증되지 않은 사용자  -->
-                    <li class="nav-item"><a class="nav-link" href="/member/login">로그인</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/member/join">회원가입</a></li>
-                <% } %> 
-            </ul>
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item"><a class="nav-link <%= currentPath === '/' ? 'active' : '' %>" href="/">지도 탐색</a></li>
+            <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/meeting') ? 'active' : '' %>" href="/meeting/list">모임 게시판</a></li>
+            <li class="nav-item"><a class="nav-link <%= currentPath.startsWith('/feed') ? 'active' : '' %>" href="/feed/list">실시간 제보</a></li>
+          </ul>
+          <ul class="navbar-nav ms-auto">
+            <% if(user) { %>
+            <li class="nav-item d-flex align-items-center">
+                <span class="me-2"><%= user.avatar_emoji %></span>
+                <a class="nav-link" href="/member/info"><%= user.nickname %>님</a>
+            </li>
+            <li class="nav-item"><a class="nav-link" href="/member/logout">로그아웃</a></li>
+            <% } else { %>
+            <li class="nav-item"><a class="nav-link" href="/member/login">로그인</a></li>
+            <li class="nav-item"><a class="nav-link" href="/member/join">회원가입</a></li>
+            <% } %>
+          </ul>
         </div>
-    </div>
-</nav>
+      </div>
+    </nav>

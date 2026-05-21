@@ -1,44 +1,44 @@
-const userService = require('../services/userService');
+const userService = require("../services/userService");
+const Meeting = require("../models/Meeting");
+const Feed = require("../models/Feed");
 
-//# 회원 가입 페이지
+// 회원가입 페이지
 const getJoin = (req, res) => {
-    res.render('member/join', {
-        errors: {}
-    });
+    res.render("member/join", { errors: {} });
 };
-//# 회원가입 처리
+
+// 회원가입 처리
 const postJoin = async (req, res, next) => {
     try {
-        const { email, password, nickname, city, avatar_emoji } = req.body;
-        //회원 생성
-        await userService.createUser({ email, password, nickname, city, avatar_emoji });
-        console.log('회원가입 요청', { email, password, nickname, city, avatar_emoji })
-        res.redirect('/');
-        
-    } catch (error) {
-        return next(error);
-    }
-}
-//# 이메일 중복확인
-const checkEmail = async (req, res, next) => {
-    const { email } = req.query;
-    try {
-        const avalilabe = await userService.checkEmail(email);
-        console.log(avalilabe);
-        res.json({ avalilabe });//db에 해당 email이 있으면 false, 없으면 true
+        await userService.createUser({ 
+            ...req.body, 
+            uploadFile: req.file 
+        });
+        res.redirect("/member/login");
     } catch (error) {
         next(error);
     }
-}
-//# 로그인 페이지
+};
+
+// 이메일 중복 확인
+const checkEmail = async (req, res, next) => {
+    try {
+        const available = await userService.checkEmail(req.query.email);
+        res.json({ available });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// 로그인 페이지
 const getLogin = (req, res) => {
     const messages = req.session.messages || [];
     const errorMessage = messages[messages.length - 1] || null;
     req.session.messages = [];
-    res.render('member/login', { errorMessage });
+    res.render("member/login", { errorMessage });
 };
 
-//로그아웃 처리
+// 로그아웃 처리
 const logout = (req, res, next) => {
     req.logout((error) => {
         if(error) {
@@ -57,15 +57,19 @@ const getMapView = async (req, res, next) => {
     }
 }
 
-//# 마이페이지 (임시)
-const getMemberInfo = (req, res) => {
-    res.render('member/info', { title: '마이페이지' });
-};
-
-//# 정보 수정 페이지
-const getModify = (req, res) => {
-    res.render('member/modify', { title: '회원정보 수정' });
-};
+// 마이페이지
+const getMemberInfo = async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.redirect("/member/login");
+    try {
+        const [meetingCount, feedCount] = await Promise.all([
+            Meeting.countDocuments({ author: req.user.id }),
+            Feed.countDocuments({ author: req.user.id })
+        ]);
+        res.render("member/info", {
+            user: req.user,
+            meetingCount,
+            feedCount
+        });
 
 //# 찜·알림 설정 페이지
 const getFavorites = (req, res) => {
@@ -110,21 +114,20 @@ const postNotifySettings = async (req, res, next) => {
     }
 };
 
-//# 정보 수정 처리
+// 회원 수정 페이지
+const getModify = (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect("/member/login");
+    res.render("member/modify", { user: req.user });
+};
+
+// 회원 수정 처리
 const postModify = async (req, res, next) => {
     try {
-        const userId = req.user._id;
-        const { nickname, city, avatar_emoji, member_pass } = req.body;
-        
-        await userService.updateUser(userId, { 
-            nickname, 
-            city, 
-            avatar_emoji, 
-            password: member_pass 
+        await userService.updateUser(req.user.id, { 
+            ...req.body, 
+            uploadFile: req.file 
         });
-        
-        console.log('회원정보 수정 완료:', nickname);
-        res.redirect('/member/info');
+        res.redirect("/member/info");
     } catch (error) {
         next(error);
     }

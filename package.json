@@ -14,22 +14,32 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "bcrypt": "^6.0.0",
-    "dotenv": "^17.4.2",
-    "ejs": "^5.0.2",
-    "express": "^5.2.1",
-    "express-session": "^1.19.0",
-    "express-validator": "^7.3.2",
-    "mongodb": "^7.2.0",
-    "mongoose": "^9.5.0",
-    "npm": "^11.12.1",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.0.1",
+    "mongoose": "^8.3.3",
+    "multer": "^1.4.5-lts.1",
     "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
+    "passport-naver-v2": "^2.0.8",
     "axios": "^1.16.0",
     "xml2js": "^0.6.2",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
-  }
+    "nodemon": "^3.1.0",
+    "prettier-plugin-ejs": "^1.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JJoas103/moyeobom.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JJoas103/moyeobom/issues"
+  },
+  "homepage": "https://github.com/JJoas103/moyeobom#readme"
 }
