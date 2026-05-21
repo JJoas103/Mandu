@@ -70,7 +70,10 @@ const getMemberInfo = async (req, res, next) => {
             meetingCount,
             feedCount
         });
-
+    } catch(e) {
+        next(e);
+    }
+}
 //# 찜·알림 설정 페이지
 const getFavorites = (req, res) => {
     res.render('member/favorites', { 

@@ -1,15 +1,21 @@
 const placeService = require('../services/placeService');
 const placeApiService = require('../services/placeApiService');
+const meetingService = require('../services/meetingService');
 
-const getPlaceInfo = async (req, res, next) => {
+const getMain = async (req, res, next) => {
     try {
-        const markerInfo = await placeService.getAllMarker();   //모든마커정보(장소이름, 위도, 경도, 혼잡도)
+        let mainMeetings = [];
+        try {
+            mainMeetings = await meetingService.getMainMeetings();
+            
+        } catch (e) {
+            console.warn("메인 데이터를 가져오는데 실패했습니다: ", e.message);
+        }
+        const markerInfo = await placeService.getAllMarker();
         const placeInfoLimt = await placeService.getPlaceInfoLimt();    // 장소정보(이름, 혼잡도) 리미트 4개
-        res.render('index', { markerInfo, placeInfoLimt });
-        console.log(placeInfoLimt);
+        res.render('index', { mainMeetings, markerInfo, placeInfoLimt });
     } catch (error) {
-        next(error);
+        next(error);        
     }
 }
-
-module.exports = { getPlaceInfo };
+module.exports = { getMain };
