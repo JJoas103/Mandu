@@ -16,5 +16,8 @@ router.get('/', async (req, res, next) => {
         next(error);
     }
 });
+const mainController = require('../controllers/mainController');
+
+router.get('/', mainController.getPlaceInfo);
 
 module.exports = router;

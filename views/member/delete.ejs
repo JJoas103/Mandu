@@ -1,44 +1,70 @@
+<!doctype html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title><%= title %> - 모여봄</title>
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+
 	<!-- 헤더 -->
     <%- include('../partials/header') %>
 
-	<!-- 메인 -->
 	<main class="container my-4">
 		<div class="row justify-content-center">
 			<div class="col-md-7 col-lg-6">
 				<div class="card shadow-sm">
 					<div class="card-body p-4">
 						<h4 class="mb-3">회원 탈퇴</h4>
-						<p class="text-muted mb-4">비밀번호를 입력하세요. 탈퇴 후에는 되돌릴 수 없습니다.</p>
+
+						<div class="alert alert-warning">
+							<strong>⚠️ 탈퇴 전 확인해주세요</strong>
+							<ul class="mb-0 mt-2 small">
+								<li>작성하신 모임·제보·댓글은 함께 삭제됩니다</li>
+								<li>획득한 배지와 매너점수는 복구되지 않습니다</li>
+								<li>방문 기록은 30일 후 영구 삭제됩니다</li>
+								<li>동일 이메일로 재가입 시 기존 데이터는 복구되지 않습니다</li>
+							</ul>
+						</div>
 
 						<form action="/member/delete" method="post"
-							onsubmit="return confirm('정말로 탈퇴하겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+							onsubmit="return confirm('정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
 
-							<div class="row g-3">
-								<!-- 비밀번호 -->
-								<div class="col-12">
-									<label class="form-label">비밀번호 <span class="text-danger">*</span></label>
-									<input type="password" class="form-control" name="password"
-										placeholder="비밀번호를 입력하세요" id="deletePasswordInput" required />
-
-									<!-- 서버 바인딩 에러 메시지 -->
-									<div class="form-text text-danger">비밀번호가 일치하지 않습니다</div>
-
-								</div>
-
-								<div class="col-12 form-check">
-									<input class="form-check-input" type="checkbox" id="showPwChk"
-										onchange="togglePassword()">
-									<label class="form-check-label" for="showPwChk">비밀번호 표시</label>
-								</div>
+							<div class="mb-3">
+								<label class="form-label">비밀번호 확인 <span class="text-danger">*</span></label>
+								<input type="password" class="form-control" name="password" placeholder="비밀번호를 입력하세요" required>
+                                <% if (errorMessage) { %>
+								    <div class="form-text text-danger"><%= errorMessage %></div>
+                                <% } %>
 							</div>
 
-							<div class="d-grid mt-4 gap-2">
-								<button type="submit" class="btn btn-brand">삭제하기</button>
+							<div class="mb-3">
+								<label class="form-label">탈퇴 사유 (선택)</label>
+								<select class="form-select" name="reason">
+									<option value="">선택하지 않음</option>
+									<option value="unused">자주 사용하지 않음</option>
+									<option value="similar">다른 서비스 이용</option>
+									<option value="privacy">개인정보 보호</option>
+									<option value="etc">기타</option>
+								</select>
+							</div>
+
+							<div class="form-check mb-3">
+								<input class="form-check-input" type="checkbox" id="confirmChk" required>
+								<label class="form-check-label small" for="confirmChk">
+									위 안내사항을 모두 확인했으며, 탈퇴에 동의합니다 <span class="text-danger">*</span>
+								</label>
+							</div>
+
+							<div class="d-grid gap-2 mt-4">
+								<button type="submit" class="btn btn-outline-danger">탈퇴하기</button>
 								<a href="/member/info" class="btn btn-outline-secondary">취소</a>
 							</div>
 						</form>
-					</div><!-- /card-body -->
-				</div><!-- /card -->
+					</div>
+				</div>
 			</div>
 		</div>
 	</main>

@@ -40,14 +40,25 @@ const getLogin = (req, res) => {
 
 // 로그아웃 처리
 const logout = (req, res, next) => {
-    req.logout((err) => {
-        if (err) return next(err);
-        res.redirect("/");
-    });
-};
+    req.logout((error) => {
+        if(error) {
+            return next(error);
+        }
+        res.redirect('/member/login');
+    })
+}
+
+const getMapView = async (req, res, next) => {
+    try{
+        const Mapview = await userService.getMapView();
+        res.render('/', { Mapview });
+    } catch(error) {
+        next(error);
+    }
+}
 
 // 마이페이지
-const getInfo = async (req, res, next) => {
+const getMemberInfo = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         const [meetingCount, feedCount] = await Promise.all([
@@ -59,6 +70,45 @@ const getInfo = async (req, res, next) => {
             meetingCount,
             feedCount
         });
+
+//# 찜·알림 설정 페이지
+const getFavorites = (req, res) => {
+    res.render('member/favorites', { 
+        title: '찜·알림 설정',
+        user: req.user
+    });
+};
+
+//# 알림 설정 저장 처리
+const postNotifySettings = async (req, res, next) => {
+    try {
+        const userId = req.user._id;
+        const { 
+            congestion_alert, 
+            notify_start, 
+            notify_end, 
+            alert_meeting, 
+            alert_comment, 
+            alert_badge, 
+            alert_marketing 
+        } = req.body;
+
+        await userService.updateNotifySettings(userId, {
+            congestion_alert,
+            notify_start,
+            notify_end,
+            alert_meeting: !!alert_meeting,
+            alert_comment: !!alert_comment,
+            alert_badge: !!alert_badge,
+            alert_marketing: !!alert_marketing
+        });
+
+        res.send(`
+            <script>
+                alert('설정이 저장되었습니다.');
+                location.href = '/member/favorites';
+            </script>
+        `);
     } catch (error) {
         next(error);
     }
@@ -83,27 +133,44 @@ const postModify = async (req, res, next) => {
     }
 };
 
-// 회원 탈퇴 처리
+//# 회원 탈퇴 페이지
+const getDelete = (req, res) => {
+    res.render('member/delete', { title: '회원 탈퇴', errorMessage: null });
+};
+
+//# 회원 탈퇴 처리
 const postDelete = async (req, res, next) => {
     try {
-        await userService.deleteUser(req.user.id, req.body.password);
+        if (!req.user) {
+            return res.redirect('/member/login');
+        }
+
+        const userId = req.user._id;
+        const { password } = req.body;
+        
+        const result = await userService.deleteUser(userId, password);
+        
+        if (!result.success) {
+            return res.render('member/delete', { 
+                title: '회원 탈퇴', 
+                errorMessage: result.message 
+            });
+        }
+        
+        // 탈퇴 성공 시 로그아웃 처리 및 알림 후 이동
         req.logout((err) => {
             if (err) return next(err);
-            res.redirect("/");
+            res.send(`
+                <script>
+                    alert('탈퇴가 완료되었습니다. 그동안 이용해주셔서 감사합니다.');
+                    location.href = '/';
+                </script>
+            `);
         });
     } catch (error) {
+        console.error('회원 탈퇴 컨트롤러 에러:', error);
         next(error);
     }
 };
 
-module.exports = { 
-    getJoin, 
-    postJoin, 
-    checkEmail, 
-    getLogin, 
-    logout, 
-    getInfo, 
-    getModify, 
-    postModify, 
-    postDelete 
-};
+module.exports = { getJoin, postJoin, checkEmail, getLogin, logout, getMapView, getMemberInfo, getModify, getFavorites, postModify, getDelete, postDelete, postNotifySettings };

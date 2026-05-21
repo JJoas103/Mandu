@@ -23,15 +23,21 @@ router.post('/login', passport.authenticate('local', {
 // 로그아웃
 router.get('/logout', userController.logout);
 
-// 마이페이지
-router.get('/info', userController.getInfo);
+//마이페이지
+router.get('/info', userController.getMemberInfo);
 
-// 정보 수정
+//정보 수정
 router.get('/modify', userController.getModify);
 router.post('/modify', uploadProfile.single('uploadFile'), userController.postModify);
 
-// 회원 탈퇴
-router.get('/delete', (req, res) => res.render('member/delete'));
+//찜·알림 설정
+router.get('/favorites', userController.getFavorites);
+router.post('/notify-settings', userController.postNotifySettings);
+
+//회원 탈퇴
+router.get('/delete', userController.getDelete);
 router.post('/delete', userController.postDelete);
 
+//지도 가져오기
+router.get('/map', userController.getMapView);
 module.exports = router;
