@@ -1,8 +1,8 @@
 const Meeting = require("../models/Meeting");
 
 // 모임 생성
-const createMeeting = async (meetingData) => {
-    const newMeeting = new Meeting(meetingData);
+const createMeeting = async (meetingData, profileImage) => {
+    const newMeeting = new Meeting(meetingData, profileImage);
     await newMeeting.save();
     return newMeeting;
 };

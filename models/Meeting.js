@@ -20,6 +20,9 @@ const meetingSchema = new mongoose.Schema(
       enum: ["여유", "보통", "혼잡"],
       default: "보통",
     },
+    imageUrl: {
+      type: String
+    },
   },
   {
     timestamps: true,

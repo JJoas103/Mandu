@@ -11,6 +11,11 @@ const app = express();
 // DB 연결
 connectDB();
 
+// chrome 개발자 도구 켰을 때 뜨는 오류 무시
+app.get("/.well-known/appspecific/com.chrome.devtools.json", (req, res) => {
+  res.status(204).end(); // 콘텐트 없음으로 정상 응답 처리
+});
+
 // 뷰 엔진
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));

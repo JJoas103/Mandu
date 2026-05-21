@@ -22,11 +22,14 @@ const getWrite = (req, res) => {
 const postWrite = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
+        const meetingDate = new Date(`${req.body.meeting_date}T${req.body.meeting_time}`);
         const meetingData = {
             ...req.body,
+            meetingDate,
             author: req.user.id
         };
-        await meetingService.createMeeting(meetingData);
+        const profileImage = req.file ? req.file.fimename : null;
+        await meetingService.createMeeting(meetingData, profileImage);
         res.redirect("/meeting/list");
     } catch (error) {
         next(error);

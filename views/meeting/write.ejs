@@ -25,13 +25,13 @@
 							<!-- 제목 -->
 							<div class="mb-3">
 								<label for="meeting_title" class="form-label">모임 제목 <span class="text-danger">*</span></label>
-								<input type="text" id="meeting_title" name="meeting_title" class="form-control" placeholder="어떤 모임인지 간단히 적어주세요" required />
+								<input type="text" id="meeting_title" name="title" class="form-control" placeholder="어떤 모임인지 간단히 적어주세요" required />
 							</div>
 
 							<!-- 장소 선택 -->
 							<div class="mb-3">
 								<label for="place_id" class="form-label">장소 <span class="text-danger">*</span></label>
-								<select id="place_id" name="place_id" class="form-select" required>
+								<select id="place_id" name="area" class="form-select" required>
 									<option value="">장소를 선택하세요</option>
 									<option value="1" selected>연남동 (마포구)</option>
 									<option value="2">북촌 (종로구)</option>
@@ -57,7 +57,7 @@
 							<!-- 소개글 -->
 							<div class="mb-3">
 								<label for="meeting_desc" class="form-label">소개글 <span class="text-danger">*</span></label>
-								<textarea id="meeting_desc" name="meeting_desc" class="form-control" rows="5" placeholder="모임을 소개해주세요. 어떤 활동을 하나요? 준비물은 무엇인가요?" required></textarea>
+								<textarea id="meeting_desc" name="content" class="form-control" rows="5" placeholder="모임을 소개해주세요. 어떤 활동을 하나요? 준비물은 무엇인가요?" required></textarea>
 							</div>
 
 							<!-- 일시 + 인원 -->
@@ -72,7 +72,7 @@
 								</div>
 								<div class="col-md-3">
 									<label for="max_headcount" class="form-label">모집 인원 <span class="text-danger">*</span></label>
-									<input type="number" id="max_headcount" name="max_headcount" class="form-control" value="4" min="2" max="20" required>
+									<input type="number" id="max_headcount" name="maxParticipants" class="form-control" value="4" min="2" max="20" required>
 								</div>
 							</div>
 
@@ -118,7 +118,7 @@
 							<!-- 이미지 -->
 							<div class="mb-3">
 								<label for="upload_file" class="form-label">첨부 이미지 (선택)</label>
-								<input type="file" id="upload_file" name="upload_file" class="form-control" accept="image/*">
+								<input type="file" id="upload_file" name="imageUrlx" class="form-control" accept="image/*">
 							</div>
 
 							<!-- 제출 -->
