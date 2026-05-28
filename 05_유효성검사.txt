@@ -1,0 +1,107 @@
+#0 유효성검사 라이브러리 설치
+- npm install express-validator
+- 사용자의 요청을 서버에 도달하기 전 검사
+
+#1 middleware > validationMiddleware.js 만들기
+    const { body, validationResult } = require('express-validator');
+    // 회원가입 유효성 검사 규칙
+    const joinValidationRules = [
+        body('email')
+            .isEmail().withMessage('유효한 이메일 주소를 입력해주세요.')
+            .notEmpty().withMessage('이메일은 필수 입력 항목입니다.')
+            .normalizeEmail(), // 이메일 주소를 소문자로 변환하여 저장
+==> 회원가입페이지에서 보낸 email 파라미터에 담긴 값 검사
+==> isEmail(): 이메일 형식인지 확인 후 이메일 형식이 아니면 에러 밸생
+==> notEmpty(): 사용자가 보낸 값이 있는지 확인 후 비어있으면 에러 발생
+==> withMessage(): 해당 형식에 어긋나면 에러메시지 생성
+        body('password')
+            .notEmpty().withMessage('비밀번호는 필수입니다')
+            .matches(/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+            .withMessage('비밀번호는 영문, 숫자, 특수문자 조합 8자 이상이어야 합니다'),
+==> 회원가입페이지에서 보낸 password 파라미터에 담긴 값 검사
+==> matches(정규식): 해당 정규식에 어긋나면 에러 발생
+        body('name')
+            .notEmpty().withMessage('이름은 필수입니다')
+            .matches(/^[가-힣]{2,5}$/)
+            .withMessage('이름은 2~5자의 한글로 입력해주세요'),
+==> 회원가입페이지에서 보낸 name 파라미터에 담긴 값 검사
+        body('password2')
+            .custom((value, { req }) => {
+                if (value !== req.body.password) {
+                    throw new Error('비밀번호가 일치하지 않습니다');
+                }
+                return true;
+            })
+    ];
+==> 회원가입페이지에서 보낸 password2 파라미터에 담긴 값 검사
+==> custom(): 개발자가 만든 유효성검사 규칙
+
+    // 검증 결과 처리 미들웨어
+    const validate = (req, res, next) => {
+        const errors = validationResult(req);
+==> validationResult: express-validator에서 제공하는 함수로, 요청(req)에서 유효성 검사 결과를 추출하여 반환
+
+        if (!errors.isEmpty()) {
+==> 유효성 검사 실패
+            req.validateErrors = {};
+            errors.array().forEach(err => {
+                req.validateErrors[err.path] = err.msg;
+            });
+            res.render(user/join, { errors: req.validateErrors });
+==> 유효성 검사 실패 시 다시 회원가입페이지로 
+        } else {
+            return next();// 유효성 검사 통과 시 다음 미들웨어로 이동
+        }
+    }
+
+    module.exports = { joinValidationRules, validate };
+
+#2 userController.js에 회원가입 페이지 랜더링할 때 errors 변수 추가
+    ...
+    const getJoin = (req, res) => {
+        res.render('user/join', {
+            errors: null
+==> 회원가입 페이지에 errors 추가
+        });
+    };
+
+#3 userRouter.js에 유효성검사 미들웨어 추가
+    const { joinValidationRules, validate } = require('../middlewares/validationMiddleware');
+    ...
+    router.post('/join',
+        joinValidationRules,
+        validate(),
+        userController.postJoin
+    );
+    ...
+
+#4 join.ejs, 유효성검사 실패 시 코드 추가
+    ...
+    <div id="emailFeedback" class="form-text"></div>
+    <% if (errors && errors.email) { %>
+        <div class="form-text text-danger">
+            <%= errors.email %>
+        </div>
+    <% } %>
+    ...
+    <% if (errors && errors.password) { %>
+        <div class="form-text text-danger">
+            <%= errors.password %>
+        </div>
+    <% } %>
+    ...
+    <% if (errors && errors.confirmPassword) { %>
+        <div class="form-text text-danger">
+            <%= errors.confirmPassword %>
+        </div>
+    <% } %>
+    ...
+    <% if (errors && errors.name) { %>
+        <div class="form-text text-danger">
+            <%= errors.name %>
+        </div>
+    <% } %>
+    ...
+==> 유효성검사 실패 시 errors 객체를 가지고 회원가입 페이지로 돌아옴
+
+

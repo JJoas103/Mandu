@@ -1,0 +1,45 @@
+{
+  "name": "moyeobom",
+  "version": "1.0.0",
+  "description": "> 실시간 혼잡도 기반으로 서울 곳곳의 여유로운 동네에서 모임을 만들고 찾을 수 있는 플랫폼",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "seed:places": "node scripts/seedPlaces.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "axios": "^1.16.0",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "express-validator": "^7.0.1",
+    "mongoose": "^8.3.3",
+    "multer": "^1.4.5-lts.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "passport-naver-v2": "^2.0.8",
+    "xlsx": "^0.18.5",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "prettier-plugin-ejs": "^1.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JJoas103/moyeobom.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JJoas103/moyeobom/issues"
+  },
+  "homepage": "https://github.com/JJoas103/moyeobom#readme"
+}

@@ -1,0 +1,44 @@
+#1 UserRouter.js 수정
+    const express = require('express');
+    const userController = require('../controller/userController');
+==> userController 가져오기
+    const router = express.Router();
+
+    router.get('/join', userController.getJoin);
+    router.post('/join', userController.postJoin);
+==> 사용자의 요청을 받아 컨트롤러에게 넘기기
+
+    module.exports = router;
+
+#1 controllers > UserController.js 만들기
+    const userService = require('../services/userService');
+
+    // # 회원가입 페이지
+    const getJoin = (req, res) => {
+        res.render('user/join');
+    };
+    // # 회원가입 처리
+    const postJoin = async (req, res, next) => {
+        const { email, password, name, address } = req.body;        
+        await userService.createUser({ email, password, name, address, file: req.file });
+==> 비즈니스로직(DB 연동 작업)은 서비스에게 넘기기       
+        res.redirect('/user/login');
+    };
+
+#2 services > userService.js 만들기
+    const mongoose = require('mongoose');
+    const User = require('../models/User');
+
+    //회원가입 서비스
+    async function createUser({ email, password, name, address }) {
+        //새 사용자 생성
+        const newUser = new User({
+            email,
+            password: hashedPassword,
+            name,
+            address
+        });
+
+        await newUser.save();
+    }
+module.exports = { createUser };
