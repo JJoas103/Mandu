@@ -55,6 +55,7 @@ const meetingRouter = require("./routes/meetingRouter");
 const feedRouter = require("./routes/feedRouter");
 const commentRouter = require("./routes/commentRouter");
 const authRouter = require("./routes/authRouter");
+const placeRouter = require("./routes/placeRouter");
 
 app.use("/", mainRouter);
 app.use("/member", userRouter);
@@ -62,6 +63,7 @@ app.use("/meeting", meetingRouter);
 app.use("/feed", feedRouter);
 app.use("/comment", commentRouter);
 app.use("/auth", authRouter);
+app.use("/place", placeRouter);
 
 // 에러 핸들링
 app.use(notFoundHandler);

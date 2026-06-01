@@ -59,11 +59,20 @@ const getMainMeetings = async () => {
         .limit(6);
 };
 
-module.exports = { 
-    createMeeting, 
-    getAllMeetings, 
-    getMeetingById, 
-    updateMeeting, 
+// 특정 장소의 모임 조회
+const getMeetingsByArea = async (areaName) => {
+    return await Meeting.find({ area: areaName })
+        .populate("author", "nickname")
+        .sort({ createdAt: -1 })
+        .limit(5);
+};
+
+module.exports = {
+    createMeeting,
+    getAllMeetings,
+    getMeetingById,
+    updateMeeting,
     deleteMeeting,
-    getMainMeetings
+    getMainMeetings,
+    getMeetingsByArea
 };

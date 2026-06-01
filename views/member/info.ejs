@@ -96,6 +96,30 @@
     </div>
   </div>
 
+  <!-- 추천 명소 -->
+  <% if (typeof placesForInfo !== 'undefined' && placesForInfo.length > 0) { %>
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h6 class="card-title mb-3">🌿 지금 한산한 명소</h6>
+      <div class="row g-2">
+        <% placesForInfo.forEach(function(p) { %>
+          <div class="col-4">
+            <a href="/place/<%= p.area_cd %>" class="text-decoration-none text-dark">
+              <% if (p.imageUrl) { %>
+                <img src="<%= p.imageUrl %>" class="rounded w-100" style="height:80px;object-fit:cover;" alt="<%= p.name %>">
+              <% } else { %>
+                <div class="rounded w-100 d-flex align-items-center justify-content-center bg-light" style="height:80px;font-size:28px;">🌳</div>
+              <% } %>
+              <div class="small mt-1 fw-semibold"><%= p.name %></div>
+              <div class="small text-muted"><%= p.congest_lvl %></div>
+            </a>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+  <% } %>
+
   <!-- 회원 탈퇴 -->
   <div class="text-end">
     <a href="/member/delete" class="small text-muted text-decoration-none">회원 탈퇴</a>
