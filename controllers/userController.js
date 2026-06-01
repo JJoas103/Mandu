@@ -1,6 +1,8 @@
 const userService = require("../services/userService");
 const Meeting = require("../models/Meeting");
 const Feed = require("../models/Feed");
+const placeService = require("../services/placeService");
+const kakaoLocalService = require("../services/kakaoLocalService");
 
 // 회원가입 페이지
 const getJoin = (req, res) => {
@@ -61,14 +63,18 @@ const getMapView = async (req, res, next) => {
 const getMemberInfo = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
-        const [meetingCount, feedCount] = await Promise.all([
+        const [meetingCount, feedCount, recommendRaw] = await Promise.all([
             Meeting.countDocuments({ author: req.user.id }),
-            Feed.countDocuments({ author: req.user.id })
+            Feed.countDocuments({ author: req.user.id }),
+            placeService.getPlaceInfoLimt()
         ]);
+        const images = await Promise.all(recommendRaw.map(p => kakaoLocalService.getPlaceImage(p.name)));
+        const placesForInfo = recommendRaw.slice(0, 3).map((p, i) => ({ ...p.toObject(), imageUrl: images[i] }));
         res.render("member/info", {
             user: req.user,
             meetingCount,
-            feedCount
+            feedCount,
+            placeForInfo
         });
     } catch(e) {
         next(e);

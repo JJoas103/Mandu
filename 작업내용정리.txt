@@ -1,0 +1,209 @@
+================================================================
+  모여봄 (Moyeobom) 프로젝트 - 작업내용 정리
+================================================================
+
+[ 프로젝트 개요 ]
+실시간 혼잡도 기반 서울 모임 지도 플랫폼
+서울 주요 관광지·명소별 혼잡도를 지도에 표시하고,
+해당 장소에서 진행 중인 모임을 확인·참여할 수 있는 커뮤니티 서비스
+
+----------------------------------------------------------------
+  주요 기능 (전체 기획)
+----------------------------------------------------------------
+
+① 실시간 혼잡도 기반 모임 지도 (Main)
+   기능: 서울 주요 관광지별 혼잡도를 카카오 지도 마커로 표시
+         (혼잡-빨강 / 약간붐빔-주황 / 보통-노랑 / 여유-초록)
+   기술: 서울시 실시간 도시데이터 API + Node.js 스케줄러
+
+② 조건부 모임 구인/구직 (Board & Matching)
+   기능: 번개 모임, 관광 가이드 구인 게시판
+         모임 글 작성 시 장소 선택 → 주차장·화장실 정보 자동 첨부
+   기술: MongoDB + Express.js CRUD
+
+③ 내 주변 인프라 정보 제공 (Utility)
+   기능: 모임 장소 반경 500m 이내 주차장·화장실·대중교통 리스트업
+   기술: 카카오 로컬 API (장소 검색) + wttr.in (날씨)
+
+④ 찜하기 & 혼잡도 알림 (Personalization)
+   기능: 관심 장소 찜 → 혼잡도 낮아지면 알림
+   기술: 유저별 알림 설정 테이블 (DB 설계 완료)
+
+⑤ 방문 인증 & 매너 랭킹 (Gamification)
+   기능: GPS로 방문 인증 시 매너 점수·인증 배지 부여
+   기술: Geolocation API 거리 계산 로직
+
+----------------------------------------------------------------
+  기술 스택
+----------------------------------------------------------------
+
+백엔드
+  - Node.js + Express.js (v4.19.2)
+  - MongoDB + Mongoose (v8.3.3)
+  - Passport.js (로컬 / Google OAuth / Naver OAuth)
+  - express-session, bcrypt, multer, axios
+
+프론트엔드
+  - EJS (서버사이드 템플릿)
+  - Bootstrap 5.3.3
+  - 카카오 Maps API (지도 시각화)
+  - Vanilla JavaScript
+
+외부 API
+  - 카카오 Maps API   : 지도 마커 표시
+  - 카카오 REST API   : 로컬 검색 (주차장·화장실·대중교통·이미지)
+  - 카카오 이미지 검색 API : 장소 사진 자동 가져오기
+  - 서울 실시간 도시데이터 API (SEOUL_RTD_API): 혼잡도 데이터
+  - wttr.in           : 현재 날씨·기온 (무료, API Key 불필요)
+  - Google OAuth 2.0  : 소셜 로그인
+  - Naver OAuth 2.0   : 소셜 로그인
+
+----------------------------------------------------------------
+  전체 진행 상황
+----------------------------------------------------------------
+
+[기존 완료 - 세션 시작 전]
+  - 로그인 / 회원가입 / DB 반영 완료
+  - 카카오 지도 출력 완료
+  - 장소별 혼잡도 마커 표시 완료
+  - 모임 게시판 (CRUD) 틀 완료
+  - 마이페이지 틀 완료
+
+[이번 세션 작업 - 역할 구현]
+  1. 마커 클릭 → 장소 상세 페이지 이동          ✅ 완료
+  2. 검색창 → 장소 상세 페이지 이동             ✅ 완료
+  3. 상세 페이지에 현재 온도 + 대중교통 추가      ✅ 완료
+  4. API 장소 이미지 가져오기 (전 페이지 적용)    ✅ 완료
+
+----------------------------------------------------------------
+  이번 세션 - 신규 생성 파일
+----------------------------------------------------------------
+
+services/kakaoLocalService.js
+  역할: 카카오 REST API 기반 주변 장소 검색 서비스
+  제공 함수:
+    - getNearbyParking(lat, lng)  : 반경 500m 주차장 검색 (최대 5개)
+    - getNearbyRestrooms(lat, lng): 반경 500m 공중화장실 검색 (최대 5개)
+    - getNearbyTransit(lat, lng)  : 반경 2km 지하철역 검색 (없으면 버스정류장)
+    - getPlaceImage(placeName)    : 카카오 이미지 검색으로 장소 사진 1장 반환
+
+services/weatherService.js
+  역할: wttr.in 무료 날씨 API 연동
+  제공 함수:
+    - getWeather(lat, lng): 현재 기온(°C) + 날씨 설명(한글) 반환
+  특이사항: API Key 불필요, 실패 시 null 반환 (페이지 안 깨짐)
+
+views/place/search_result.ejs
+  역할: 검색 결과가 복수일 때 보여주는 장소 목록 페이지
+  내용: 검색된 장소들을 이미지 카드로 나열, 클릭 시 상세 페이지로 이동
+
+----------------------------------------------------------------
+  이번 세션 - 수정된 파일
+----------------------------------------------------------------
+
+services/placeService.js
+  수정 내용:
+    - getAllMarker()에 area_cd 필드 추가 (마커 클릭 URL 생성에 필요)
+    - getPlaceByAreaCd(area_cd) 함수 추가: 장소 단건 조회
+    - searchPlacesByName(keyword) 함수 추가: 이름 기반 정규식 검색
+
+services/meetingService.js
+  수정 내용:
+    - getMeetingsByArea(areaName) 함수 추가
+    - 장소 상세 페이지에서 해당 장소의 모임 목록(최대 5개) 조회
+
+controllers/placeController.js
+  수정 내용 (전면 재작성):
+    - getPlaceInfo(req, res): area_cd로 장소 조회 후 주차장·화장실·
+      날씨·대중교통·이미지를 Promise.all로 병렬 호출, 상세 페이지 렌더
+    - getSearch(req, res): 키워드로 DB 검색 → 1건이면 상세 페이지 redirect,
+      복수이면 search_result 렌더, 0건이면 메인 페이지에 에러 메시지 표시
+
+controllers/mainController.js
+  수정 내용:
+    - 메인 페이지 로드 시 "한산한 명소" 카드 4개에 이미지 병렬 패치 추가
+    - kakaoLocalService.getPlaceImage() 활용
+
+controllers/userController.js
+  수정 내용:
+    - getMemberInfo()에 여유 명소 3개 + 이미지 데이터(placesForInfo) 추가
+    - 마이페이지 하단 "추천 명소" 섹션에 사용
+
+routes/placeRouter.js
+  수정 내용:
+    - GET /place/search  → placeController.getSearch (검색 기능)
+    - GET /place/:area_cd → placeController.getPlaceInfo (상세 페이지)
+    - 순서 중요: search를 :area_cd보다 먼저 등록해야 충돌 방지
+
+app.js
+  수정 내용:
+    - placeRouter 등록 추가: app.use('/place', placeRouter)
+
+public/js/main.js
+  수정 내용:
+    - 마커 데이터에 area_cd 필드 추가
+    - 각 마커에 click 이벤트 리스너 추가
+    - 클릭 시 window.location.href = '/place/{area_cd}' 로 이동
+    - 클로저(IIFE)로 루프 변수 i 캡처 문제 해결
+
+views/place/place_info.ejs
+  수정 내용:
+    - 상단 hero 이미지 추가 (placeImage 있을 경우 카드 상단에 표시)
+    - 날씨 카드 동적화: 하드코딩 21°C → weather.tempC + weather.desc
+    - 대중교통 카드 동적화: 하드코딩 홍대입구역 → transitInfo.name + distance
+    - 주차장·화장실 목록: 카카오 API 실제 데이터로 표시
+    - 이 장소 모임 목록: DB 실제 데이터로 표시
+    - 뒤로가기 링크: index.html → /
+    - include 경로: partials/ → ../partials/ (subdirectory 위치 수정)
+    - API 실패 시 각 항목별 폴백 메시지 표시
+
+views/index.ejs
+  수정 내용:
+    - 검색폼 action: # → /place/search (더미 → 실제 연결)
+    - 검색 오류 메시지 영역 추가 (searchError 변수)
+    - "한산한 명소" 카드 링크: # → /place/{area_cd}
+    - placeholder-img 이모지 → 실제 이미지 (없으면 이모지 폴백)
+
+views/member/info.ejs
+  수정 내용:
+    - 하단에 "지금 한산한 명소" 섹션 추가
+    - 여유 장소 3곳의 사진·이름·혼잡도를 소형 카드로 표시
+    - 클릭 시 해당 장소 상세 페이지로 이동
+
+----------------------------------------------------------------
+  데이터 흐름 요약
+----------------------------------------------------------------
+
+[ 마커 클릭 흐름 ]
+  지도 마커 클릭
+  → main.js 이벤트 핸들러
+  → /place/{area_cd} 이동
+  → placeRouter → placeController.getPlaceInfo
+  → DB에서 장소 조회 (placeService.getPlaceByAreaCd)
+  → 카카오 API: 주차장·화장실·대중교통·이미지 (병렬 호출)
+  → wttr.in: 현재 날씨·기온
+  → DB: 해당 장소 모임 목록
+  → views/place/place_info.ejs 렌더링
+
+[ 검색 흐름 ]
+  검색창 입력 → /place/search?keyword=입력값
+  → placeController.getSearch
+  → DB 정규식 검색 (placeService.searchPlacesByName)
+  → 결과 1개: /place/{area_cd} redirect
+  → 결과 복수: search_result.ejs (이미지 포함)
+  → 결과 0개: 메인 페이지로 에러 메시지와 함께 렌더
+
+----------------------------------------------------------------
+  사용 API 키 (환경변수)
+----------------------------------------------------------------
+
+KAKAO_MAP_API   : 지도 마커 표시 (카카오 지도 SDK)
+KAKAO_REST_API  : 주차장·화장실·대중교통·이미지 검색 (카카오 REST)
+SEOUL_RTD_API   : 서울 실시간 혼잡도 데이터 (서울 열린데이터광장)
+wttr.in         : 날씨 (무료, 키 불필요)
+GOOGLE_CLIENT_ID/SECRET : Google OAuth 로그인
+NAVER_CLIENT_ID/SECRET  : Naver OAuth 로그인
+
+================================================================
+  작성일: 2026-05-28
+================================================================

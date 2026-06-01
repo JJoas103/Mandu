@@ -26,13 +26,16 @@
 				</div>
 			</section>
 
-			<!-- 검색바 (더미) -->
+			<!-- 검색바 -->
 			<div class="mb-4">
-				<form action="/place/info/" method="get" class="d-flex gap-2">
+				<form action="/place/search" method="get" class="d-flex gap-2">
 					<input type="text" name="keyword" class="form-control form-control-lg"
 						placeholder="🔍 지역·장소·모임 검색" />
 					<button type="submit" class="btn btn-brand btn-lg">검색</button>
 				</form>
+				<% if (typeof searchError !== 'undefined' && searchError) { %>
+					<div class="alert alert-warning mt-2 mb-0"><%= searchError %></div>
+				<% } %>
 			</div>
 
 			<!-- 지도 시각화 (더미) -->
@@ -93,9 +96,13 @@
 				<div class="row g-3 mb-4">
 					<% placeInfoLimt.forEach(place=> { %>
 						<div class="col-md-3 col-6">
-							<a href="#" class="text-decoration-none text-dark">
+							<a href="/place/<%= place.area_cd %>" class="text-decoration-none text-dark">
 								<div class="card h-100 shadow-sm">
-									<div class="placeholder-img">🌳</div>
+									<% if (place.imageUrl) { %>
+										<img src="<%= place.imageUrl %>" class="card-img-top" style="height:120px;object-fit:cover;" alt="<%= place.name %>">
+									<% } else { %>
+										<div class="placeholder-img">🌳</div>
+									<% } %>
 									<div class="card-body">
 										<h6 class="card-title mb-1">
 											<%= place.name %>

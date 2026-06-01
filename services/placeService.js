@@ -3,7 +3,7 @@ const Congestion = require("../models/congestion");
 
 async function getAllMarker(){
     const markerInfo = await Place.find({})
-                            .select('name latitude longitude congest_lvl')
+                            .select('area_cd name latitude longitude congest_lvl')
                             .sort({updatedAt : -1});
     return markerInfo;
 }
@@ -15,8 +15,6 @@ async function getPlaceCongLimt() {
                             .limit(4);
     return placeCongLimt;
 }   
-
-
 
 // 실시간 급증 TOP 5 — surge_pct 기준 내림차순
 async function getSurgeTop5() {
@@ -42,4 +40,25 @@ async function getCongestionDetail(area_cd) {
         .select('area_nm ppltn_time area_congest_lvl surge_pct fcst_yn fcst_list');
 }
 
-module.exports = { getAllMarker, getPlaceCongLimt, getSurgeTop5, getCongestTop5, getCongestionDetail };
+async function getPlaceInfoLimt() {
+    const placeInfoLimt = await Place.find({ congest_lvl: '여유'})
+                            .select('area_cd name congest_lvl')
+                            .sort({updateAt : -1})
+                            .limit(4);
+    return placeInfoLimt;
+}
+
+async function getPlaceByAreaCd(area_cd) {
+    const place = await Place.findOne({ area_cd });
+    if (!place) throw new Error('장소를 찾을 수 없습니다');
+    return place;
+}
+
+async function searchPlacesByName(keyword) {
+    const regex = new RegExp(keyword, 'i');
+    return await Place.find({ name: regex })
+                      .select('area_cd name congest_lvl')
+                      .limit(10);
+}
+
+module.exports = { getAllMarker, getPlaceInfoLimt, getSurgeTop5, getCongestTop5, getCongestionDetail, getPlaceByAreaCd, searchPlacesByName };
