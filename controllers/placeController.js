@@ -1,15 +1,14 @@
 const placeService = require('../services/placeService');
 const placeApiService = require('../services/placeApiService');
 
-// const getMarker = async (req, res, next) => {
-//     try {
-//         const markerInfo = await placeService.getAllMarker();
-//         const relaxedPlaces = await placeService.getRelaxedPlaces();
-//         res.render('index', { markerInfo, relaxedPlaces });
-//         console.log(relaxedPlaces);
-//     } catch (error) {
-//         next(error);
-//     }
-// }
+const getPlaceInfo = async (req, res, next) => {
+    const place_name = req.params.info;
 
-// module.exports = { getMarker };
+    try {
+        //const places = await placeService.getPlaceInfoByName
+    } catch (error) {
+        
+    }
+}
+
+module.exports = { getPlaceInfo };

@@ -10,7 +10,11 @@ const placeSchema = new mongoose.Schema(
         eng_name : {type: String},
         latitude : {type: Number},
         longitude : {type: Number},
-        congest_lvl : {type: String},
+        congest_lvl : { type: String },
+        temp : {type: String},  //기온
+        sky_stts: {type: String},//날씨정보
+        humidity: {type: String},//습도
+        
     },{
         timestamps: true
     }

@@ -33,7 +33,7 @@ for(var i=0; i< positions.length; i++){
     //마커 이미지의 이미지크기
     var imageSize = new kakao.maps.Size(50,50);
     //마커 이미지 생성
-    if(positions[i].congest_lvl == '혼잡'){
+    if(positions[i].congest_lvl == '붐빔'){
         var markerImage = new kakao.maps.MarkerImage(mk_img_crowded, imageSize);
     } else if(positions[i].congest_lvl == '약간 붐빔'){
         var markerImage = new kakao.maps.MarkerImage(mk_img_little_crowded, imageSize);

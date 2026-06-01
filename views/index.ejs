@@ -28,7 +28,7 @@
 
 			<!-- 검색바 (더미) -->
 			<div class="mb-4">
-				<form action="#" method="get" class="d-flex gap-2">
+				<form action="/place/info/" method="get" class="d-flex gap-2">
 					<input type="text" name="keyword" class="form-control form-control-lg"
 						placeholder="🔍 지역·장소·모임 검색" />
 					<button type="submit" class="btn btn-brand btn-lg">검색</button>
@@ -60,26 +60,22 @@
 							<div class="card-body">
 								<h6 class="card-title mb-3">🔥 실시간 급증 TOP</h6>
 								<ul class="list-group list-group-flush">
+									<% surgePlace.forEach(surge => { %>
 									<li class="list-group-item d-flex justify-content-between">
-										<span>명동</span>
-										<span class="text-danger fw-bold">+42%</span>
+										<span><%= surge.area_nm %></span>
+										<span class="text-danger fw-bold"><%= surge.surge_pct %>%</span>
 									</li>
+									<% }) %>
+								</ul>
+								<br>
+								<h6 class="card-title mb-3">🔥 혼잡붐빔 TOP 5</h6>
+								<ul class="list-group list-group-flush">
+									<% congestPlaceTopFive.forEach(surge => { %>
 									<li class="list-group-item d-flex justify-content-between">
-										<span>홍대입구</span>
-										<span class="text-danger fw-bold">+28%</span>
+										<span><%= surge.area_nm %></span>
+										<span class="text-danger fw-bold"><%= surge.area_congest_lvl %></span>
 									</li>
-									<li class="list-group-item d-flex justify-content-between">
-										<span>강남역</span>
-										<span class="text-danger fw-bold">+19%</span>
-									</li>
-									<li class="list-group-item d-flex justify-content-between">
-										<span>잠실</span>
-										<span class="text-danger fw-bold">+12%</span>
-									</li>
-									<li class="list-group-item d-flex justify-content-between">
-										<span>서래마을</span>
-										<span class="text-success fw-bold">-8%</span>
-									</li>
+									<% }) %>
 								</ul>
 							</div>
 						</div>

@@ -12,8 +12,10 @@ const getMain = async (req, res, next) => {
             console.warn("메인 데이터를 가져오는데 실패했습니다: ", e.message);
         }
         const markerInfo = await placeService.getAllMarker();
-        const placeInfoLimt = await placeService.getPlaceInfoLimt();    // 장소정보(이름, 혼잡도) 리미트 4개
-        res.render('index', { mainMeetings, markerInfo, placeInfoLimt });
+        const placeInfoLimt = await placeService.getPlaceCongLimt();    // 장소정보(이름, 혼잡도) 리미트 4개
+        const surgePlace = await placeService.getSurgeTop5();   //실시간 급증 Top 5
+        const congestPlaceTopFive = await placeService.getCongestTop5();    //혼잡TOP 3
+        res.render('index', { mainMeetings, markerInfo, placeInfoLimt, surgePlace, congestPlaceTopFive });
     } catch (error) {
         next(error);        
     }

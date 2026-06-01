@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "seed:places": "node scripts/seedPlaces.js"
+    "seed:places": "node scripts/seedPlaces.js",
+    "seed:parking": "node scripts/createLivePark.js"
   },
   "keywords": [],
   "author": "",
@@ -27,8 +28,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "passport-naver-v2": "^2.0.8",
-    "xlsx": "^0.18.5",
-    "xml2js": "^0.6.2"
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.0",
