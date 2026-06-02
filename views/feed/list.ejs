@@ -36,10 +36,10 @@
                       <div class="card-body">
                         <div class="d-flex align-items-center mb-2">
                           <span class="me-2">
-                            <%= feed.author.avatar_emoji %>
+                            <%= feed.author ? feed.author.avatar_emoji : '😊' %>
                           </span>
                           <span class="fw-bold small">
-                            <%= feed.author.nickname %>
+                            <%= feed.author ? feed.author.nickname : '알 수 없음' %>
                           </span>
                           <span class="ms-auto text-muted small">
                             <%= new Date(feed.createdAt).toLocaleDateString() %>

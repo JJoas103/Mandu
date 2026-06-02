@@ -74,7 +74,7 @@ const getMemberInfo = async (req, res, next) => {
             user: req.user,
             meetingCount,
             feedCount,
-            placeForInfo
+            placesForInfo
         });
     } catch(e) {
         next(e);
