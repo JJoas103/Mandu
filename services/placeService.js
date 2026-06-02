@@ -54,6 +54,11 @@ async function getPlaceByAreaCd(area_cd) {
     return place;
 }
 
+async function getPlaceByName(name) {
+    const place = await Place.findOne({ name });
+    return place;
+}
+
 async function searchPlacesByName(keyword) {
     const regex = new RegExp(keyword, 'i');
     return await Place.find({ name: regex })
@@ -61,4 +66,4 @@ async function searchPlacesByName(keyword) {
                       .limit(10);
 }
 
-module.exports = { getAllMarker, getPlaceInfoLimt, getSurgeTop5, getCongestTop5, getCongestionDetail, getPlaceByAreaCd, searchPlacesByName };
+module.exports = { getAllMarker, getPlaceInfoLimt, getSurgeTop5, getCongestTop5, getCongestionDetail, getPlaceByAreaCd, getPlaceByName, searchPlacesByName };

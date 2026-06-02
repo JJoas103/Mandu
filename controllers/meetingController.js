@@ -1,5 +1,7 @@
 const meetingService = require("../services/meetingService");
 const commentService = require("../services/commentService");
+const placeService = require("../services/placeService");
+const kakaoLocalService = require("../services/kakaoLocalService");
 
 // 모임 목록 조회
 const getList = async (req, res, next) => {
@@ -13,9 +15,29 @@ const getList = async (req, res, next) => {
 };
 
 // 모임 작성 페이지
-const getWrite = (req, res) => {
+const getWrite = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
-    res.render("meeting/write");
+    try {
+        const area = req.query.area || '';
+        let placeInfo = null;
+        let parkingCount = 0;
+        let restroomCount = 0;
+
+        if (area) {
+            placeInfo = await placeService.getPlaceByName(area);
+            if (placeInfo) {
+                const [parkingInfo, restroomInfo] = await Promise.all([
+                    kakaoLocalService.getNearbyParking(placeInfo.latitude, placeInfo.longitude),
+                    kakaoLocalService.getNearbyRestrooms(placeInfo.latitude, placeInfo.longitude)
+                ]);
+                parkingCount = parkingInfo.length;
+                restroomCount = restroomInfo.length;
+            }
+        }
+        res.render("meeting/write", { area, placeInfo, parkingCount, restroomCount });
+    } catch (error) {
+        next(error);
+    }
 };
 
 // 모임 작성 처리
