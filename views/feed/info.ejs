@@ -23,17 +23,19 @@
                 <div class="card-body">
                   <div class="d-flex align-items-center mb-3">
                     <span class="fs-2 me-2">
-                      <%= feed.author.avatar_emoji %>
+                      <%= feed.author ? feed.author.avatar_emoji : '😊' %>
                     </span>
                     <div>
                       <div class="fw-bold">
-                        <%= feed.author.nickname %>
+                        <%= feed.author ? feed.author.nickname : '알 수 없음' %>
                       </div>
-                      <div class="text-muted small">📍 <%= feed.locationTag %> · <%= new
-                            Date(feed.createdAt).toLocaleString() %>
+                      <div class="text-muted small">
+                        📍 <%= feed.locationTag %>
+                        <% if(feed.category) { %> · <span class="badge bg-secondary"><%= feed.category %></span><% } %>
+                        · <%= new Date(feed.createdAt).toLocaleString() %>
                       </div>
                     </div>
-                    <% if(user && user.id===feed.author._id.toString()) { %>
+                    <% if(user && feed.author && user.id===feed.author._id.toString()) { %>
                       <div class="ms-auto">
                         <a href="/feed/modify/<%= feed._id %>" class="btn btn-sm btn-outline-secondary">수정</a>
                         <form action="/feed/delete/<%= feed._id %>" method="post" class="d-inline"
@@ -73,8 +75,8 @@
                           <li class="list-group-item px-0">
                             <div class="d-flex justify-content-between mb-1">
                               <span class="fw-bold small">
-                                <%= comment.author.avatar_emoji %>
-                                  <%= comment.author.nickname %>
+                                <%= comment.author ? comment.author.avatar_emoji : '😊' %>
+                                  <%= comment.author ? comment.author.nickname : '알 수 없음' %>
                               </span>
                               <span class="text-muted small">
                                 <%= new Date(comment.createdAt).toLocaleString() %>
@@ -83,7 +85,7 @@
                             <p class="mb-1">
                               <%= comment.content %>
                             </p>
-                            <% if(user && user.id===comment.author._id.toString()) { %>
+                            <% if(user && comment.author && user.id===comment.author._id.toString()) { %>
                               <form action="/comment/delete" method="post" class="text-end">
                                 <input type="hidden" name="commentId" value="<%= comment._id %>">
                                 <input type="hidden" name="boardId" value="<%= feed._id %>">
@@ -96,6 +98,9 @@
                           <% }) %>
                   </ul>
             </div>
+          </div>
+          <div class="mt-3">
+            <a href="/feed/list" class="btn btn-outline-secondary">목록으로</a>
           </div>
         </div>
       </div>
