@@ -33,6 +33,15 @@ const userSchema = new mongoose.Schema(
             type : String,
             default : null
         },
+        profileImage: {
+            type: String,
+            default: 'default-profile.png'
+        },
+        provider: {
+            type: String,
+            enum: ['local', 'google', 'naver'],
+            default: 'local'
+        },
         // 알림 설정 필드 추가
         congestion_alert: { type: String, default: 'uncrowded' },
         notify_start: { type: String, default: '08:00' },

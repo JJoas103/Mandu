@@ -1,33 +1,67 @@
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;//인증 방법 정의 - 로컬
+const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const NaverStrategy = require('passport-naver-v2').Strategy;
 const bcrypt = require('bcrypt');
 const userService = require('../services/userService');
 
+// 로컬 로그인
 passport.use(new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password'
-}, async(email, password, done) => {
+}, async (email, password, done) => {
     try {
         const user = await userService.findUserByEmail(email);
-        if(!user){
-            return done(null, false, {message : '이메일 또는 비밀번호가 일치하지 않습니다'});
-            //null: 서버에러가 아님 / false : 인증 실패
-        }
-        //비밀번호 일치 확인
+        if (!user) return done(null, false, { message: '이메일 또는 비밀번호가 일치하지 않습니다' });
+        
         const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch){
-            return done(null, false, {message : '비밀번호가 일치하지 않습니다'});
-        }
-        done(null, user);
+        if (!isMatch) return done(null, false, { message: '비밀번호가 일치하지 않습니다' });
+        
+        return done(null, user);
     } catch (error) {
-        return done(error);//서버 오류(DB 연결 실패 등)
+        return done(error);
     }
 }));
 
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-});
+// 구글 로그인
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: '/auth/google/callback'
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        const user = await userService.createSocialUser({
+            email: profile.emails[0].value,
+            nickname: profile.displayName,
+            profileImage: profile.photos[0].value,
+            provider: 'google'
+        });
+        return done(null, user);
+    } catch (error) {
+        return done(error);
+    }
+}));
 
+// 네이버 로그인
+passport.use(new NaverStrategy({
+    clientID: process.env.NAVER_CLIENT_ID,
+    clientSecret: process.env.NAVER_CLIENT_SECRET,
+    callbackURL: '/auth/naver/callback'
+}, async (accessToken, refreshToken, profile, done) => {
+    try {
+        const user = await userService.createSocialUser({
+            email: profile.email,
+            nickname: profile.name,
+            profileImage: profile.profileImage,
+            provider: 'naver'
+        });
+        return done(null, user);
+    } catch (error) {
+        return done(error);
+    }
+}));
+
+passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await userService.findUserById(id);

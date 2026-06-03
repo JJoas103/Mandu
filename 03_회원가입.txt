@@ -1,3 +1,14 @@
+<<<<<<< HEAD
+# 0 header.ejs에 회원가입 버튼 링크 설정
+    <li class="nav-item"><a class="nav-link" href="/user/join">회원가입</a></li>
+# 0 join.ejs에 form 태그 action 속성값 추가
+    <form action="/user/join" method="post">
+
+# 1 app.js에 urlencoded 미들웨어 등록
+app.use(express.urlencoded({extended : true}));
+
+#2 userRouter 생성
+=======
 # 1 User Model 만들기
 - models 폴더에 컬렉션 스키마 규칙을 정의한 model 파일 생성(models > User.js)
     const mongoose = require('mongoose');
@@ -58,6 +69,7 @@ app.use(express.urlencoded({extended : true}));
 #3 userRouter 생성
     const mongoose = require('mongoose');
     const User = require('../models/User');
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
     //회원가입 페이지
     router.get('/join', (req, res) => {
         res.render('user/join');
@@ -65,18 +77,29 @@ app.use(express.urlencoded({extended : true}));
 
     //회원가입 처리
     router.post('/join', async (req, res) => {
+<<<<<<< HEAD
+
+        try {
+            const { email, password, name, address } = req.body;
+            //회원 생성
+=======
         try {
             const { email, password, name, address } = req.body;
 ==> 클라이언트가 보낸 파라미터를 가져오기
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
             const newUser = new User({
                 email,
                 password,
                 name,
                 address
             });
+<<<<<<< HEAD
+            await newUser.save();
+=======
 ==> User Model로 User 객체 만들기
             await newUser.save();
 ==> DB에 해당 객체 저장
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
             console.log('회원가입 완료');
         } catch (error) {
             console.error('가입 실패', error.message);
@@ -84,6 +107,10 @@ app.use(express.urlencoded({extended : true}));
     });
 
 #3 app.js에 userRouter import 및 등록
+<<<<<<< HEAD
+const userRouter = require('./routes/userRouter');
+app.use('/user', userRouter);
+=======
     ...
     const userRouter = require('./routes/userRouter');
     ....
@@ -91,3 +118,4 @@ app.use(express.urlencoded({extended : true}));
     ...
 
 #4 몽고DB에서 확인
+>>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd

@@ -3,22 +3,24 @@ const router = express.Router();
 const { joinValidationRules, validate } = require('../middlewares/validationMiddleware');
 const userController = require('../controllers/userController');
 const passport = require('../config/passport');
+const { uploadProfile } = require('../config/upload');
 
-//회원가입 페이지
+// 회원가입
 router.get('/join', userController.getJoin);
-//회원가입 처리
-router.post('/join', joinValidationRules, validate('/member/join'), userController.postJoin);
-///이메일 중복확인
+router.post('/join', uploadProfile.single('uploadFile'), joinValidationRules, validate, userController.postJoin);
+
+// 이메일 중복 확인
 router.get('/check-email', userController.checkEmail);
-//로그인 페이지
+
+// 로그인
 router.get('/login', userController.getLogin);
-//로그인 처리
 router.post('/login', passport.authenticate('local', {
     successRedirect: '/',
     failureRedirect: '/member/login',
     failureMessage: true
 }));
-//로그아웃 처리
+
+// 로그아웃
 router.get('/logout', userController.logout);
 
 //마이페이지
@@ -26,7 +28,7 @@ router.get('/info', userController.getMemberInfo);
 
 //정보 수정
 router.get('/modify', userController.getModify);
-router.post('/modify', userController.postModify);
+router.post('/modify', uploadProfile.single('uploadFile'), userController.postModify);
 
 //찜·알림 설정
 router.get('/favorites', userController.getFavorites);
