@@ -18,7 +18,7 @@
       <div class="row align-items-center g-3">
         <div class="col-md-auto text-center">
           <div class="position-relative d-inline-block">
-            <% if(user.provider === 'google' || user.provider === 'naver' || user.profileImage.startsWith('http')) { %>
+            <% if(user.provider === 'google' || user.provider === 'naver' || (user.profileImage && user.profileImage.startsWith('http'))) { %>
               <img src="<%= user.profileImage %>" alt="프로필" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
             <% } else { %>
               <img src="/images/profile/<%= user.profileImage %>" alt="프로필" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
@@ -43,7 +43,7 @@
         <div class="col-md-auto">
           <div class="d-flex flex-column gap-2">
             <a href="/member/modify" class="btn btn-outline-brand btn-sm">회원정보 수정</a>
-            <a href="/member/favorite" class="btn btn-outline-brand btn-sm">찜·알림</a>
+            <a href="/member/favorites" class="btn btn-outline-brand btn-sm">찜·알림</a>
           </div>
         </div>
       </div>
@@ -64,7 +64,7 @@
             <span class="chip chip-green">↑ +2.1 이번주</span>
           </div>
           <div class="manner-bar-bg mt-3">
-            <div class="manner-bar-fill" style="width: <%= user.manner_score %>"></div>
+            <div class="manner-bar-fill" style="width: <%= user.manner_score %>%"></div>
           </div>
         </div>
       </div>
