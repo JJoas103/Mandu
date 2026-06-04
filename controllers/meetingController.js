@@ -45,13 +45,17 @@ const getWrite = async (req, res, next) => {
 const postWrite = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
+        // 이미지 필수 삽입 기능 추가
+        if (!req.file) {
+            return res.status(400).send("잘못된 접근입니다");
+        }
         const meetingDate = new Date(`${req.body.meeting_date}T${req.body.meeting_time}`);
         const meetingData = {
             ...req.body,
             meetingDate,
             author: req.user.id
         };
-        const profileImage = req.file ? req.file.fimename : null;
+        const profileImage = req.file.filename;
         await meetingService.createMeeting(meetingData, profileImage);
         res.redirect("/meeting/list");
     } catch (error) {
