@@ -82,9 +82,10 @@ const getMemberInfo = async (req, res, next) => {
 }
 //# 찜·알림 설정 페이지
 const getFavorites = (req, res) => {
-    res.render('member/favorites', { 
+    res.render('member/favorites', {
         title: '찜·알림 설정',
-        user: req.user
+        user: req.user,
+        favorites: req.user ? req.user.favorites || [] : []
     });
 };
 

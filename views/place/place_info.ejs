@@ -196,12 +196,16 @@
 
 				<!-- 방문 인증 & 찜하기 -->
 				<div class="d-grid gap-2">
-					<button type="button" class="btn btn-brand btn-lg" data-bs-toggle="modal" data-bs-target="#verifyModal">
+					<button type="button" class="btn btn-brand btn-lg" id="visitBtn"
+						data-logged-in="<%= user ? 'true' : 'false' %>"
+						data-place-id="<%= place.area_cd %>"
+						data-place-name="<%= place.name %>">
 						📍 방문 인증하기
 					</button>
 					<% if (user) { %>
 					<form action="/favorite/add" method="post">
 						<input type="hidden" name="place_id" value="<%= place.area_cd %>">
+						<input type="hidden" name="place_name" value="<%= place.name %>">
 						<button type="submit" class="btn btn-outline-brand w-100">⭐ 찜한 장소에 추가</button>
 					</form>
 					<% } else { %>
@@ -221,19 +225,17 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 				</div>
 				<div class="modal-body text-center">
-					<p class="text-muted">현재 위치를 확인하고 인증합니다</p>
-					<div class="p-3 rounded" style="background:var(--brand-50); border:1px solid var(--brand-border);">
-						<h5 class="mb-1"><%= place.name %></h5>
-						<div class="small" style="color:var(--brand);">GPS: <%= place.latitude %>° N, <%= place.longitude %>° E</div>
+					<div id="verifyDefault">
+						<p class="text-muted">현재 위치를 확인하고 인증합니다</p>
+						<div class="p-3 rounded" style="background:var(--brand-50); border:1px solid var(--brand-border);">
+							<h5 class="mb-1"><%= place.name %></h5>
+							<div class="small" style="color:var(--brand);">GPS: <%= place.latitude %>° N, <%= place.longitude %>° E</div>
+						</div>
 					</div>
+					<div id="verifyResult" class="d-none"></div>
 				</div>
-				<div class="modal-footer">
-					<form action="/visit/verify" method="post" class="w-100">
-						<input type="hidden" name="place_id" value="<%= place.area_cd %>">
-						<input type="hidden" name="gps_latitude" value="<%= place.latitude %>">
-						<input type="hidden" name="gps_longitude" value="<%= place.longitude %>">
-						<button type="submit" class="btn btn-brand w-100">인증하기 (+2 매너점수)</button>
-					</form>
+				<div class="modal-footer" id="verifyFooter">
+					<button type="button" class="btn btn-brand w-100" id="confirmVisitBtn">인증하기 (+2 매너점수)</button>
 				</div>
 			</div>
 		</div>
@@ -243,5 +245,73 @@
     <%- include('../partials/footer') %>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+		const visitBtn = document.getElementById('visitBtn');
+		const isLoggedIn = visitBtn.dataset.loggedIn === 'true';
+		const placeId = visitBtn.dataset.placeId;
+		const placeName = visitBtn.dataset.placeName;
+
+		visitBtn.addEventListener('click', function () {
+			if (!isLoggedIn) {
+				showToast('로그인이 필요합니다.', 'danger');
+				return;
+			}
+			resetModal();
+			new bootstrap.Modal(document.getElementById('verifyModal')).show();
+		});
+
+		document.getElementById('confirmVisitBtn').addEventListener('click', async function () {
+			this.disabled = true;
+			this.textContent = '인증 중...';
+
+			try {
+				const res = await fetch('/visit/verify', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ place_id: placeId, place_name: placeName })
+				});
+				const data = await res.json();
+
+				document.getElementById('verifyDefault').classList.add('d-none');
+				document.getElementById('verifyFooter').classList.add('d-none');
+				const resultEl = document.getElementById('verifyResult');
+				resultEl.classList.remove('d-none');
+
+				if (data.success) {
+					resultEl.innerHTML = `<div class="text-success fs-5 mb-2">✅ ${data.message}</div>
+						<div class="text-muted small">현재 매너 점수: <strong>${data.newScore}</strong></div>`;
+					setTimeout(() => bootstrap.Modal.getInstance(document.getElementById('verifyModal')).hide(), 2000);
+				} else {
+					resultEl.innerHTML = `<div class="text-danger fs-6">⚠️ ${data.message}</div>`;
+					document.getElementById('verifyFooter').classList.remove('d-none');
+					this.disabled = false;
+					this.textContent = '인증하기 (+2 매너점수)';
+				}
+			} catch (e) {
+				document.getElementById('verifyResult').innerHTML = '<div class="text-danger">오류가 발생했습니다. 다시 시도해 주세요.</div>';
+				this.disabled = false;
+				this.textContent = '인증하기 (+2 매너점수)';
+			}
+		});
+
+		function resetModal() {
+			document.getElementById('verifyDefault').classList.remove('d-none');
+			document.getElementById('verifyResult').classList.add('d-none');
+			document.getElementById('verifyResult').innerHTML = '';
+			document.getElementById('verifyFooter').classList.remove('d-none');
+			const btn = document.getElementById('confirmVisitBtn');
+			btn.disabled = false;
+			btn.textContent = '인증하기 (+2 매너점수)';
+		}
+
+		function showToast(message, type) {
+			const toast = document.createElement('div');
+			toast.className = `position-fixed bottom-0 start-50 translate-middle-x mb-4 alert alert-${type} shadow`;
+			toast.style.cssText = 'z-index:9999; min-width:220px; text-align:center;';
+			toast.textContent = message;
+			document.body.appendChild(toast);
+			setTimeout(() => toast.remove(), 2500);
+		}
+	</script>
 </body>
 </html>

@@ -30,13 +30,31 @@
 							<small class="text-muted">혼잡도 변화 시 알림</small>
 						</div>
 
+						<% if (!favorites || favorites.length === 0) { %>
 						<div class="text-center py-5 text-muted">
-                            찜 한 장소가 없습니다. <br> 장소 탐색에서 마음에 드는 곳을 추가해 보세요!
-                        </div>
-
+							찜 한 장소가 없습니다. <br> 장소 탐색에서 마음에 드는 곳을 추가해 보세요!
+						</div>
 						<div class="text-center mt-3">
 							<a href="/" class="btn btn-outline-brand">+ 장소 찜하러 가기</a>
 						</div>
+						<% } else { %>
+						<div class="list-group list-group-flush mb-3">
+							<% favorites.forEach(function(f) { %>
+							<div class="list-group-item px-0 d-flex justify-content-between align-items-center">
+								<a href="/place/<%= f.placeId %>" class="text-decoration-none fw-semibold" style="color:var(--brand);">
+									📍 <%= f.placeName %>
+								</a>
+								<form action="/favorite/remove" method="post" class="mb-0">
+									<input type="hidden" name="place_id" value="<%= f.placeId %>">
+									<button type="submit" class="btn btn-sm btn-outline-danger">찜 해제</button>
+								</form>
+							</div>
+							<% }) %>
+						</div>
+						<div class="text-center mt-2">
+							<a href="/" class="btn btn-outline-brand btn-sm">+ 장소 더 찜하러 가기</a>
+						</div>
+						<% } %>
 					</div>
 				</div>
 			</div>
