@@ -34,7 +34,8 @@ const getWrite = async (req, res, next) => {
                 restroomCount = restroomInfo.length;
             }
         }
-        res.render("meeting/write", { area, placeInfo, parkingCount, restroomCount });
+        const markerInfo = await placeService.getAllMarker(); // 지도 마커 정보 가져옴
+        res.render("meeting/write", { area, placeInfo, parkingCount, restroomCount, markerInfo });
     } catch (error) {
         next(error);
     }
