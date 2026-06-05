@@ -43,7 +43,14 @@
         <div class="col-md-auto">
           <div class="d-flex flex-column gap-2">
             <a href="/member/modify" class="btn btn-outline-brand btn-sm">회원정보 수정</a>
-            <a href="/member/favorites" class="btn btn-outline-brand btn-sm">찜·알림</a>
+            <a href="/member/favorites" class="btn btn-outline-brand btn-sm position-relative">
+              ⭐ 찜·알림
+              <% if (typeof unreadNotificationCount !== 'undefined' && unreadNotificationCount > 0) { %>
+                <span class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle">
+                  <span class="visually-hidden">새 알림</span>
+                </span>
+              <% } %>
+            </a>
           </div>
         </div>
       </div>
@@ -58,13 +65,13 @@
           <h6 class="card-title mb-3">⭐ 매너 점수</h6>
           <div class="d-flex justify-content-between align-items-end mb-2">
             <div>
-              <h1 class="mb-0 text-success"><%= user.manner_score %></h1>
-              <div class="small text-muted">상위 15% · 매너왕 근접</div>
+              <h1 class="mb-0 text-success"><%= user.manner_score.toFixed(1) %></h1>
+              <div class="small text-muted"><%= user.manner_score >= 80 ? '상위 5% · 매너왕' : (user.manner_score >= 60 ? '상위 15% · 우수 활동자' : '일반 등급') %></div>
             </div>
-            <span class="chip chip-green">↑ +2.1 이번주</span>
+            <span class="chip chip-green">↑ +<%= (user.manner_score - 50).toFixed(1) %> 활동포인트</span>
           </div>
           <div class="manner-bar-bg mt-3">
-            <div class="manner-bar-fill" style="width: <%= user.manner_score %>%"></div>
+            <div class="manner-bar-fill" data-score="<%= user.manner_score %>"></div>
           </div>
         </div>
       </div>
@@ -127,3 +134,8 @@
 </main>
 
 <%- include('../partials/footer') %>
+<script>
+  document.querySelectorAll('.manner-bar-fill').forEach(function(el) {
+    el.style.width = el.dataset.score + '%';
+  });
+</script>

@@ -45,7 +45,25 @@
 						<% } %>
 					</div>
 				</div>
-				<a href="/meeting/write?area=<%= encodeURIComponent(place.name) %>" class="btn btn-brand btn-lg">이 장소에서 모임 만들기</a>
+				<div class="d-flex flex-column gap-2 align-items-end">
+					<a href="/meeting/write?area=<%= encodeURIComponent(place.name) %>" class="btn btn-brand btn-lg">이 장소에서 모임 만들기</a>
+					<% if (user) { %>
+						<% if (isFavorite) { %>
+							<form action="/favorite/delete" method="post" class="w-100">
+								<input type="hidden" name="place_id" value="<%= place.area_cd %>">
+								<button type="submit" class="btn btn-success btn-lg w-100" onclick="return confirm('찜한 장소에서 삭제하시겠습니까?')">✅ 이미 찜한 장소</button>
+							</form>
+						<% } else { %>
+							<form action="/favorite/add" method="post" id="favoriteForm" class="w-100">
+								<input type="hidden" name="place_id" value="<%= place.area_cd %>">
+								<input type="hidden" name="reason" id="favoriteReason">
+								<button type="button" onclick="handleFavorite()" class="btn btn-outline-brand btn-lg w-100">⭐ 찜한 장소에 추가</button>
+							</form>
+						<% } %>
+					<% } else { %>
+						<a href="/member/login" class="btn btn-outline-brand btn-lg w-100">⭐ 찜하기 (로그인 필요)</a>
+					<% } %>
+				</div>
 			</div>
 		</div>
 
@@ -193,7 +211,7 @@
 					</div>
 				</div>
 
-				<!-- 방문 인증 & 찜하기 & 제보 -->
+				<!-- 방문 인증 & 제보 -->
 				<div class="d-grid gap-2">
 					<button type="button" class="btn btn-brand btn-lg" id="visitBtn"
 						data-logged-in="<%= user ? 'true' : 'false' %>"
@@ -201,16 +219,7 @@
 						data-place-name="<%= place.name %>">
 						📍 방문 인증하기
 					</button>
-					<% if (user) { %>
-					<form action="/favorite/add" method="post">
-						<input type="hidden" name="place_id" value="<%= place.area_cd %>">
-						<input type="hidden" name="place_name" value="<%= place.name %>">
-						<button type="submit" class="btn btn-outline-brand w-100">⭐ 찜한 장소에 추가</button>
-					</form>
-					<% } else { %>
-					<a href="/member/login" class="btn btn-outline-brand w-100">⭐ 찜하기 (로그인 필요)</a>
-					<% } %>
-					<a href="/feed/write?place_id=<%= encodeURIComponent(place.area_cd) %>&place_name=<%= encodeURIComponent(place.name) %>" 
+					<a href="/feed/write?place_id=<%= encodeURIComponent(place.area_cd) %>&place_name=<%= encodeURIComponent(place.name) %>"
 						class="btn btn-outline-secondary w-100">📡 이 장소 실시간 제보하기</a>
 				</div>
 			</div>
@@ -328,6 +337,17 @@
 			toast.textContent = message;
 			document.body.appendChild(toast);
 			setTimeout(() => toast.remove(), 2500);
+		}
+
+		function handleFavorite() {
+			const reason = prompt("이 장소를 찜하는 이유를 입력해주세요 (예: 한산해서 좋아요, 풍경이 예뻐요):");
+			if (reason === null) return;
+			if (reason.trim() === "") {
+				alert("이유를 입력해야 찜할 수 있습니다.");
+				return;
+			}
+			document.getElementById('favoriteReason').value = reason;
+			document.getElementById('favoriteForm').submit();
 		}
 	</script>
 </body>

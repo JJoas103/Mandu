@@ -1,33 +1,57 @@
-const User = require('../models/User');
+const Favorite = require('../models/Favorite');
+const userService = require('../services/userService');
 
+exports.addFavorite = async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.redirect('/member/login');
+    try {
+        const { place_id, reason } = req.body;
+        const userId = req.user.id;
 
-exports.postAdd = async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/member/login');
-    }
+        const existing = await Favorite.findOne({ user: userId, place_id });
+        if (existing) {
+            return res.send(`
+                <script>
+                    alert('이미 찜한 장소입니다.');
+                    history.back();
+                </script>
+            `);
+        }
 
-    const { place_id, place_name } = req.body;
-    const userId = req.user._id;
-
-    const alreadyFavorited = req.user.favorites.some(f => f.placeId === place_id);
-    if (!alreadyFavorited) {
-        await User.findByIdAndUpdate(userId, {
-            $push: { favorites: { placeId: place_id, placeName: place_name } }
+        const newFavorite = new Favorite({
+            user: userId,
+            place_id,
+            reason: reason || ''
         });
-    }
+        await newFavorite.save();
 
-    res.redirect('/member/favorites');
+        await userService.updateMannerScore(userId, 1);
+
+        res.send(`
+            <script>
+                alert('"${reason}" 이유로 찜한 장소에 추가되었습니다! 매너 점수가 상승했습니다.');
+                location.href = '/place/${place_id}';
+            </script>
+        `);
+    } catch (error) {
+        next(error);
+    }
 };
 
-exports.postRemove = async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.redirect('/member/login');
+exports.deleteFavorite = async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.redirect('/member/login');
+    try {
+        const { place_id } = req.body;
+        const userId = req.user.id;
+
+        await Favorite.findOneAndDelete({ user: userId, place_id });
+
+        res.send(`
+            <script>
+                alert('찜한 장소에서 삭제되었습니다.');
+                location.href = '/member/favorites';
+            </script>
+        `);
+    } catch (error) {
+        next(error);
     }
-
-    const { place_id } = req.body;
-    await User.findByIdAndUpdate(req.user._id, {
-        $pull: { favorites: { placeId: place_id } }
-    });
-
-    res.redirect('/member/favorites');
 };

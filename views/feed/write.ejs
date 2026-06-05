@@ -53,6 +53,18 @@
               <% } %>
 
               <div class="mb-3">
+                <label for="category" class="form-label">카테고리 <span class="text-danger">*</span></label>
+                <select id="category" name="category" class="form-select" required>
+                  <option value="">카테고리를 선택하세요</option>
+                  <option value="혼잡도">혼잡도</option>
+                  <option value="주차">주차</option>
+                  <option value="맛집">맛집</option>
+                  <option value="날씨">날씨</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
                 <label for="content" class="form-label">내용 <span class="text-danger">*</span></label>
                 <textarea id="content" name="content" class="form-control" rows="5"
                   placeholder="현재 장소의 분위기, 혼잡도 등을 공유해주세요" required></textarea>

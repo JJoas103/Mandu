@@ -9,6 +9,10 @@ const { uploadProfile } = require('../config/upload');
 router.get('/join', userController.getJoin);
 router.post('/join', uploadProfile.single('uploadFile'), joinValidationRules, validate, userController.postJoin);
 
+// 소셜 가입 온보딩
+router.get('/social-join', userController.getSocialJoin);
+router.post('/social-join', uploadProfile.single('uploadFile'), userController.postSocialJoin);
+
 // 이메일 중복 확인
 router.get('/check-email', userController.checkEmail);
 

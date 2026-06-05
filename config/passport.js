@@ -13,10 +13,10 @@ passport.use(new LocalStrategy({
     try {
         const user = await userService.findUserByEmail(email);
         if (!user) return done(null, false, { message: '이메일 또는 비밀번호가 일치하지 않습니다' });
-        
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return done(null, false, { message: '비밀번호가 일치하지 않습니다' });
-        
+
         return done(null, user);
     } catch (error) {
         return done(error);
@@ -30,13 +30,23 @@ passport.use(new GoogleStrategy({
     callbackURL: '/auth/google/callback'
 }, async (accessToken, refreshToken, profile, done) => {
     try {
-        const user = await userService.createSocialUser({
-            email: profile.emails[0].value,
-            nickname: profile.displayName,
-            profileImage: profile.photos[0].value,
-            provider: 'google'
-        });
-        return done(null, user);
+        const email = profile.emails[0].value;
+        let user = await userService.findUserByEmail(email);
+
+        if (user) {
+            return done(null, user);
+        } else {
+            // 신규 소셜 유저 → 온보딩 페이지로 안내 (DB 저장 안 함)
+            return done(null, false, {
+                type: 'social_new',
+                socialData: {
+                    email,
+                    nickname: profile.displayName,
+                    profileImage: profile.photos[0].value,
+                    provider: 'google'
+                }
+            });
+        }
     } catch (error) {
         return done(error);
     }
@@ -49,13 +59,22 @@ passport.use(new NaverStrategy({
     callbackURL: '/auth/naver/callback'
 }, async (accessToken, refreshToken, profile, done) => {
     try {
-        const user = await userService.createSocialUser({
-            email: profile.email,
-            nickname: profile.name,
-            profileImage: profile.profileImage,
-            provider: 'naver'
-        });
-        return done(null, user);
+        const email = profile.email;
+        let user = await userService.findUserByEmail(email);
+
+        if (user) {
+            return done(null, user);
+        } else {
+            return done(null, false, {
+                type: 'social_new',
+                socialData: {
+                    email,
+                    nickname: profile.nickname,
+                    profileImage: profile.profileImage,
+                    provider: 'naver'
+                }
+            });
+        }
     } catch (error) {
         return done(error);
     }

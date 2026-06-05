@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema(
             enum : ['서울', '경기', '인천', '기타'],
             default : '서울'
         },
+        address : {
+            type : String,
+            default : ''
+        },
         avatar_emoji : {
             type : String,
             default : '😊'
@@ -49,14 +53,7 @@ const userSchema = new mongoose.Schema(
         alert_meeting: { type: Boolean, default: true },
         alert_comment: { type: Boolean, default: true },
         alert_badge: { type: Boolean, default: true },
-        alert_marketing: { type: Boolean, default: false },
-        favorites: [
-            {
-                placeId:   { type: String },
-                placeName: { type: String },
-                addedAt:   { type: Date, default: Date.now }
-            }
-        ]
+        alert_marketing: { type: Boolean, default: false }
     },{
         timestamps : true
     }
