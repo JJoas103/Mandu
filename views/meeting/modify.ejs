@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>장소 상세 - 모여봄</title>
+	<title>모임 수정 - 모여봄</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/css/style.css" rel="stylesheet">
 </head>
@@ -13,27 +13,79 @@
     <%- include('../partials/header') %>
 	<!-- 메인 -->
 	<main class="container my-4">
-		<div class="card shadow-sm">
-			<div class="card-body p-4">
-				<h4 class="mb-3">게시글 수정</h4>
-				<form action="/feed/modify" method="post" enctype="multipart/form-data">
-					<div class="mb-3">
-						<label for="board_title" class="form-label">제목</label> 
-						<input name="title" type="text" id="board_title" class="form-control" placeholder="제목을 입력하세요" value="<%= board.title%>" />
+		<div class="row justify-content-center">
+			<div class="col-lg-8">
+				<div class="card shadow-sm">
+					<div class="card-body p-4">
+						<h4 class="mb-3">모임 수정</h4>
+						<form action="/meeting/modify/<%= meeting._id %>" method="post" enctype="multipart/form-data">
+							<!-- 제목 -->
+							<div class="mb-3">
+								<label for="meeting_title" class="form-label">모임 제목 <span class="text-danger">*</span></label>
+								<input type="text" id="meeting_title" name="title" class="form-control" placeholder="제목을 입력하세요" value="<%= meeting.title %>" required />
+							</div>
+
+							<div class="mb-3">
+								<label class="form-label">장소 선택 <span class="text-danger">*</span></label>
+								<div id="map" style="width:100%; height:300px; margin-bottom:10px;"></div>
+								<input type="text" id="place_name" name="area" class="form-control" value="<%= meeting.area %>" readonly required>
+								<div id="markerInfo" data-markers='<%- JSON.stringify(markerInfo) %>'></div>
+							</div>
+
+							<!-- 소개글 -->
+							<div class="mb-3">
+								<label for="meeting_desc" class="form-label">소개글 <span class="text-danger">*</span></label>
+								<textarea id="meeting_desc" name="content" class="form-control" rows="8" placeholder="내용을 입력하세요" required><%= meeting.content %></textarea>
+							</div>
+
+							<!-- 일시 + 인원 -->
+							<div class="row g-3 mb-3">
+								<div class="col-md-6">
+									<label for="meeting_date" class="form-label">모임 날짜 <span class="text-danger">*</span></label>
+									<input type="date" id="meeting_date" name="meeting_date" class="form-control" value="<%= new Date(meeting.meetingDate).toISOString().split('T')[0] %>" required>
+								</div>
+								<div class="col-md-3">
+									<label for="meeting_time" class="form-label">시간 <span class="text-danger">*</span></label>
+									<input type="time" id="meeting_time" name="meeting_time" class="form-control" value="<%= new Date(meeting.meetingDate).toTimeString().slice(0,5) %>" required>
+								</div>
+								<div class="col-md-3">
+									<label for="max_headcount" class="form-label">모집 인원 <span class="text-danger">*</span></label>
+									<input type="number" id="max_headcount" name="maxParticipants" class="form-control" value="<%= meeting.maxParticipants %>" min="2" max="20" required>
+								</div>
+							</div>
+
+							<!-- 태그 -->
+							<div class="mb-3">
+								<label class="form-label">태그 (복수 선택)</label>
+								<div class="d-flex flex-wrap gap-2">
+									<% const tags = ["주차가능", "조용한카페", "반려동물", "야외활동", "실내위주", "대중교통", "2시간이내", "식사포함"]; %>
+									<% tags.forEach((tag, index) => { %>
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" name="tags" value="<%= tag %>" id="tag<%= index %>" <%= meeting.tags.includes(tag) ? 'checked' : '' %>>
+										<label class="form-check-label" for="tag<%= index %>"><%= tag %></label>
+									</div>
+									<% }) %>
+								</div>
+							</div>
+
+							<div class="mb-3">
+								<label for="upload_file" class="form-label">첨부 이미지 변경</label>
+								<% if (meeting.imageUrl) { %>
+									<div class="mb-2">
+										<img src="/images/upload/<%= meeting.imageUrl %>" alt="현재 이미지" style="max-width: 200px; display: block;">
+										<small class="text-muted">현재 이미지</small>
+									</div>
+								<% } %>
+								<input type="file" id="upload_file" name="imageUrl" class="form-control" accept="image/*" />
+							</div> 
+
+							<div class="d-flex gap-2">
+								<input type="submit" value="수정 완료" class="btn btn-brand" />
+								<a class="btn btn-outline-secondary" href="/meeting/info/<%= meeting._id %>">취소</a>
+							</div>
+						</form>
 					</div>
-					<div class="mb-3">
-						<label for="board_content" class="form-label">본문</label>
-						<textarea name="content" class="form-control" rows="8" placeholder="내용을 입력하세요"><%= board.content %></textarea>
-					</div>
-					<div class="mb-3">
-						<label for="uploadFile" class="form-label">첨부 이미지</label> 
-						<input type="file" class="form-control" name="uploadFile" />
-					</div> 
-					<div class="d-flex gap-2">
-						<input type="submit" value="수정" class="btn btn-brand" />
-						<a class="btn btn-outline-secondary" href="/feed/info/<%= board.id %>">취소</a>
-					</div>
-				</form>
+				</div>
 			</div>
 		</div>
 	</main>
@@ -42,5 +94,35 @@
     <%- include('../partials/footer') %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%= process.env.KAKAO_MAP_API %>"></script>
+	<script>
+		const markerDataDiv = document.getElementById('markerInfo');
+		const markerData = JSON.parse(markerDataDiv.dataset.markers);
+		const mapContainer = document.getElementById('map');
+		const mapOption = {
+				center: new kakao.maps.LatLng(<%= meeting.latitude || 37.5665 %>, <%= meeting.longitude || 126.9780 %>),
+				level: 8
+		};
+		const map = new kakao.maps.Map(mapContainer, mapOption);
+		const imageSize = new kakao.maps.Size(35, 35);
+		const markers = markerData.map(p => {
+				let mkImg = "/images/marker_available.png";
+				if (p.congest_lvl === '혼잡') mkImg = "/images/marker_crowdede.png";
+				else if (p.congest_lvl === '약간 붐빔') mkImg = "/images/marker_little_crowded.png";
+				else if (p.congest_lvl === '보통') mkImg = "/images/marker_normal.png";
+				const markerImage = new kakao.maps.MarkerImage(mkImg, imageSize);
+				const marker = new kakao.maps.Marker({
+						map: map,
+						position: new kakao.maps.LatLng(p.latitude, p.longitude),
+						title: p.name,
+						image: markerImage
+				});
+				kakao.maps.event.addListener(marker, 'click', function() {
+						document.getElementById('place_name').value = p.name;
+						alert(p.name + ' 장소가 선택되었습니다.');
+				});
+				return marker;
+		});
+	</script>
   </body>
 </html>

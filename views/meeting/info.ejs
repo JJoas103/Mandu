@@ -39,9 +39,12 @@
       </div>
 
       <div class="post-content fs-5 mb-4">
-        <div>
-          <strong>임시 이미지 링크<br>
-          img src=/images/upload/<%= meeting.imageUrl %> <br></strong>
+        <div class="ratio ratio-16x9 mb-3" style="max-width: 600px;">
+          <img src="/images/upload/<%= meeting.imageUrl %>" 
+          onerror="this.onerror=null; this.src='https://placehold.co/500x300/e0e0e0/666666?text=No+Image';"
+          class="rounded" 
+          style="object-fit: cover;" 
+          alt="모임 이미지">
         </div>
         <%= meeting.content %>
       </div>

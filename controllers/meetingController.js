@@ -55,8 +55,8 @@ const postWrite = async (req, res, next) => {
             meetingDate,
             author: req.user.id
         };
-        const profileImage = req.file.filename;
-        await meetingService.createMeeting(meetingData, profileImage);
+        const imageUrl = req.file.filename;
+        await meetingService.createMeeting(meetingData, imageUrl);
         res.redirect("/meeting/list");
     } catch (error) {
         next(error);
@@ -89,7 +89,8 @@ const getModify = async (req, res, next) => {
         if (meeting.author._id.toString() !== req.user.id) {
             return res.status(403).send("권한이 없습니다");
         }
-        res.render("meeting/modify", { meeting });
+        const markerInfo = await placeService.getAllMarker();
+        res.render("meeting/modify", { meeting, markerInfo });
     } catch (error) {
         next(error);
     }
@@ -98,7 +99,16 @@ const getModify = async (req, res, next) => {
 // 모임 수정 처리
 const postModify = async (req, res, next) => {
     try {
-        await meetingService.updateMeeting(req.params.id, req.body, req.user.id);
+        const updateData = { ...req.body };
+        if (req.file) {
+            updateData.imageUrl = req.file.filename;
+        }
+        // 날짜와 시간 합치기
+        if (req.body.meeting_date && req.body.meeting_time) {
+            updateData.meetingDate = new Date(`${req.body.meeting_date}T${req.body.meeting_time}`);
+        }
+        
+        await meetingService.updateMeeting(req.params.id, updateData, req.user.id);
         res.redirect(`/meeting/info/${req.params.id}`);
     } catch (error) {
         next(error);
