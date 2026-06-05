@@ -12,109 +12,177 @@
 	<!-- 헤더 -->
     <%- include('../partials/header') %>
 <main class="container my-4">
-  <article class="card shadow-sm">
-    <div class="card-body p-4">
-      <div class="d-flex justify-content-between align-items-start mb-3">
-        <div>
-          <h3 class="mb-1"><%= meeting.title %></h3>
-          <div class="small text-muted">
-            작성자: <%= meeting.author.nickname %> · 
-            작성일: <%= new Date(meeting.createdAt).toLocaleDateString() %>
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <article class="card shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h3 class="mb-1"><%= meeting.title %></h3>
+              <div class="small text-muted">
+                주최자: <strong><%= meeting.author.nickname %> </strong>· 
+                작성일: <%= new Date(meeting.createdAt).toLocaleDateString() %>
+              </div>
+            </div>
+            <span class="chip chip-green">📍 <%= meeting.area %> · <%= meeting.congestionLevel %></span>
+          </div>
+
+          <div class="meeting-meta mb-4 p-3 bg-light rounded">
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <div class="small text-muted">모임 일시</div>
+                <div class="fw-bold"><%= new Date(meeting.meetingDate).toLocaleString() %></div>
+              </div>
+              <div class="col-6 col-md-3">
+                <div class="small text-muted">모집 인원</div>
+                <div class="fw-bold"><%= meeting.participants.length %> / <%= meeting.maxParticipants %> 명</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="post-content fs-5 mb-4">
+            <div class="ratio ratio-16x9 mb-3" style="max-width: 600px;">
+              <img src="/images/upload/<%= meeting.imageUrl %>" 
+              onerror="this.onerror=null; this.src='https://placehold.co/500x300/e0e0e0/666666?text=No+Image';"
+              class="rounded" 
+              style="object-fit: cover;" 
+              alt="모임 이미지">
+            </div>
+            <%= meeting.content %>
+          </div>
+
+          <div class="mb-4">
+            <% meeting.tags.forEach(tag => { %>
+            <span class="tag-soft">#<%= tag %></span>
+            <% }) %>
+          </div>
+
+          <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="/meeting/list">목록으로</a>
+            <% if(user && user.id === meeting.author._id.toString()) { %>
+            <a class="btn btn-brand" href="/meeting/modify/<%= meeting._id %>">수정</a>
+            <form action="/meeting/delete/<%= meeting._id %>" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?')">
+              <button type="submit" class="btn btn-outline-danger">삭제</button>
+            </form>
+            <% } %>
           </div>
         </div>
-        <span class="chip chip-green">📍 <%= meeting.area %> · <%= meeting.congestionLevel %></span>
-      </div>
+      </article>
 
-      <div class="meeting-meta mb-4 p-3 bg-light rounded">
-        <div class="row g-3">
-          <div class="col-6 col-md-3">
-            <div class="small text-muted">모임 일시</div>
-            <div class="fw-bold"><%= new Date(meeting.meetingDate).toLocaleString() %></div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="small text-muted">모집 인원</div>
-            <div class="fw-bold"><%= meeting.participants.length %> / <%= meeting.maxParticipants %> 명</div>
+      <!-- 참여자 목록 section -->
+      <section class="mt-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5>참여자 (<%= meeting.participants.length %> / <%= meeting.maxParticipants %>)</h5>
+            <ul class="list-group list-group-flush">
+              <% meeting.participants.forEach(p => { %>
+                <li class="list-group-item d-flex align-items-center gap-3 px-0">
+                  <div style="font-size: 1.5rem;"><%= p.avatar_emoji %></div>
+                  <div>
+                    <strong><%= p.nickname %></strong>
+                    <div class="small text-muted">매너점수 <%= p.manner_score %></div>
+                  </div>
+                </li>
+              <% }) %>
+            </ul>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="post-content fs-5 mb-4">
-        <div class="ratio ratio-16x9 mb-3" style="max-width: 600px;">
-          <img src="/images/upload/<%= meeting.imageUrl %>" 
-          onerror="this.onerror=null; this.src='https://placehold.co/500x300/e0e0e0/666666?text=No+Image';"
-          class="rounded" 
-          style="object-fit: cover;" 
-          alt="모임 이미지">
-        </div>
-        <%= meeting.content %>
-      </div>
-
-      <div class="mb-4">
-        <% meeting.tags.forEach(tag => { %>
-        <span class="tag-soft">#<%= tag %></span>
-        <% }) %>
-      </div>
-
-      <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary" href="/meeting/list">목록으로</a>
-        <% if(user && user.id === meeting.author._id.toString()) { %>
-        <a class="btn btn-brand" href="/meeting/modify/<%= meeting._id %>">수정</a>
-        <form action="/meeting/delete/<%= meeting._id %>" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?')">
-          <button type="submit" class="btn btn-outline-danger">삭제</button>
-        </form>
-        <% } %>
-      </div>
-    </div>
-  </article>
-
-  <!-- 댓글 섹션 -->
-  <section class="mt-5">
-    <h5 class="mb-3">댓글</h5>
+      <!-- 댓글 섹션 -->
+      <section class="mt-5">
+        <h5 class="mb-3">댓글</h5>
+        
+        <ul class="list-group mb-4">
+          <% if(comments.length === 0) { %>
+          <li class="list-group-item text-center text-muted py-4">아직 댓글이 없습니다.</li>
+          <% } %>
+          <% comments.forEach(comment => { %>
+          <li class="list-group-item p-3">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="fw-bold"><%= comment.author.avatar_emoji %> <%= comment.author.nickname %></span>
+              <span class="small text-muted"><%= new Date(comment.createdAt).toLocaleString() %></span>
+            </div>
+            <p class="mb-1"><%= comment.content %></p>
+            <% if(user && user.id === comment.author._id.toString()) { %>
+            <form action="/comment/delete" method="POST" class="text-end">
+              <input type="hidden" name="commentId" value="<%= comment._id %>">
+              <input type="hidden" name="boardId" value="<%= meeting._id %>">
+              <input type="hidden" name="onModel" value="Meeting">
+              <button class="btn btn-sm btn-link text-danger p-0 text-decoration-none" type="submit">삭제</button>
+            </form>
+            <% } %>
+          </li>
+          <% }) %>
+        </ul>
     
-    <ul class="list-group mb-4">
-      <% if(comments.length === 0) { %>
-      <li class="list-group-item text-center text-muted py-4">아직 댓글이 없습니다.</li>
-      <% } %>
-      <% comments.forEach(comment => { %>
-      <li class="list-group-item p-3">
-        <div class="d-flex justify-content-between mb-1">
-          <span class="fw-bold"><%= comment.author.avatar_emoji %> <%= comment.author.nickname %></span>
-          <span class="small text-muted"><%= new Date(comment.createdAt).toLocaleString() %></span>
-        </div>
-        <p class="mb-1"><%= comment.content %></p>
-        <% if(user && user.id === comment.author._id.toString()) { %>
-        <form action="/comment/delete" method="POST" class="text-end">
-          <input type="hidden" name="commentId" value="<%= comment._id %>">
-          <input type="hidden" name="boardId" value="<%= meeting._id %>">
-          <input type="hidden" name="onModel" value="Meeting">
-          <button class="btn btn-sm btn-link text-danger p-0 text-decoration-none" type="submit">삭제</button>
-        </form>
-        <% } %>
-      </li>
-      <% }) %>
-    </ul>
-
-    <!-- 댓글 작성 -->
-    <% if(user) { %>
-    <div class="card">
-      <div class="card-body">
-        <form action="/comment/write" method="POST">
-          <input type="hidden" name="boardId" value="<%= meeting._id %>">
-          <input type="hidden" name="onModel" value="Meeting">
-          <div class="mb-3">
-            <textarea name="content" class="form-control" rows="3" placeholder="댓글을 입력하세요" required></textarea>
+        <!-- 댓글 작성 -->
+        <% if(user) { %>
+        <div class="card">
+          <div class="card-body">
+            <form action="/comment/write" method="POST">
+              <input type="hidden" name="boardId" value="<%= meeting._id %>">
+              <input type="hidden" name="onModel" value="Meeting">
+              <div class="mb-3">
+                <textarea name="content" class="form-control" rows="3" placeholder="댓글을 입력하세요" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-brand">댓글 등록</button>
+            </form>
           </div>
-          <button type="submit" class="btn btn-brand">댓글 등록</button>
-        </form>
+        </div>
+        <% } %>
+      </section>
+    </div>
+
+    <!-- 오른쪽: 참여 신청 사이드바 -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm sticky-top" style="top: 20px;">
+        <div class="card-body">
+          <h5 class="mb-3">참여 신청</h5>
+          <!-- 인원 현황 프로그레스 바 -->
+          <div class="mb-3 p-3 rounded bg-light">
+            <div class="small text-muted">현재 모집 인원</div>
+            <h4><span style="color:var(--brand);"><%= meeting.participants.length %></span> / <%= meeting.maxParticipants %>명</h4>
+            <div class="progress mt-2" style="height: 6px;">
+
+              <% 
+                let percent = (meeting.participants.length / meeting.maxParticipants) * 100; 
+                let barStyle = `width: ${percent}%;, background-color: var(--brand);`;
+              %>
+              <div class="progress-bar" <%=`style="${barStyle}"` %>></div>
+            </div>
+          </div>
+          <% if (!user) { %>
+          <!-- 로그인 안 한 경우 -->
+          <div class="d-grid">
+            <a href="/member/login" class="btn btn-outline-secondary btn-lg">로그인 후 참여 가능</a>
+          </div>
+          <% } else if (user.id === meeting.author._id.toString()) { %>
+          <!-- 주최자인 경우 -->
+          <div class="alert alert-info text-center">내가 만든 모임입니다.</div>
+          <% } else { %>
+            <!-- 일반 사용자 (참여/취소 버튼) -->
+            <form action="/meeting/join/<%= meeting._id %>" method="post">
+              <div class="d-grid">
+                <% if (meeting.participants.some(p => p._id.toString() === user.id)) { %>
+                  <button type="submit" class="btn btn-outline-danger btn-lg">참여 취소하기</button>
+                <% } else if (meeting.status === 'full') { %>
+                  <button type="button" class="btn btn-secondary btn-lg" disabled>모집 마감</button>
+                <% } else { %>
+                  <button type="submit" class="btn btn-brand btn-lg">참여 신청하기</button>
+                <% } %>
+              </div>
+            </form>
+          <% } %>
+        </div>
       </div>
     </div>
-    <% } %>
-  </section>
+  </div>
 </main>
+
 
 <!-- 푸터 -->
 		<%- include('../partials/footer') %>
 			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
+  </body>
 </html>
