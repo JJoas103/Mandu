@@ -16,7 +16,6 @@ const getList = async (req, res, next) => {
 
 // 모임 작성 페이지
 const getWrite = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         const area = req.query.area || '';
         let placeInfo = null;
@@ -43,7 +42,6 @@ const getWrite = async (req, res, next) => {
 
 // 모임 작성 처리
 const postWrite = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         // 이미지 필수 삽입 기능 추가
         if (!req.file) {
@@ -117,6 +115,7 @@ const postModify = async (req, res, next) => {
 
 // 모임 삭제 처리
 const postDelete = async (req, res, next) => {
+
     try {
         await meetingService.deleteMeeting(req.params.id, req.user.id);
         res.redirect("/meeting/list");
@@ -125,6 +124,20 @@ const postDelete = async (req, res, next) => {
     }
 };
 
+// 모임 참가
+const postJoin = async (req, res, next) => {
+    try {
+        const meetingId = req.params.id;
+        const userId = req.user.id; // 세션에 저장된 현재 로그인 유저 ID
+        await meetingService.toggleJoin(meetingId, userId);
+
+        // 상세 페이지로
+        res.redirect(`/meeting/info/${meetingId}`);
+    } catch (e) {
+        next(e);
+    }
+}
+
 module.exports = { 
     getList, 
     getWrite, 
@@ -132,5 +145,6 @@ module.exports = {
     getInfo, 
     getModify, 
     postModify, 
-    postDelete 
+    postDelete,
+    postJoin,
 };

@@ -173,9 +173,9 @@
 
               <% 
                 let percent = (meeting.participants.length / meeting.maxParticipants) * 100; 
-                let barStyle = `width: ${percent}%;, background-color: var(--brand);`;
+                let barStyle = `width: ${percent}%; background-color: var(--brand);`;
               %>
-              <div class="progress-bar" <%=`style="${barStyle}"` %>></div>
+              <div class="progress-bar" style="width: <%= percent %>" role="progressbar" aria-valuenow="<%= percent %>" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
           </div>
           <% if (!user) { %>

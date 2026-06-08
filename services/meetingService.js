@@ -71,6 +71,35 @@ const getMeetingsByArea = async (areaName) => {
         .limit(5);
 };
 
+const toggleJoin = async (meetingId, userId) => {
+    const meeting = await Meeting.findById(meetingId);
+    if(!meeting) throw new Error("모임을 찾을 수 없습니다");
+
+    if(meeting.author.toString() === userId) {
+        throw new Error("본인의 모임에 참여할 수 없습니다");
+    }
+
+    // 이미 참여 중인지??
+    const isParticipating = meeting.participants.includes(userId);
+
+    if(isParticipating) {
+       meeting.participants.pull(userId);
+    } else {
+        // 참여 중이 아니면 -> 참여
+        if(meeting.participants.length >= meeting.maxParticipants) {
+            throw new Error('정원이 가득 찼습니다');
+        }
+        meeting.participants.push(userId); // 추가
+
+        // 정원이 다 찼으면 상태 변경
+        if(meeting.participants.length === meeting.maxParticipants) {
+            meeting.status = "full";
+        }
+    } 
+    
+    await meeting.save();
+    return meeting;
+};
 module.exports = {
     createMeeting,
     getAllMeetings,
@@ -78,5 +107,6 @@ module.exports = {
     updateMeeting,
     deleteMeeting,
     getMainMeetings,
-    getMeetingsByArea
+    getMeetingsByArea,
+    toggleJoin,
 };
