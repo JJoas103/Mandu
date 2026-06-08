@@ -23,7 +23,10 @@ const getPlaceInfo = async (req, res, next) => {
             isFavorite = !!favorite;
         }
 
-        res.render('place/place_info', { place, parkingInfo, restroomInfo, meetings, weather, transitInfo, placeImage, isFavorite });
+        res.render('place/place_info', { 
+            place, parkingInfo, restroomInfo, meetings, weather, transitInfo, placeImage,
+            isFavorite
+        });
     } catch (error) {
         next(error);
     }

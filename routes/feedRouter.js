@@ -20,4 +20,7 @@ router.post("/modify/:id", uploadBoard.single("uploadFile"), feedController.post
 // 제보 삭제
 router.post("/delete/:id", feedController.postDelete);
 
+// 제보 추천
+router.post("/like/:id", feedController.postLike);
+
 module.exports = router;

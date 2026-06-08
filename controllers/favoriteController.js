@@ -7,6 +7,7 @@ exports.addFavorite = async (req, res, next) => {
         const { place_id, reason } = req.body;
         const userId = req.user.id;
 
+        // 이미 찜했는지 확인
         const existing = await Favorite.findOne({ user: userId, place_id });
         if (existing) {
             return res.send(`
@@ -17,13 +18,14 @@ exports.addFavorite = async (req, res, next) => {
             `);
         }
 
-        const newFavorite = new Favorite({
-            user: userId,
+        const newFavorite = new Favorite({ 
+            user: userId, 
             place_id,
             reason: reason || ''
         });
         await newFavorite.save();
 
+        // 매너 점수 상승 (+1)
         await userService.updateMannerScore(userId, 1);
 
         res.send(`

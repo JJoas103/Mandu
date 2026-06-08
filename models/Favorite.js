@@ -7,7 +7,7 @@ const favoriteSchema = new mongoose.Schema({
         required: true
     },
     place_id: {
-        type: String,
+        type: String, // area_cd
         required: true
     },
     reason: {
@@ -20,6 +20,7 @@ const favoriteSchema = new mongoose.Schema({
     }
 });
 
+// 한 사용자가 동일한 장소를 중복으로 찜하지 못하도록 인덱스 설정
 favoriteSchema.index({ user: 1, place_id: 1 }, { unique: true });
 
 const Favorite = mongoose.model('Favorite', favoriteSchema);

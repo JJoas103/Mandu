@@ -13,21 +13,20 @@ passport.use(new LocalStrategy({
     try {
         const user = await userService.findUserByEmail(email);
         if (!user) return done(null, false, { message: '이메일 또는 비밀번호가 일치하지 않습니다' });
-
+        
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return done(null, false, { message: '비밀번호가 일치하지 않습니다' });
-
+        
         return done(null, user);
     } catch (error) {
         return done(error);
     }
 }));
-
-// 구글 로그인
+// 구글 전략
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/auth/google/callback'
+    callbackURL: "/auth/google/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         const email = profile.emails[0].value;
@@ -36,8 +35,8 @@ passport.use(new GoogleStrategy({
         if (user) {
             return done(null, user);
         } else {
-            // 신규 소셜 유저 → 온보딩 페이지로 안내 (DB 저장 안 함)
-            return done(null, false, {
+            // 사용자가 없으면 소셜 정보만 전달 (DB 저장 안함)
+            return done(null, false, { 
                 type: 'social_new',
                 socialData: {
                     email,
@@ -52,11 +51,11 @@ passport.use(new GoogleStrategy({
     }
 }));
 
-// 네이버 로그인
+// 네이버 전략
 passport.use(new NaverStrategy({
     clientID: process.env.NAVER_CLIENT_ID,
     clientSecret: process.env.NAVER_CLIENT_SECRET,
-    callbackURL: '/auth/naver/callback'
+    callbackURL: "/auth/naver/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         const email = profile.email;
@@ -65,7 +64,8 @@ passport.use(new NaverStrategy({
         if (user) {
             return done(null, user);
         } else {
-            return done(null, false, {
+            // 사용자가 없으면 소셜 정보만 전달
+            return done(null, false, { 
                 type: 'social_new',
                 socialData: {
                     email,

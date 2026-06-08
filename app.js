@@ -4,10 +4,7 @@ const path = require("path");
 const connectDB = require("./config/database");
 const session = require("express-session");
 const passport = require("./config/passport");
-const {
-  errorHandler,
-  notFoundHandler,
-} = require("./middlewares/errorMiddleware");
+const { errorHandler, notFoundHandler } = require("./middlewares/errorMiddleware");
 
 const app = express();
 
@@ -68,7 +65,6 @@ const feedRouter = require("./routes/feedRouter");
 const commentRouter = require("./routes/commentRouter");
 const authRouter = require("./routes/authRouter");
 const placeRouter = require("./routes/placeRouter");
-const visitRouter = require("./routes/visitRouter");
 const favoriteRouter = require("./routes/favoriteRouter");
 
 app.use("/", mainRouter);
@@ -78,7 +74,6 @@ app.use("/feed", feedRouter);
 app.use("/comment", commentRouter);
 app.use("/auth", authRouter);
 app.use("/place", placeRouter);
-app.use("/visit", visitRouter);
 app.use("/favorite", favoriteRouter);
 
 // 에러 핸들링

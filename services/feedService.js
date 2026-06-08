@@ -50,10 +50,18 @@ const deleteFeed = async (id, userId) => {
     await Feed.findByIdAndDelete(id);
 };
 
+// 반응 추가 (좋아요 등)
+const addReaction = async (id, type) => {
+    const update = {};
+    update[`reactions.${type}`] = 1;
+    return await Feed.findByIdAndUpdate(id, { $inc: update }, { new: true });
+};
+
 module.exports = { 
     createFeed, 
     getAllFeeds, 
     getFeedById, 
     updateFeed, 
-    deleteFeed 
+    deleteFeed,
+    addReaction
 };

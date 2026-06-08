@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const commentService = require('../services/commentService');
+const Notification = require('../models/Notification');
+const Feed = require('../models/Feed');
+const Meeting = require('../models/Meeting');
 
 // 댓글 작성
 router.post('/write', async (req, res, next) => {
@@ -13,6 +16,25 @@ router.post('/write', async (req, res, next) => {
             board: boardId,
             onModel
         });
+
+        // 게시글 작성자에게 알림 보내기
+        let board;
+        if (onModel === 'Feed') {
+            board = await Feed.findById(boardId);
+        } else if (onModel === 'Meeting') {
+            board = await Meeting.findById(boardId);
+        }
+
+        if (board && board.author && board.author.toString() !== req.user.id) {
+            const boardTitle = board.title || board.locationTag || '게시글';
+            await Notification.create({
+                user: board.author,
+                type: 'comment',
+                message: `[${boardTitle}]에 새로운 댓글이 달렸어요.`,
+                relatedLink: `/${onModel.toLowerCase()}/info/${boardId}`
+            });
+        }
+
         res.redirect(`/${onModel.toLowerCase()}/info/${boardId}`);
     } catch (error) {
         next(error);

@@ -16,7 +16,7 @@ const notificationSchema = new mongoose.Schema({
         required: true
     },
     relatedLink: {
-        type: String
+        type: String // 클릭 시 이동할 링크 (예: /feed/info/...)
     },
     isRead: {
         type: Boolean,
