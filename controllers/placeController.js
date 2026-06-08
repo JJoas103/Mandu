@@ -2,6 +2,7 @@ const placeService = require('../services/placeService');
 const kakaoLocalService = require('../services/kakaoLocalService');
 const meetingService = require('../services/meetingService');
 const weatherService = require('../services/weatherService');
+const Favorite = require('../models/Favorite');
 
 const getPlaceInfo = async (req, res, next) => {
     try {
@@ -15,7 +16,17 @@ const getPlaceInfo = async (req, res, next) => {
             kakaoLocalService.getNearbyTransit(place.latitude, place.longitude),
             kakaoLocalService.getPlaceImage(place.name)
         ]);
-        res.render('place/place_info', { place, parkingInfo, restroomInfo, meetings, weather, transitInfo, placeImage });
+
+        let isFavorite = false;
+        if (req.user) {
+            const favorite = await Favorite.findOne({ user: req.user.id, place_id: area_cd });
+            isFavorite = !!favorite;
+        }
+
+        res.render('place/place_info', { 
+            place, parkingInfo, restroomInfo, meetings, weather, transitInfo, placeImage,
+            isFavorite
+        });
     } catch (error) {
         next(error);
     }

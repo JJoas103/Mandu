@@ -22,40 +22,59 @@ passport.use(new LocalStrategy({
         return done(error);
     }
 }));
-
-// 구글 로그인
+// 구글 전략
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/auth/google/callback'
+    callbackURL: "/auth/google/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
-        const user = await userService.createSocialUser({
-            email: profile.emails[0].value,
-            nickname: profile.displayName,
-            profileImage: profile.photos[0].value,
-            provider: 'google'
-        });
-        return done(null, user);
+        const email = profile.emails[0].value;
+        let user = await userService.findUserByEmail(email);
+
+        if (user) {
+            return done(null, user);
+        } else {
+            // 사용자가 없으면 소셜 정보만 전달 (DB 저장 안함)
+            return done(null, false, { 
+                type: 'social_new',
+                socialData: {
+                    email,
+                    nickname: profile.displayName,
+                    profileImage: profile.photos[0].value,
+                    provider: 'google'
+                }
+            });
+        }
     } catch (error) {
         return done(error);
     }
 }));
 
-// 네이버 로그인
+// 네이버 전략
 passport.use(new NaverStrategy({
     clientID: process.env.NAVER_CLIENT_ID,
     clientSecret: process.env.NAVER_CLIENT_SECRET,
-    callbackURL: '/auth/naver/callback'
+    callbackURL: "/auth/naver/callback"
 }, async (accessToken, refreshToken, profile, done) => {
     try {
-        const user = await userService.createSocialUser({
-            email: profile.email,
-            nickname: profile.name,
-            profileImage: profile.profileImage,
-            provider: 'naver'
-        });
-        return done(null, user);
+        const email = profile.email;
+        let user = await userService.findUserByEmail(email);
+
+        if (user) {
+            return done(null, user);
+        } else {
+            // 사용자가 없으면 소셜 정보만 전달
+            return done(null, false, { 
+                type: 'social_new',
+                socialData: {
+                    email,
+                    nickname: profile.nickname,
+                    profileImage: profile.profileImage,
+                    provider: 'naver'
+                }
+            });
+        }
     } catch (error) {
         return done(error);
     }

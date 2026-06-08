@@ -26,11 +26,15 @@ router.get('/logout', userController.logout);
 //마이페이지
 router.get('/info', userController.getMemberInfo);
 
-//정보 수정
+// 회원 수정
 router.get('/modify', userController.getModify);
 router.post('/modify', uploadProfile.single('uploadFile'), userController.postModify);
 
-//찜·알림 설정
+// 소셜 온보딩
+router.get('/social-join', userController.getSocialJoin);
+router.post('/social-join', uploadProfile.single('uploadFile'), userController.postSocialJoin);
+
+//회원 탈퇴
 router.get('/favorites', userController.getFavorites);
 router.post('/notify-settings', userController.postNotifySettings);
 

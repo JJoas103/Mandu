@@ -26,17 +26,95 @@
 				<div class="card shadow-sm">
 					<div class="card-body">
 						<div class="d-flex justify-content-between align-items-center mb-3">
-							<h6 class="card-title mb-0">찜한 장소</h6>
+							<h6 class="card-title mb-0">찜한 장소 (<%= places.length %>곳)</h6>
 							<small class="text-muted">혼잡도 변화 시 알림</small>
 						</div>
 
-						<div class="text-center py-5 text-muted">
-                            찜 한 장소가 없습니다. <br> 장소 탐색에서 마음에 드는 곳을 추가해 보세요!
-                        </div>
+						<% if (places.length > 0) { %>
+                            <div class="row g-3 mb-4">
+                                <% places.forEach(function(place) { %>
+                                    <div class="col-12">
+                                        <div class="d-flex align-items-center gap-3 p-3 border rounded bg-white shadow-sm">
+                                            <!-- 왼쪽: 이미지 -->
+                                            <div style="flex-shrink: 0;">
+                                                <% if (place.imageUrl) { %>
+                                                    <img src="<%= place.imageUrl %>" class="rounded" style="width: 70px; height: 70px; object-fit: cover;" alt="<%= place.name %>">
+                                                <% } else { %>
+                                                    <div class="rounded d-flex align-items-center justify-content-center bg-light text-muted" style="width: 70px; height: 70px; font-size: 24px;">🌳</div>
+                                                <% } %>
+                                            </div>
+                                            
+                                            <!-- 중간 왼쪽: 장소 이름 & 상태 -->
+                                            <div style="width: 140px;">
+                                                <div class="fw-bold text-truncate" title="<%= place.name %>"><%= place.name %></div>
+                                                <div class="badge <%= place.congest_lvl === '여유' ? 'bg-success' : (place.congest_lvl === '보통' ? 'bg-warning' : 'bg-danger') %> mt-1">
+                                                    <%= place.congest_lvl %>
+                                                </div>
+                                            </div>
+
+                                            <!-- 중간 중심: 찜한 이유 (가운데 강조) -->
+                                            <div class="flex-grow-1 text-center border-start border-end px-3">
+                                                <div class="small text-muted mb-1" style="font-size: 11px;">나의 찜 이유</div>
+                                                <div class="fw-semibold text-brand text-break">"<%= place.reason || '좋아하는 장소에요' %>"</div>
+                                            </div>
+
+                                            <!-- 오른쪽: 버튼 -->
+                                            <div class="d-flex flex-column gap-1" style="width: 70px; flex-shrink: 0;">
+                                                <a href="/place/<%= place.area_cd %>" class="btn btn-sm btn-outline-brand">이동</a>
+                                                <form action="/favorite/delete" method="post">
+                                                    <input type="hidden" name="place_id" value="<%= place.area_cd %>">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100" onclick="return confirm('찜을 해제하시겠습니까?')">삭제</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-5 text-muted">
+                                찜 한 장소가 없습니다. <br> 장소 탐색에서 마음에 드는 곳을 추가해 보세요!
+                            </div>
+                        <% } %>
 
 						<div class="text-center mt-3">
 							<a href="/" class="btn btn-outline-brand">+ 장소 찜하러 가기</a>
 						</div>
+					</div>
+				</div>
+
+				<!-- 알림 내역 -->
+				<div class="card shadow-sm mt-3">
+					<div class="card-body">
+						<h6 class="card-title mb-3">💬 알림 내역 <small class="text-muted fw-normal">(최근 20건)</small></h6>
+						
+						<% if (notifications && notifications.length > 0) { %>
+							<div class="list-group list-group-flush">
+								<% notifications.forEach(function(noti) { %>
+									<a href="<%= noti.relatedLink || '#' %>" class="list-group-item list-group-item-action px-0 py-3">
+										<div class="d-flex justify-content-between align-items-start">
+											<div class="flex-grow-1">
+												<div class="d-flex align-items-center gap-2 mb-1">
+													<% if (noti.type === 'like') { %>
+														<span class="badge bg-success-subtle text-success">추천</span>
+													<% } else if (noti.type === 'comment') { %>
+														<span class="badge bg-primary-subtle text-primary">댓글</span>
+													<% } else { %>
+														<span class="badge bg-secondary-subtle text-secondary">알림</span>
+													<% } %>
+													<small class="text-muted"><%= new Date(noti.createdAt).toLocaleString() %></small>
+												</div>
+												<div class="text-dark"><%= noti.message %></div>
+											</div>
+											<span class="text-muted small">〉</span>
+										</div>
+									</a>
+								<% }); %>
+							</div>
+						<% } else { %>
+							<div class="text-center py-5 text-muted">
+								새로운 알림이 없습니다.
+							</div>
+						<% } %>
 					</div>
 				</div>
 			</div>

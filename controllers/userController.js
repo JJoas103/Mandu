@@ -1,6 +1,9 @@
 const userService = require("../services/userService");
 const Meeting = require("../models/Meeting");
 const Feed = require("../models/Feed");
+const Favorite = require("../models/Favorite");
+const Place = require("../models/place");
+const Notification = require("../models/Notification");
 const placeService = require("../services/placeService");
 const kakaoLocalService = require("../services/kakaoLocalService");
 
@@ -18,6 +21,58 @@ const postJoin = async (req, res, next) => {
         });
         res.redirect("/member/login");
     } catch (error) {
+        if (error.code === 'NICKNAME_DUPLICATE') {
+            return res.send(`
+                <script>
+                    alert('입력하신 닉네임이 이미 서비스에 등록되어 있습니다. 다른 닉네임을 사용해 주세요.');
+                    history.back();
+                </script>
+            `);
+        }
+        next(error);
+    }
+};
+
+// 소셜 가입 페이지 (온보딩)
+const getSocialJoin = (req, res) => {
+    if (!req.session.socialData) return res.redirect("/member/login");
+    res.render("member/social_join", { socialData: req.session.socialData });
+};
+
+// 소셜 가입 처리
+const postSocialJoin = async (req, res, next) => {
+    if (!req.session.socialData) return res.redirect("/member/login");
+    try {
+        const { email, provider } = req.session.socialData;
+        const { nickname, city, address, avatar_emoji } = req.body;
+        
+        const user = await userService.createSocialUser({
+            email,
+            nickname,
+            city,
+            address,
+            avatar_emoji,
+            provider,
+            uploadFile: req.file
+        });
+
+        // 세션 정보 삭제
+        delete req.session.socialData;
+
+        // 즉시 로그인
+        req.logIn(user, (err) => {
+            if (err) return next(err);
+            res.redirect("/");
+        });
+    } catch (error) {
+        if (error.code === 'NICKNAME_DUPLICATE') {
+            return res.send(`
+                <script>
+                    alert('입력하신 닉네임이 이미 서비스에 등록되어 있습니다. 다른 닉네임을 사용해 주세요.');
+                    history.back();
+                </script>
+            `);
+        }
         next(error);
     }
 };
@@ -63,29 +118,68 @@ const getMapView = async (req, res, next) => {
 const getMemberInfo = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
-        const [meetingCount, feedCount, recommendRaw] = await Promise.all([
-            Meeting.countDocuments({ author: req.user.id }),
-            Feed.countDocuments({ author: req.user.id }),
+        const userId = req.user.id;
+        const [myMeetings, myFeeds, recommendRaw] = await Promise.all([
+            Meeting.find({ $or: [{ author: userId }, { participants: userId }] })
+                   .populate('author', 'nickname avatar_emoji')
+                   .sort({ createdAt: -1 }),
+            Feed.find({ author: userId }).sort({ createdAt: -1 }),
             placeService.getPlaceInfoLimt()
         ]);
+
+        const meetingCount = myMeetings.length;
+        const feedCount = myFeeds.length;
+
         const images = await Promise.all(recommendRaw.map(p => kakaoLocalService.getPlaceImage(p.name)));
         const placesForInfo = recommendRaw.slice(0, 3).map((p, i) => ({ ...p.toObject(), imageUrl: images[i] }));
+        
         res.render("member/info", {
             user: req.user,
             meetingCount,
             feedCount,
-            placeForInfo
+            myMeetings,
+            myFeeds,
+            placesForInfo
         });
     } catch(e) {
         next(e);
     }
 }
 //# 찜·알림 설정 페이지
-const getFavorites = (req, res) => {
-    res.render('member/favorites', { 
-        title: '찜·알림 설정',
-        user: req.user
-    });
+const getFavorites = async (req, res, next) => {
+    if (!req.isAuthenticated()) return res.redirect("/member/login");
+    try {
+        const userId = req.user.id;
+        const [favorites, notifications] = await Promise.all([
+            Favorite.find({ user: userId }),
+            Notification.find({ user: userId }).sort({ createdAt: -1 }).limit(20)
+        ]);
+
+        // 페이지 접속 시 모든 알림 읽음 처리
+        await Notification.updateMany({ user: userId, isRead: false }, { isRead: true });
+        
+        // 각 찜한 장소의 상세 정보 가져오기
+        const placeDetails = await Promise.all(favorites.map(async (fav) => {
+            const place = await Place.findOne({ area_cd: fav.place_id });
+            if (!place) return null;
+            
+            const imageUrl = await kakaoLocalService.getPlaceImage(place.name);
+            return {
+                ...place.toObject(),
+                imageUrl,
+                reason: fav.reason // 찜 사유 추가
+            };
+        }));
+
+        res.render('member/favorites', { 
+            title: '찜·알림 설정',
+            user: req.user,
+            places: placeDetails.filter(p => p !== null),
+            notifications // 알림 목록 추가
+        });
+    } catch (error) {
+        next(error);
+    }
 };
 
 //# 알림 설정 저장 처리
@@ -182,4 +276,4 @@ const postDelete = async (req, res, next) => {
     }
 };
 
-module.exports = { getJoin, postJoin, checkEmail, getLogin, logout, getMapView, getMemberInfo, getModify, getFavorites, postModify, getDelete, postDelete, postNotifySettings };
+module.exports = { getJoin, postJoin, getSocialJoin, postSocialJoin, checkEmail, getLogin, logout, getMapView, getMemberInfo, getModify, getFavorites, postModify, getDelete, postDelete, postNotifySettings };

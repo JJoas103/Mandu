@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema(
             enum : ['서울', '경기', '인천', '기타'],
             default : '서울'
         },
+        address : {
+            type : String,
+            default : ''
+        },
         avatar_emoji : {
             type : String,
             default : '😊'

@@ -38,10 +38,22 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+const Notification = require("./models/Notification");
+
 // 전역 변수
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
   res.locals.user = req.user || null;
   res.locals.currentPath = req.path;
+  res.locals.unreadNotificationCount = 0;
+
+  if (req.user) {
+    try {
+      const count = await Notification.countDocuments({ user: req.user.id, isRead: false });
+      res.locals.unreadNotificationCount = count;
+    } catch (err) {
+      console.error("알림 개수 조회 에러:", err);
+    }
+  }
   next();
 });
 
@@ -53,6 +65,7 @@ const feedRouter = require("./routes/feedRouter");
 const commentRouter = require("./routes/commentRouter");
 const authRouter = require("./routes/authRouter");
 const placeRouter = require("./routes/placeRouter");
+const favoriteRouter = require("./routes/favoriteRouter");
 
 app.use("/", mainRouter);
 app.use("/member", userRouter);
@@ -61,6 +74,7 @@ app.use("/feed", feedRouter);
 app.use("/comment", commentRouter);
 app.use("/auth", authRouter);
 app.use("/place", placeRouter);
+app.use("/favorite", favoriteRouter);
 
 // 에러 핸들링
 app.use(notFoundHandler);

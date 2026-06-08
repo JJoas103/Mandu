@@ -23,17 +23,17 @@
                 <div class="card-body">
                   <div class="d-flex align-items-center mb-3">
                     <span class="fs-2 me-2">
-                      <%= feed.author.avatar_emoji %>
+                      <%= feed.author ? feed.author.avatar_emoji : '👤' %>
                     </span>
                     <div>
                       <div class="fw-bold">
-                        <%= feed.author.nickname %>
+                        <%= feed.author ? feed.author.nickname : '탈퇴한 사용자' %>
                       </div>
                       <div class="text-muted small">📍 <%= feed.locationTag %> · <%= new
                             Date(feed.createdAt).toLocaleString() %>
                       </div>
                     </div>
-                    <% if(user && user.id===feed.author._id.toString()) { %>
+                    <% if(user && feed.author && user.id===feed.author._id.toString()) { %>
                       <div class="ms-auto">
                         <a href="/feed/modify/<%= feed._id %>" class="btn btn-sm btn-outline-secondary">수정</a>
                         <form action="/feed/delete/<%= feed._id %>" method="post" class="d-inline"
@@ -46,6 +46,12 @@
                   <p class="fs-5">
                     <%= feed.content %>
                   </p>
+                  
+                  <div class="mt-4 border-top pt-3 d-flex gap-3">
+                    <button id="likeBtn" class="btn btn-outline-brand">
+                      👍 추천 <span id="likeCount"><%= feed.reactions.like %></span>
+                    </button>
+                  </div>
                 </div>
           </div>
 
@@ -73,8 +79,8 @@
                           <li class="list-group-item px-0">
                             <div class="d-flex justify-content-between mb-1">
                               <span class="fw-bold small">
-                                <%= comment.author.avatar_emoji %>
-                                  <%= comment.author.nickname %>
+                                <%= comment.author ? comment.author.avatar_emoji : '👤' %>
+                                  <%= comment.author ? comment.author.nickname : '탈퇴한 사용자' %>
                               </span>
                               <span class="text-muted small">
                                 <%= new Date(comment.createdAt).toLocaleString() %>
@@ -83,7 +89,7 @@
                             <p class="mb-1">
                               <%= comment.content %>
                             </p>
-                            <% if(user && user.id===comment.author._id.toString()) { %>
+                            <% if(user && comment.author && user.id===comment.author._id.toString()) { %>
                               <form action="/comment/delete" method="post" class="text-end">
                                 <input type="hidden" name="commentId" value="<%= comment._id %>">
                                 <input type="hidden" name="boardId" value="<%= feed._id %>">
@@ -104,6 +110,29 @@
     <!-- 푸터 -->
     <%- include('../partials/footer') %>
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+      <script>
+        const likeBtn = document.getElementById('likeBtn');
+        if (likeBtn) {
+          likeBtn.addEventListener('click', async () => {
+            try {
+              const response = await fetch('/feed/like/<%= feed._id %>', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+              });
+              const result = await response.json();
+              if (result.success) {
+                document.getElementById('likeCount').innerText = result.likeCount;
+                alert('추천되었습니다! 작성자의 매너 점수가 상승했습니다.');
+              } else {
+                alert(result.message); // "추천한 게시글 입니다." 등의 메시지 출력
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('처리 중 오류가 발생했습니다.');
+            }
+          });
+        }
+      </script>
 
 </body>
 
