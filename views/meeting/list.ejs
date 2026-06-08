@@ -60,6 +60,13 @@
                         </span>
                       </div>
                       <div class="small text-muted mb-2">
+                        <!-- 작성자 및 매너온도 추가 -->
+                        <span><%= meeting.author.avatar_emoji %> <%= meeting.author.nickname %></span>
+                        <span class="badge bg-light text-dark ms-1" style="border: 1px solid #ddd;">
+                          <%= meeting.author.manner_score.toFixed(1) %>°C
+                        </span>
+                      </div>
+                      <div class="small text-muted mb-2">
                         📍 <%= meeting.area %> · <%= meeting.meetingDate ? new
                             Date(meeting.meetingDate).toLocaleDateString() : '' %> ·
                             <%= meeting.participants.length %>/<%= meeting.maxParticipants %>명

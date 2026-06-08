@@ -20,7 +20,7 @@ const getAllMeetings = async (page = 1) => {
     const totalPages = Math.ceil(totalMeetings / limit);
     
     const meetings = await Meeting.find()
-        .populate("author", "nickname profileImage avatar_emoji")
+        .populate("author", "nickname profileImage avatar_emoji manner_score")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -31,7 +31,7 @@ const getAllMeetings = async (page = 1) => {
 // 특정 모임 조회
 const getMeetingById = async (id) => {
     const meeting = await Meeting.findById(id)
-        .populate("author", "nickname profileImage avatar_emoji")
+        .populate("author", "nickname profileImage avatar_emoji manner_score")
         .populate("participants", "nickname profileImage");
     if (!meeting) throw new Error("모임을 찾을 수 없습니다");
     return meeting;

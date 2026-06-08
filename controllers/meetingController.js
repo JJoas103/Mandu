@@ -130,7 +130,6 @@ const postJoin = async (req, res, next) => {
         const meetingId = req.params.id;
         const userId = req.user.id; // 세션에 저장된 현재 로그인 유저 ID
         await meetingService.toggleJoin(meetingId, userId);
-
         // 상세 페이지로
         res.redirect(`/meeting/info/${meetingId}`);
     } catch (e) {
