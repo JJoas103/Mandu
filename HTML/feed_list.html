@@ -5,242 +5,221 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>실시간 제보 - 모여봄</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-	<link href="css/style.css" rel="stylesheet">
+	<link href="/css/style.css" rel="stylesheet">
 </head>
 <body>
 
-	<!-- 헤더 -->
-	<nav class="navbar navbar-expand-lg">
-		<div class="container">
-			<a class="navbar-brand" href="index.html">🌿 모여봄</a>
-			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="nav">
-				<ul class="navbar-nav me-auto">
-					<li class="nav-item"><a class="nav-link" href="index.html">지도 탐색</a></li>
-					<li class="nav-item"><a class="nav-link" href="meeting_list.html">모임 게시판</a></li>
-					<li class="nav-item"><a class="nav-link active" href="feed_list.html">실시간 제보</a></li>
-				</ul>
-				<ul class="navbar-nav ms-auto">
-					<li class="nav-item"><a class="nav-link" href="member_info.html">마이페이지</a></li>
-					<li class="nav-item"><a class="nav-link" href="member_login.html">로그아웃</a></li>
-					<li class="nav-item"><a class="nav-link" href="member_login.html">로그인</a></li>
-					<li class="nav-item"><a class="nav-link" href="member_join.html">회원가입</a></li>
-				</ul>
+<nav class="navbar navbar-expand-lg">
+	<div class="container">
+		<a class="navbar-brand" href="/">🌿 모여봄</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<div class="collapse navbar-collapse" id="nav">
+			<ul class="navbar-nav me-auto">
+				<li class="nav-item"><a class="nav-link" href="/">지도 탐색</a></li>
+				<li class="nav-item"><a class="nav-link" href="/meeting">모임 게시판</a></li>
+				<li class="nav-item"><a class="nav-link active" href="/feed">실시간 제보</a></li>
+			</ul>
+			<ul class="navbar-nav ms-auto">
+				<li class="nav-item"><a class="nav-link" href="/member/info">마이페이지</a></li>
+				<li class="nav-item"><a class="nav-link" href="/member/login">로그인</a></li>
+				<li class="nav-item"><a class="nav-link" href="/member/join">회원가입</a></li>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+<main class="container my-4">
+
+	<section class="hero p-5 mb-4">
+		<div class="row align-items-center">
+			<div class="col-lg-7">
+				<h1 class="display-5 mb-3">실시간 제보</h1>
+				<p class="lead">지금 이 순간 현장의 혼잡도·주차·날씨 정보를 공유해주세요</p>
+			</div>
+			<div class="col-lg-5 d-none d-lg-block text-center">
+				<div style="font-size:100px;">📡</div>
 			</div>
 		</div>
-	</nav>
+	</section>
 
-	<!-- 메인 -->
-	<main class="container my-4">
+	<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+		<div class="d-flex flex-wrap gap-2">
+			<a href="/feed" class="btn btn-brand">전체</a>
+			<a href="/feed?category=혼잡도" class="btn btn-outline-brand">🚦 혼잡도</a>
+			<a href="/feed?category=맛집" class="btn btn-outline-brand">🍜 맛집</a>
+			<a href="/feed?category=주차" class="btn btn-outline-brand">🅿️ 주차</a>
+			<a href="/feed?category=날씨" class="btn btn-outline-brand">🌤️ 날씨</a>
+			<a href="/feed?category=기타" class="btn btn-outline-brand">💬 기타</a>
+		</div>
+		<a class="btn btn-lg btn-brand" href="/feed/write">✏️ 제보하기</a>
+	</div>
 
-		<!-- 히어로 -->
-		<section class="hero p-5 mb-4">
-			<div class="row align-items-center">
-				<div class="col-lg-7">
-					<h1 class="display-5 mb-3">실시간 제보</h1>
-					<p class="lead">지금 이 순간 현장의 혼잡도·주차·날씨 정보를 공유해주세요</p>
-				</div>
-				<div class="col-lg-5 d-none d-lg-block text-center">
-					<div style="font-size:100px;">📡</div>
-				</div>
+	<div class="row g-4">
+		<div class="col-lg-8">
+
+			<form action="/feed" method="get" class="d-flex gap-2 mb-3">
+				<select name="place_id" class="form-select">
+					<option value="">전체 지역</option>
+					<option value="1">연남동</option>
+					<option value="2">북촌</option>
+					<option value="3">강남역</option>
+					<option value="4">서래마을</option>
+					<option value="5">잠실</option>
+					<option value="6">서울숲</option>
+					<option value="7">성수동</option>
+					<option value="8">익선동</option>
+				</select>
+				<button type="submit" class="btn btn-brand">적용</button>
+			</form>
+
+			<div id="feedList" class="d-flex flex-column gap-3">
+				<div class="text-center text-muted py-5">제보 목록을 불러오는 중입니다...</div>
 			</div>
-		</section>
-
-		<!-- 카테고리 + 제보하기 버튼 -->
-		<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-			<div class="d-flex flex-wrap gap-2">
-				<a href="feed_list.html"                     class="btn btn-brand active-board">전체</a>
-				<a href="feed_list.html?category=혼잡도"      class="btn btn-outline-brand">🚦 혼잡도</a>
-				<a href="feed_list.html?category=맛집"        class="btn btn-outline-brand">🍜 맛집</a>
-				<a href="feed_list.html?category=주차"        class="btn btn-outline-brand">🅿️ 주차</a>
-				<a href="feed_list.html?category=날씨"        class="btn btn-outline-brand">🌤️ 날씨</a>
-			</div>
-			<a class="btn btn-lg btn-brand" href="feed_write.html">✏️ 제보하기</a>
 		</div>
 
-		<div class="row g-4">
-			<!-- 왼쪽: 피드 목록 -->
-			<div class="col-lg-8">
-
-				<!-- 지역 필터 -->
-				<form action="feed_list.html" method="get" class="d-flex gap-2 mb-3">
-					<select name="place_id" class="form-select">
-						<option value="">전체 지역</option>
-						<option value="1">연남동</option>
-						<option value="2">북촌</option>
-						<option value="3">강남역</option>
-						<option value="4">서래마을</option>
-						<option value="5">잠실</option>
-						<option value="7">성수동</option>
-						<option value="8">익선동</option>
-					</select>
-					<button type="submit" class="btn btn-brand">적용</button>
-				</form>
-
-				<!-- 피드 아이템 -->
-				<div class="d-flex flex-column gap-3">
-
-					<div class="card shadow-sm">
-						<div class="card-body">
-							<div class="d-flex gap-2 mb-2 align-items-center">
-								<div class="feed-avatar">🧑</div>
-								<div class="flex-grow-1">
-									<strong>user_42</strong>
-									<div class="small text-muted">방금 전</div>
-								</div>
-								<a href="feed_list.html?place_id=1" class="feed-loc-tag text-decoration-none">연남동</a>
-							</div>
-							<a href="feed_info.html?feed_id=1" class="text-decoration-none text-dark">
-								<p class="mb-2">경의선 숲길 쪽은 지금 한산해요. 벤치 자리도 많고 카페도 대기 없이 들어갈 수 있어요 ☀️</p>
-							</a>
-							<div class="d-flex gap-2">
-								<form action="/feed/react" method="post" class="d-inline">
-									<input type="hidden" name="feed_id" value="1">
-									<input type="hidden" name="type" value="helpful">
-									<button type="submit" class="btn btn-sm btn-outline-brand">👍 도움됐어요 12</button>
-								</form>
-								<a href="feed_info.html?feed_id=1" class="btn btn-sm btn-outline-secondary">💬 3</a>
-							</div>
-						</div>
-					</div>
-
-					<div class="card shadow-sm">
-						<div class="card-body">
-							<div class="d-flex gap-2 mb-2 align-items-center">
-								<div class="feed-avatar">👩</div>
-								<div class="flex-grow-1">
-									<strong>seoul_walker</strong>
-									<div class="small text-muted">8분 전</div>
-								</div>
-								<a href="feed_list.html?place_id=3" class="feed-loc-tag text-decoration-none">강남역</a>
-							</div>
-							<a href="feed_info.html?feed_id=2" class="text-decoration-none text-dark">
-								<p class="mb-2">강남역 10번 출구 앞 갑자기 이벤트 생겨서 사람 엄청 몰리기 시작해요! 피하시는 게 좋을 것 같아요 🚨</p>
-								<div class="placeholder-img mb-2" style="height: 180px;">📸 현장 사진</div>
-							</a>
-							<div class="d-flex gap-2">
-								<form action="/feed/react" method="post" class="d-inline">
-									<input type="hidden" name="feed_id" value="2">
-									<input type="hidden" name="type" value="helpful">
-									<button type="submit" class="btn btn-sm btn-outline-brand">👍 도움됐어요 28</button>
-								</form>
-								<a href="feed_info.html?feed_id=2" class="btn btn-sm btn-outline-secondary">💬 7</a>
-							</div>
-						</div>
-					</div>
-
-					<div class="card shadow-sm">
-						<div class="card-body">
-							<div class="d-flex gap-2 mb-2 align-items-center">
-								<div class="feed-avatar">🧔</div>
-								<div class="flex-grow-1">
-									<strong>park_explorer</strong>
-									<div class="small text-muted">23분 전</div>
-								</div>
-								<a href="feed_list.html?place_id=4" class="feed-loc-tag text-decoration-none">서래마을</a>
-							</div>
-							<a href="feed_info.html?feed_id=3" class="text-decoration-none text-dark">
-								<p class="mb-2">서래마을 공영주차장 토요일 오후 기준 아직 여유있어요. 지하 2층 많이 비어있음.</p>
-							</a>
-							<div class="d-flex gap-2">
-								<form action="/feed/react" method="post" class="d-inline">
-									<input type="hidden" name="feed_id" value="3">
-									<input type="hidden" name="type" value="helpful">
-									<button type="submit" class="btn btn-sm btn-outline-brand">👍 도움됐어요 9</button>
-								</form>
-								<a href="feed_info.html?feed_id=3" class="btn btn-sm btn-outline-secondary">💬 1</a>
-							</div>
-						</div>
-					</div>
-
-					<div class="card shadow-sm">
-						<div class="card-body">
-							<div class="d-flex gap-2 mb-2 align-items-center">
-								<div class="feed-avatar">🧕</div>
-								<div class="flex-grow-1">
-									<strong>익선동러버</strong>
-									<div class="small text-muted">1시간 전</div>
-								</div>
-								<a href="feed_list.html?place_id=8" class="feed-loc-tag text-decoration-none">익선동</a>
-							</div>
-							<a href="feed_info.html?feed_id=4" class="text-decoration-none text-dark">
-								<p class="mb-2">익선동 골목 현재 사람 꽤 많아짐. 주말 오후 피크는 2시~5시 정도인 것 같아요.</p>
-							</a>
-							<div class="d-flex gap-2">
-								<form action="/feed/react" method="post" class="d-inline">
-									<input type="hidden" name="feed_id" value="4">
-									<input type="hidden" name="type" value="helpful">
-									<button type="submit" class="btn btn-sm btn-outline-brand">👍 도움됐어요 16</button>
-								</form>
-								<a href="feed_info.html?feed_id=4" class="btn btn-sm btn-outline-secondary">💬 2</a>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- 페이징 -->
-				<nav class="mt-4">
-					<ul class="pagination justify-content-center">
-						<li class="page-item"><a class="page-link" href="?page=${pageBean.prevPage}">이전</a></li>
-						<li class="page-item active"><a class="page-link" href="?page=1">1</a></li>
-						<li class="page-item"><a class="page-link" href="?page=2">2</a></li>
-						<li class="page-item"><a class="page-link" href="?page=3">3</a></li>
-						<li class="page-item"><a class="page-link" href="?page=4">4</a></li>
-						<li class="page-item"><a class="page-link" href="?page=5">5</a></li>
-						<li class="page-item"><a class="page-link" href="?page=${pageBean.nextPage}">다음</a></li>
+		<div class="col-lg-4">
+			<div class="card shadow-sm mb-3">
+				<div class="card-body">
+					<h6 class="card-title mb-3">🔥 최근 제보 지역</h6>
+					<ul id="recentPlaces" class="list-group list-group-flush">
+						<li class="list-group-item px-0 text-muted">불러오는 중...</li>
 					</ul>
-				</nav>
+				</div>
 			</div>
 
-			<!-- 오른쪽: 사이드바 -->
-			<div class="col-lg-4">
-				<div class="card shadow-sm mb-3">
-					<div class="card-body">
-						<h6 class="card-title mb-3">🔥 실시간 급증 TOP 5</h6>
-						<ul class="list-group list-group-flush">
-							<li class="list-group-item px-0 d-flex justify-content-between">
-								<span><span class="text-danger fw-bold">1</span> 명동</span>
-								<span class="text-danger fw-bold">+42%</span>
-							</li>
-							<li class="list-group-item px-0 d-flex justify-content-between">
-								<span><span class="text-warning fw-bold">2</span> 홍대입구</span>
-								<span class="text-danger fw-bold">+28%</span>
-							</li>
-							<li class="list-group-item px-0 d-flex justify-content-between">
-								<span><span style="color:var(--brand);" class="fw-bold">3</span> 강남역</span>
-								<span class="text-danger fw-bold">+19%</span>
-							</li>
-							<li class="list-group-item px-0 d-flex justify-content-between">
-								<span><span class="text-muted fw-bold">4</span> 잠실</span>
-								<span class="text-danger fw-bold">+12%</span>
-							</li>
-							<li class="list-group-item px-0 d-flex justify-content-between">
-								<span><span class="text-muted fw-bold">5</span> 서래마을</span>
-								<span class="text-success fw-bold">-8%</span>
-							</li>
-						</ul>
-					</div>
+			<div class="card shadow-sm">
+				<div class="card-body">
+					<h6 class="card-title mb-3">📢 제보 안내</h6>
+					<p class="small text-muted mb-2">제보는 목록과 상세 페이지에 반영됩니다.</p>
+					<p class="small text-muted mb-0">📍 제보 시 장소 태그는 필수입니다.</p>
 				</div>
+			</div>
+		</div>
+	</div>
+</main>
 
+<footer class="py-4 mt-5">
+	<div class="container text-center footer">
+		<div class="small">© 2025 모여봄 · 1조 프로젝트</div>
+	</div>
+</footer>
+
+<script>
+	function getQueryString() {
+		return window.location.search || '';
+	}
+
+	function formatDate(dateString) {
+		const date = new Date(dateString);
+		return date.toLocaleString('ko-KR', {
+			month: '2-digit',
+			day: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit'
+		});
+	}
+
+	function escapeHtml(text) {
+		return String(text || '')
+			.replaceAll('&', '&amp;')
+			.replaceAll('<', '&lt;')
+			.replaceAll('>', '&gt;')
+			.replaceAll('"', '&quot;')
+			.replaceAll("'", '&#039;');
+	}
+
+	async function loadFeeds() {
+		const listEl = document.getElementById('feedList');
+		const recentEl = document.getElementById('recentPlaces');
+
+		try {
+			const response = await fetch('/feed/api/list' + getQueryString());
+			const result = await response.json();
+
+			if (!result.success) {
+				listEl.innerHTML = '<div class="alert alert-danger">제보 목록을 불러오지 못했습니다.</div>';
+				return;
+			}
+
+			const feeds = result.feeds;
+
+			if (feeds.length === 0) {
+				listEl.innerHTML = '<div class="card"><div class="card-body text-center text-muted">등록된 제보가 없습니다.</div></div>';
+				recentEl.innerHTML = '<li class="list-group-item px-0 text-muted">최근 제보가 없습니다.</li>';
+				return;
+			}
+
+			listEl.innerHTML = feeds.map(feed => `
 				<div class="card shadow-sm">
 					<div class="card-body">
-						<h6 class="card-title mb-3">📢 제보 안내</h6>
-						<p class="small text-muted mb-2">제보는 지도 페이지에 실시간 반영됩니다.</p>
-						<p class="small text-muted mb-0">📍 제보 시 장소 태그는 필수입니다.</p>
+						<div class="d-flex gap-2 mb-2 align-items-center">
+							<div class="feed-avatar">🧑</div>
+							<div class="flex-grow-1">
+								<strong>${escapeHtml(feed.writer_name)}</strong>
+								<div class="small text-muted">${formatDate(feed.createdAt)}</div>
+							</div>
+							<a href="/feed?place_id=${feed.place_id}" class="feed-loc-tag text-decoration-none">
+								${escapeHtml(feed.place_name)}
+							</a>
+						</div>
+
+						<a href="/feed/info?feed_id=${feed._id}" class="text-decoration-none text-dark">
+							<div class="mb-2">
+								<span class="badge bg-success">${escapeHtml(feed.category)}</span>
+								${feed.gps_verified ? '<span class="badge bg-primary">GPS 인증</span>' : ''}
+							</div>
+							<p class="mb-2">${escapeHtml(feed.content)}</p>
+						</a>
+
+						<div class="d-flex gap-2">
+							<form action="/feed/react" method="post" class="d-inline">
+								<input type="hidden" name="feed_id" value="${feed._id}">
+								<button type="submit" class="btn btn-sm btn-outline-brand">
+									👍 도움됐어요 ${feed.helpful_count || 0}
+								</button>
+							</form>
+							<a href="/feed/info?feed_id=${feed._id}" class="btn btn-sm btn-outline-secondary">
+								💬 ${feed.comment_count || 0}
+							</a>
+							<a href="/feed/modify?feed_id=${feed._id}" class="btn btn-sm btn-outline-secondary">
+								수정
+							</a>
+							<a href="/feed/delete?feed_id=${feed._id}" class="btn btn-sm btn-outline-danger">
+								삭제
+							</a>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
-	</main>
+			`).join('');
 
-	<footer class="py-4 mt-5">
-		<div class="container text-center footer">
-			<div class="small">© 2025 모여봄 · 1조 프로젝트</div>
-		</div>
-	</footer>
+			const placeCounts = {};
+			feeds.forEach(feed => {
+				placeCounts[feed.place_name] = (placeCounts[feed.place_name] || 0) + 1;
+			});
 
-	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+			const recentPlaces = Object.entries(placeCounts)
+				.sort((a, b) => b[1] - a[1])
+				.slice(0, 5);
+
+			recentEl.innerHTML = recentPlaces.map(([place, count], index) => `
+				<li class="list-group-item px-0 d-flex justify-content-between">
+					<span><strong>${index + 1}</strong> ${escapeHtml(place)}</span>
+					<span class="fw-bold">${count}건</span>
+				</li>
+			`).join('');
+
+		} catch (error) {
+			console.error(error);
+			listEl.innerHTML = '<div class="alert alert-danger">서버 오류로 제보 목록을 불러오지 못했습니다.</div>';
+		}
+	}
+
+	loadFeeds();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

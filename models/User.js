@@ -54,7 +54,6 @@ const userSchema = new mongoose.Schema(
         alert_comment: { type: Boolean, default: true },
         alert_badge: { type: Boolean, default: true },
         alert_marketing: { type: Boolean, default: false }
-          
     },{
         timestamps : true
     }

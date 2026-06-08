@@ -1,8 +1,12 @@
 const Meeting = require("../models/Meeting");
 
 // 모임 생성
-const createMeeting = async (meetingData, profileImage) => {
-    const newMeeting = new Meeting(meetingData, profileImage);
+const createMeeting = async (meetingData, imageUrl) => {
+    // meetingData와 imageUrl을 객체로 합쳐서 전달 수정
+    const newMeeting = new Meeting({ 
+        ...meetingData, 
+        imageUrl: imageUrl
+    });
     await newMeeting.save();
     return newMeeting;
 };

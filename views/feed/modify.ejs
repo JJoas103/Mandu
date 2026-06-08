@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>제보 수정 - 모여봄</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/css/style.css" rel="stylesheet">
+</head>
+
+<body>
+
+  <%- include('../partials/header') %>
+
+  <main class="container my-4">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <h4 class="mb-1">📡 제보 수정</h4>
+            <p class="text-muted small mb-4">내용을 수정한 뒤 저장해주세요.</p>
+
+            <form action="/feed/modify/<%= feed._id %>" method="post" enctype="multipart/form-data">
+              <input type="hidden" name="place_name" id="place_name" value="<%= feed.place_name %>">
+              <input type="hidden" name="locationTag" id="locationTag" value="<%= feed.locationTag %>">
+
+              <div class="mb-3">
+                <label for="place_id" class="form-label">📍 장소 태그 <span class="text-danger">*</span></label>
+                <select id="place_id" name="place_id" class="form-select" required onchange="syncPlace(this)">
+                  <option value="">장소를 선택하세요</option>
+                  <option value="연남동" <%= feed.place_id === '연남동' ? 'selected' : '' %>>연남동 (마포구)</option>
+                  <option value="북촌" <%= feed.place_id === '북촌' ? 'selected' : '' %>>북촌 (종로구)</option>
+                  <option value="강남역" <%= feed.place_id === '강남역' ? 'selected' : '' %>>강남역 (강남구)</option>
+                  <option value="서래마을" <%= feed.place_id === '서래마을' ? 'selected' : '' %>>서래마을 (서초구)</option>
+                  <option value="잠실" <%= feed.place_id === '잠실' ? 'selected' : '' %>>잠실 (송파구)</option>
+                  <option value="서울숲" <%= feed.place_id === '서울숲' ? 'selected' : '' %>>서울숲 (성동구)</option>
+                  <option value="성수동" <%= feed.place_id === '성수동' ? 'selected' : '' %>>성수동 (성동구)</option>
+                  <option value="익선동" <%= feed.place_id === '익선동' ? 'selected' : '' %>>익선동 (종로구)</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="category" class="form-label">제보 카테고리 <span class="text-danger">*</span></label>
+                <select id="category" name="category" class="form-select" required>
+                  <option value="">카테고리를 선택하세요</option>
+                  <option value="혼잡도" <%= feed.category === '혼잡도' ? 'selected' : '' %>>🚦 혼잡도</option>
+                  <option value="주차" <%= feed.category === '주차' ? 'selected' : '' %>>🅿️ 주차</option>
+                  <option value="맛집" <%= feed.category === '맛집' ? 'selected' : '' %>>🍜 맛집</option>
+                  <option value="날씨" <%= feed.category === '날씨' ? 'selected' : '' %>>🌤️ 날씨</option>
+                  <option value="기타" <%= feed.category === '기타' ? 'selected' : '' %>>💬 기타</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="content" class="form-label">내용 <span class="text-danger">*</span></label>
+                <textarea id="content" name="content" class="form-control" rows="5"
+                  placeholder="현재 장소의 분위기, 혼잡도 등을 공유해주세요" required><%= feed.content %></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">사진 첨부</label>
+                <% if(feed.image) { %>
+                <div class="mb-2">
+                  <img src="/images/upload/<%= feed.image %>" alt="현재 이미지"
+                    style="height: 120px; object-fit: cover; border-radius: 4px;">
+                  <p class="small text-muted mt-1">새 파일을 선택하면 기존 이미지가 교체됩니다.</p>
+                </div>
+                <% } %>
+                <input type="file" name="uploadFile" class="form-control" accept="image/*" />
+              </div>
+
+              <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" name="gps_verified" value="true" id="gpsChk"
+                  <%= feed.gps_verified ? 'checked' : '' %>>
+                <label class="form-check-label" for="gpsChk">현재 위치 GPS 인증</label>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-brand btn-lg">수정 저장</button>
+                <a href="/feed/info/<%= feed._id %>" class="btn btn-outline-secondary">취소</a>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <%- include('../partials/footer') %>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function syncPlace(sel) {
+      const val = sel.value;
+      document.getElementById('place_name').value = val;
+      document.getElementById('locationTag').value = val;
+    }
+  </script>
+
+</body>
+
+</html>

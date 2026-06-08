@@ -28,31 +28,35 @@
 								<input type="text" id="meeting_title" name="title" class="form-control" placeholder="어떤 모임인지 간단히 적어주세요" required />
 							</div>
 
-							<!-- 장소 선택 -->
 							<div class="mb-3">
-								<label for="place_id" class="form-label">장소 <span class="text-danger">*</span></label>
-								<select id="place_id" name="area" class="form-select" required>
-									<option value="">장소를 선택하세요</option>
-									<option value="1" selected>연남동 (마포구)</option>
-									<option value="2">북촌 (종로구)</option>
-									<option value="3">강남역 (강남구)</option>
-									<option value="4">서래마을 (서초구)</option>
-									<option value="5">잠실 (송파구)</option>
-									<option value="6">서울숲 (성동구)</option>
-									<option value="7">성수동 (성동구)</option>
-									<option value="8">익선동 (종로구)</option>
-								</select>
+									<label class="form-label">장소 선택 <span class="text-danger">*</span></label>
+									<div id="map" style="width:100%; height:300px; margin-bottom:10px;"></div> <!-- 지도 컨테이너 -->
+									<input type="text" id="place_name" name="area" class="form-control" readonly required>
+									<div id="markerInfo" data-markers='<%- JSON.stringify(markerInfo) %>'></div>
+							</div>
 
+									<% if (typeof placeInfo !== 'undefined' && placeInfo) { %>
 								<!-- 장소 정보 자동 첨부 (선택 시 동적 표시) -->
 								<div class="mt-2 p-3 rounded" style="background:var(--brand-50); border:1px solid var(--brand-border);">
-									<div class="small fw-bold mb-2">📎 선택된 장소의 현재 정보</div>
+									<div class="small fw-bold mb-2">선택된 장소의 현재 정보</div>
 									<div class="d-flex gap-2 flex-wrap">
+										<!-- 혼잡도 정보 -->
+										 <% if (placeInfo.congest_lvl === '여유') { %>
 										<span class="chip chip-green"><span class="dot dot-green"></span> 현재 여유</span>
-										<span class="chip chip-brand">🅿️ 주차 가능 · 23석</span>
-										<span class="chip chip-blue">🚻 화장실 5곳</span>
+										 <% } else if (placeInfo.congest_lvl === '보통' || placeInfo.congest_lvl === '약간 붐빔') { %>
+										<span class="chip chip-yellow"><span class="dot dot-yellow"></span> <%= placeInfo.congest_lvl %></span>
+										 <% } else if (placeInfo.congest_lvl === '혼잡') { %>
+										<span class="chip chip-red"><span class="dot dot-red"></span> 혼잡</span>
+										 <% } %>
+											<% if (typeof parkingCount !== 'undefined' && parkingCount > 0) { %>
+										<span class="chip chip-brand">🅿️ 주변 주차장 <%= parkingCount %>곳</span>
+										<% } %>
+										<% if (typeof restroomCount !== 'undefined' && restroomCount > 0) { %>
+										<span class="chip chip-blue">🚻 주변 화장실 <%= restroomCount %>곳</span>
+										<% } %>
 									</div>
 								</div>
-							</div>
+								<% } %>
 
 							<!-- 소개글 -->
 							<div class="mb-3">
@@ -117,14 +121,14 @@
 
 							<!-- 이미지 -->
 							<div class="mb-3">
-								<label for="upload_file" class="form-label">첨부 이미지 (선택)</label>
-								<input type="file" id="upload_file" name="imageUrlx" class="form-control" accept="image/*">
+								<label for="upload_file" class="form-label">첨부 이미지 (필수)</label>
+								<input type="file" id="upload_file" name="imageUrl" class="form-control" accept="image/*" required>
 							</div>
 
 							<!-- 제출 -->
 							<div class="d-flex gap-2 mt-4">
 								<button type="submit" class="btn btn-brand btn-lg">모임 게시하기</button>
-								<a class="btn btn-outline-secondary btn-lg" href="meeting_list.html">취소</a>
+								<a class="btn btn-outline-secondary btn-lg" href="/meeting/list">취소</a>
 							</div>
 						</form>
 					</div>
@@ -137,5 +141,36 @@
     <%- include('../partials/footer') %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+		<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%= process.env.KAKAO_MAP_API %>"></script>
+		<script>
+			const markerDataDiv = document.getElementById('markerInfo');
+			const markerData = JSON.parse(markerDataDiv.dataset.markers);
+			const mapContainer = document.getElementById('map');
+			const mapOption = {
+					center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 중심
+					level: 8
+			};
+			const map = new kakao.maps.Map(mapContainer, mapOption);
+			const imageSize = new kakao.maps.Size(35, 35);
+			const markers = markerData.map(p => {
+					let mkImg = "/images/marker_available.png";
+					if (p.congest_lvl === '혼잡') mkImg = "/images/marker_crowdede.png";
+					else if (p.congest_lvl === '약간 붐빔') mkImg = "/images/marker_little_crowded.png";
+					else if (p.congest_lvl === '보통') mkImg = "/images/marker_normal.png";
+					const markerImage = new kakao.maps.MarkerImage(mkImg, imageSize);
+					const marker = new kakao.maps.Marker({
+							map: map,
+							position: new kakao.maps.LatLng(p.latitude, p.longitude),
+							title: p.name,
+							image: markerImage
+					});
+					kakao.maps.event.addListener(marker, 'click', function() {
+							document.getElementById('place_name').value = p.name;
+							// 선택 시 강조 효과나 알림을 줄 수 있음
+							alert(p.name + ' 장소가 선택되었습니다.');
+					});
+					return marker;
+			});
+		</script>
   </body>
 </html>

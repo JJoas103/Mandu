@@ -18,7 +18,10 @@ const getList = async (req, res, next) => {
 // 제보 작성 페이지
 const getWrite = (req, res) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
-    res.render("feed/write");
+    const prePlace = req.query.place_id
+        ? { id: req.query.place_id, name: decodeURIComponent(req.query.place_name || '') }
+        : null;
+    res.render("feed/write", { prePlace });
 };
 
 // 제보 작성 처리

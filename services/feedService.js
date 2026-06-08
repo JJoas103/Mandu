@@ -16,12 +16,12 @@ const getAllFeeds = async (page = 1) => {
     const totalPages = Math.ceil(totalFeeds / limit);
     
     const feeds = await Feed.find()
-        .populate("author", "nickname profileImage avatar_emoji")
+        .populate("author", "nickname avatar_emoji")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
-        
-    return { feeds, totalPages };
+
+    return { feeds, totalPages, currentPage: page };
 };
 
 // 특정 제보 조회

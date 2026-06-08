@@ -1,5 +1,7 @@
 const meetingService = require("../services/meetingService");
 const commentService = require("../services/commentService");
+const placeService = require("../services/placeService");
+const kakaoLocalService = require("../services/kakaoLocalService");
 
 // 모임 목록 조회
 const getList = async (req, res, next) => {
@@ -13,23 +15,48 @@ const getList = async (req, res, next) => {
 };
 
 // 모임 작성 페이지
-const getWrite = (req, res) => {
+const getWrite = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
-    res.render("meeting/write");
+    try {
+        const area = req.query.area || '';
+        let placeInfo = null;
+        let parkingCount = 0;
+        let restroomCount = 0;
+
+        if (area) {
+            placeInfo = await placeService.getPlaceByName(area);
+            if (placeInfo) {
+                const [parkingInfo, restroomInfo] = await Promise.all([
+                    kakaoLocalService.getNearbyParking(placeInfo.latitude, placeInfo.longitude),
+                    kakaoLocalService.getNearbyRestrooms(placeInfo.latitude, placeInfo.longitude)
+                ]);
+                parkingCount = parkingInfo.length;
+                restroomCount = restroomInfo.length;
+            }
+        }
+        const markerInfo = await placeService.getAllMarker(); // 지도 마커 정보 가져옴
+        res.render("meeting/write", { area, placeInfo, parkingCount, restroomCount, markerInfo });
+    } catch (error) {
+        next(error);
+    }
 };
 
 // 모임 작성 처리
 const postWrite = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
+        // 이미지 필수 삽입 기능 추가
+        if (!req.file) {
+            return res.status(400).send("잘못된 접근입니다");
+        }
         const meetingDate = new Date(`${req.body.meeting_date}T${req.body.meeting_time}`);
         const meetingData = {
             ...req.body,
             meetingDate,
             author: req.user.id
         };
-        const profileImage = req.file ? req.file.fimename : null;
-        await meetingService.createMeeting(meetingData, profileImage);
+        const imageUrl = req.file.filename;
+        await meetingService.createMeeting(meetingData, imageUrl);
         res.redirect("/meeting/list");
     } catch (error) {
         next(error);
@@ -62,7 +89,8 @@ const getModify = async (req, res, next) => {
         if (meeting.author._id.toString() !== req.user.id) {
             return res.status(403).send("권한이 없습니다");
         }
-        res.render("meeting/modify", { meeting });
+        const markerInfo = await placeService.getAllMarker();
+        res.render("meeting/modify", { meeting, markerInfo });
     } catch (error) {
         next(error);
     }
@@ -71,7 +99,16 @@ const getModify = async (req, res, next) => {
 // 모임 수정 처리
 const postModify = async (req, res, next) => {
     try {
-        await meetingService.updateMeeting(req.params.id, req.body, req.user.id);
+        const updateData = { ...req.body };
+        if (req.file) {
+            updateData.imageUrl = req.file.filename;
+        }
+        // 날짜와 시간 합치기
+        if (req.body.meeting_date && req.body.meeting_time) {
+            updateData.meetingDate = new Date(`${req.body.meeting_date}T${req.body.meeting_time}`);
+        }
+        
+        await meetingService.updateMeeting(req.params.id, updateData, req.user.id);
         res.redirect(`/meeting/info/${req.params.id}`);
     } catch (error) {
         next(error);
