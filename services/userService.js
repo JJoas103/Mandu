@@ -122,9 +122,13 @@ async function updateMannerScore(userId, amount) {
     const user = await User.findById(userId);
     if (!user) return null;
     
-    user.manner_score = Math.min(100, Math.max(0, (user.manner_score || 50) + amount));
+    const oldScore = user.manner_score || 50;
+    const newScore = Math.min(100, Math.max(0, oldScore + amount));
+    const actualChange = newScore - oldScore;
+
+    user.manner_score = newScore;
     await user.save();
-    return user;
+    return { user, actualChange };
 }
 
 async function getMapView(){

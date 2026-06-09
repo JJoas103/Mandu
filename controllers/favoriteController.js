@@ -1,4 +1,5 @@
 const Favorite = require('../models/Favorite');
+const Activity = require('../models/Activity');
 const userService = require('../services/userService');
 
 exports.addFavorite = async (req, res, next) => {
@@ -25,8 +26,16 @@ exports.addFavorite = async (req, res, next) => {
         });
         await newFavorite.save();
 
-        // 매너 점수 상승 (+1)
-        await userService.updateMannerScore(userId, 1);
+        // 매너 점수 상승 (+1) 및 활동 기록
+        const { actualChange } = await userService.updateMannerScore(userId, 1);
+        
+        await Activity.create({
+            user: userId,
+            type: 'favorite_add',
+            message: `장소 찜하기 추가`,
+            scoreChange: actualChange,
+            relatedLink: `/place/${place_id}`
+        });
 
         res.send(`
             <script>

@@ -3,6 +3,7 @@ const commentService = require("../services/commentService");
 const userService = require("../services/userService");
 const Notification = require("../models/Notification");
 const Feed = require("../models/Feed");
+const Activity = require("../models/Activity");
 
 // 제보 목록 조회
 const getList = async (req, res, next) => {
@@ -28,12 +29,25 @@ const getWrite = (req, res) => {
 const postWrite = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
+        const userId = req.user.id;
         const feedData = {
             ...req.body,
-            author: req.user.id,
+            author: userId,
             image: req.file ? req.file.filename : null
         };
-        await feedService.createFeed(feedData);
+        const newFeed = await feedService.createFeed(feedData);
+
+        // 매너 점수 상승 (+1) 및 활동 기록
+        const { actualChange } = await userService.updateMannerScore(userId, 1);
+        
+        await Activity.create({
+            user: userId,
+            type: 'feed_write',
+            message: `실시간 제보 작성`,
+            scoreChange: actualChange,
+            relatedLink: `/feed/info/${newFeed._id}`
+        });
+
         res.redirect("/feed/list");
     } catch (error) {
         next(error);
@@ -121,12 +135,21 @@ const postLike = async (req, res, next) => {
         
         // 작성자 매너 점수 상승 (+2) 및 알림 생성
         if (feed.author) {
-            await userService.updateMannerScore(feed.author, 2);
+            const { actualChange } = await userService.updateMannerScore(feed.author, 2);
             
             await Notification.create({
                 user: feed.author,
                 type: 'like',
-                message: `실시간 제보에 추천을 받아 매너점수가 2.0점이 올랐어요.`,
+                message: `실시간 제보에 추천을 받아 매너점수가 ${actualChange.toFixed(1)}점이 올랐어요.`,
+                relatedLink: `/feed/info/${feedId}`
+            });
+
+            // 활동 내역 추가 (작성자의 히스토리에 남도록)
+            await Activity.create({
+                user: feed.author,
+                type: 'like_received',
+                message: `제보 추천 받음`,
+                scoreChange: actualChange,
                 relatedLink: `/feed/info/${feedId}`
             });
         }

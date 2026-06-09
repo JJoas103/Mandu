@@ -2,6 +2,8 @@ const meetingService = require("../services/meetingService");
 const commentService = require("../services/commentService");
 const placeService = require("../services/placeService");
 const kakaoLocalService = require("../services/kakaoLocalService");
+const userService = require("../services/userService");
+const Activity = require("../models/Activity");
 
 // 모임 목록 조회
 const getList = async (req, res, next) => {
@@ -56,7 +58,20 @@ const postWrite = async (req, res, next) => {
             author: req.user.id
         };
         const imageUrl = req.file.filename;
-        await meetingService.createMeeting(meetingData, imageUrl);
+        const newMeeting = await meetingService.createMeeting(meetingData, imageUrl);
+
+        // 매너 점수 상승 (+5) 및 활동 기록
+        const { actualChange } = await userService.updateMannerScore(req.user.id, 5);
+
+        // 최근 활동 기록 추가
+        await Activity.create({
+            user: req.user.id,
+            type: 'meeting_create', 
+            message: `"${newMeeting.title}" 모임 개설`,
+            scoreChange: actualChange,
+            relatedLink: `/meeting/info/${newMeeting._id}`
+        });
+
         res.redirect("/meeting/list");
     } catch (error) {
         next(error);
@@ -125,6 +140,42 @@ const postDelete = async (req, res, next) => {
     }
 };
 
+// 모임 참여 처리
+const postJoin = async (req, res, next) => {
+    if (!req.isAuthenticated()) {
+        if (req.xhr) return res.status(401).json({ message: "로그인이 필요합니다" });
+        return res.redirect("/member/login");
+    }
+    try {
+        const meetingId = req.params.id;
+        const { meeting, action } = await meetingService.toggleMeetingParticipation(meetingId, req.user.id);
+
+        if (action === 'join') {
+            // 매너 점수 상승 (+2) 및 활동 기록
+            const { actualChange } = await userService.updateMannerScore(req.user.id, 2);
+
+            // 참여 시에만 최근 활동 기록 추가
+            await Activity.create({
+                user: req.user.id,
+                type: 'meeting_join',
+                message: `"${meeting.title}" 모임 가입`,
+                scoreChange: actualChange,
+                relatedLink: `/meeting/info/${meetingId}`
+            });
+        }
+
+        if (req.xhr) {
+            return res.json({ success: true, action, message: action === 'join' ? "모임에 참여했습니다" : "참여를 취소했습니다" });
+        }
+        res.redirect(`/meeting/info/${meetingId}`);
+    } catch (error) {
+        if (req.xhr) {
+            return res.status(400).json({ message: error.message });
+        }
+        res.send(`<script>alert("${error.message}"); history.back();</script>`);
+    }
+};
+
 module.exports = { 
     getList, 
     getWrite, 
@@ -132,5 +183,6 @@ module.exports = {
     getInfo, 
     getModify, 
     postModify, 
-    postDelete 
+    postDelete,
+    postJoin
 };

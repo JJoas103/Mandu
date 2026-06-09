@@ -4,6 +4,7 @@ const Feed = require("../models/Feed");
 const Favorite = require("../models/Favorite");
 const Place = require("../models/place");
 const Notification = require("../models/Notification");
+const Activity = require("../models/Activity");
 const placeService = require("../services/placeService");
 const kakaoLocalService = require("../services/kakaoLocalService");
 
@@ -119,19 +120,17 @@ const getMemberInfo = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         const userId = req.user.id;
-        const [myMeetings, myFeeds, recommendRaw] = await Promise.all([
+        const [myMeetings, myFeeds, activities, scoreActivities] = await Promise.all([
             Meeting.find({ $or: [{ author: userId }, { participants: userId }] })
                    .populate('author', 'nickname avatar_emoji')
                    .sort({ createdAt: -1 }),
             Feed.find({ author: userId }).sort({ createdAt: -1 }),
-            placeService.getPlaceInfoLimt()
+            Activity.find({ user: userId }).sort({ createdAt: -1 }).limit(10),
+            Activity.find({ user: userId, scoreChange: { $exists: true, $ne: 0 } }).sort({ createdAt: -1 }).limit(5)
         ]);
 
         const meetingCount = myMeetings.length;
         const feedCount = myFeeds.length;
-
-        const images = await Promise.all(recommendRaw.map(p => kakaoLocalService.getPlaceImage(p.name)));
-        const placesForInfo = recommendRaw.slice(0, 3).map((p, i) => ({ ...p.toObject(), imageUrl: images[i] }));
         
         res.render("member/info", {
             user: req.user,
@@ -139,7 +138,8 @@ const getMemberInfo = async (req, res, next) => {
             feedCount,
             myMeetings,
             myFeeds,
-            placesForInfo
+            activities,
+            scoreActivities
         });
     } catch(e) {
         next(e);

@@ -238,8 +238,9 @@
 					</div>
 				</div>
 				<div class="modal-footer">
-					<form action="/visit/verify" method="post" class="w-100">
+					<form action="/visit/verify" method="post" id="visitVerifyForm" class="w-100">
 						<input type="hidden" name="place_id" value="<%= place.area_cd %>">
+						<input type="hidden" name="place_name" value="<%= place.name %>">
 						<input type="hidden" name="gps_latitude" value="<%= place.latitude %>">
 						<input type="hidden" name="gps_longitude" value="<%= place.longitude %>">
 						<button type="submit" class="btn btn-brand w-100">인증하기 (+2 매너점수)</button>
@@ -266,6 +267,34 @@
 			document.getElementById('favoriteReason').value = reason;
 			document.getElementById('favoriteForm').submit();
 		}
+
+		// 방문 인증 AJAX 처리
+		document.getElementById('visitVerifyForm')?.addEventListener('submit', async function(e) {
+			e.preventDefault();
+			const formData = new FormData(this);
+			const data = Object.fromEntries(formData.entries());
+
+			try {
+				const response = await fetch('/visit/verify', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(data)
+				});
+				const result = await response.json();
+
+				if (result.success) {
+					alert(result.message);
+					location.reload(); // 성공 시 점수 반영 등을 위해 페이지 새로고침
+				} else {
+					alert(result.message);
+				}
+			} catch (error) {
+				console.error('인증 처리 중 오류:', error);
+				alert('인증 처리 중 오류가 발생했습니다.');
+			}
+		});
 	</script>
 </body>
 </html>

@@ -21,4 +21,7 @@ router.post("/modify/:id", uploadBoard.single('imageUrl'), meetingController.pos
 // 모임 삭제
 router.post("/delete/:id", meetingController.postDelete);
 
+// 모임 참여
+router.post("/join/:id", meetingController.postJoin);
+
 module.exports = router;

@@ -140,64 +140,143 @@
               <h1 class="mb-0 text-success"><%= user.manner_score.toFixed(1) %></h1>
               <div class="small text-muted"><%= user.manner_score >= 80 ? '상위 5% · 매너왕' : (user.manner_score >= 60 ? '상위 15% · 우수 활동자' : '일반 등급') %></div>
             </div>
-            <span class="chip chip-green">↑ +<%= (user.manner_score - 50).toFixed(1) %> 활동포인트</span>
+            <span class="chip chip-green">점수 현황</span>
           </div>
-          <div class="manner-bar-bg mt-3">
+          <div class="manner-bar-bg mt-3 mb-4">
             <div class="manner-bar-fill" style="width: <%= user.manner_score %>%;"></div>
+          </div>
+
+          <!-- 점수 변동 내역 -->
+          <div class="score-history mt-4">
+            <h6 class="small fw-bold text-muted mb-2">최근 점수 변동</h6>
+            <ul class="list-group list-group-flush">
+              <% if (scoreActivities && scoreActivities.length > 0) { %>
+                <% scoreActivities.forEach(item => { %>
+                  <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center" style="font-size: 13px;">
+                    <span class="text-truncate" style="max-width: 70%;"><%= item.message %></span>
+                    <span class="fw-bold <%= item.scoreChange > 0 ? 'text-success' : 'text-danger' %>">
+                      <%= item.scoreChange > 0 ? '+' : '' %><%= item.scoreChange %>
+                    </span>
+                  </li>
+                <% }) %>
+              <% } else { %>
+                <li class="list-group-item px-0 py-2 text-center text-muted small">점수 변동 내역이 없습니다.</li>
+              <% } %>
+            </ul>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 최근 활동 (더미데이터 유지) -->
+    <!-- 최근 활동 -->
     <div class="col-md-6">
       <div class="card shadow-sm h-100">
         <div class="card-body">
           <h6 class="card-title mb-3">📍 최근 활동</h6>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item px-0 d-flex align-items-center gap-2">
-              <span style="font-size:20px;">🌳</span>
-              <div class="flex-grow-1">
-                <div class="fw-bold small">연남동 방문 인증</div>
-                <div class="text-muted" style="font-size:11px;">오늘 14:23</div>
-              </div>
-            </li>
-            <li class="list-group-item px-0 d-flex align-items-center gap-2">
-              <span style="font-size:20px;">🤝</span>
-              <div class="flex-grow-1">
-                <div class="fw-bold small">새로운 모임 가입</div>
-                <div class="text-muted" style="font-size:11px;">어제 11:05</div>
-              </div>
-            </li>
+            <% if (activities && activities.length > 0) { %>
+              <% activities.forEach(activity => { %>
+                <li class="list-group-item px-0 d-flex align-items-center gap-2">
+                  <span style="font-size:20px;">
+                    <% 
+                      let icon = '⭐';
+                      if (activity.type === 'meeting_join') icon = '🤝';
+                      else if (activity.type === 'meeting_create') icon = '🆕';
+                      else if (activity.type === 'visit_verify') icon = '🌳';
+                      else if (activity.type === 'feed_write') icon = '📡';
+                      else if (activity.type === 'like_received') icon = '👍';
+                      else if (activity.type === 'comment_write') icon = '💬';
+                    %>
+                    <%= icon %>
+                  </span>
+                  <div class="flex-grow-1">
+                    <div class="fw-bold small">
+                      <% if (activity.relatedLink) { %>
+                        <a href="<%= activity.relatedLink %>" class="text-decoration-none text-dark"><%= activity.message %></a>
+                      <% } else { %>
+                        <%= activity.message %>
+                      <% } %>
+                    </div>
+                    <div class="text-muted" style="font-size:11px;">
+                      <% 
+                        const diff = new Date() - new Date(activity.createdAt);
+                        const mins = Math.floor(diff / 60000);
+                        const hours = Math.floor(mins / 60);
+                        const days = Math.floor(hours / 24);
+                        let timeStr = '';
+                        if (days > 0) timeStr = `${days}일 전`;
+                        else if (hours > 0) timeStr = `${hours}시간 전`;
+                        else if (mins > 0) timeStr = `${mins}분 전`;
+                        else timeStr = '방금 전';
+                      %>
+                      <%= timeStr %>
+                    </div>
+                  </div>
+                </li>
+              <% }) %>
+            <% } else { %>
+              <li class="list-group-item px-0 text-center py-4 text-muted small">최근 활동이 없습니다.</li>
+            <% } %>
           </ul>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- 추천 명소 -->
-  <% if (typeof placesForInfo !== 'undefined' && placesForInfo.length > 0) { %>
+  <!-- 획득 배지 -->
   <div class="card shadow-sm mb-4">
     <div class="card-body">
-      <h6 class="card-title mb-3">🌿 지금 한산한 명소</h6>
-      <div class="row g-2">
-        <% placesForInfo.forEach(function(p) { %>
-          <div class="col-4">
-            <a href="/place/<%= p.area_cd %>" class="text-decoration-none text-dark">
-              <% if (p.imageUrl) { %>
-                <img src="<%= p.imageUrl %>" class="rounded w-100" style="height:80px;object-fit:cover;" alt="<%= p.name %>">
-              <% } else { %>
-                <div class="rounded w-100 d-flex align-items-center justify-content-center bg-light" style="height:80px;font-size:28px;">🌳</div>
-              <% } %>
-              <div class="small mt-1 fw-semibold"><%= p.name %></div>
-              <div class="small text-muted"><%= p.congest_lvl %></div>
-            </a>
+      <h6 class="card-title mb-3">🏅 획득 배지</h6>
+      <div class="badge-grid d-flex flex-wrap gap-3 justify-content-start text-center">
+        <% 
+          // 기본 배지 목록
+          const baseBadges = [
+            { id: 'yeonnam', name: '연남동 정복', emoji: '🌳' },
+            { id: 'cafe', name: '카페 탐험가', emoji: '☕' },
+            { id: 'first_feed', name: '첫 제보', emoji: '📡' },
+            { id: 'seoul', name: '서울 탐험가', emoji: '🏙️' },
+            { id: 'districts', name: '25개 구 완주', emoji: '🗺️' },
+            { id: 'legend', name: '레전드', emoji: '🌟' }
+          ];
+
+          // 매너 점수 배지 카테고리
+          let mannerBadge = null;
+          if (user.manner_score >= 100) mannerBadge = { name: '금배지', emoji: '🥇' };
+          else if (user.manner_score >= 90) mannerBadge = { name: '은배지', emoji: '🥈' };
+          else if (user.manner_score >= 80) mannerBadge = { name: '동배지', emoji: '🥉' };
+
+          // 모임 활동 배지 카테고리
+          let meetingBadge = null;
+          if (meetingCount >= 15) meetingBadge = { name: '활발한 활동', emoji: '🔥' };
+          else if (meetingCount >= 10) meetingBadge = { name: '성실한 활동', emoji: '🏅' };
+          else if (meetingCount >= 7) meetingBadge = { name: '꾸준한 활동', emoji: '🌱' };
+
+          const userBadges = user.badges || [];
+          
+          // 표시할 배지 목록 구성 (획득한 배지만 필터링)
+          const displayBadges = baseBadges
+            .filter(b => userBadges.includes(b.id))
+            .map(b => ({ ...b, earned: true }));
+            
+          if (mannerBadge) displayBadges.push({ ...mannerBadge, earned: true });
+          if (meetingBadge) displayBadges.push({ ...meetingBadge, earned: true });
+        %>
+        
+        <% if (displayBadges.length > 0) { %>
+          <% displayBadges.forEach(badge => { %>
+            <div class="badge-item earned" style="width: 80px; flex-shrink: 0;">
+              <div class="badge-emoji mb-1" style="font-size: 32px;"><%= badge.emoji %></div>
+              <div class="badge-name small text-muted" style="font-size: 11px;"><%= badge.name %></div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="col-12 text-center py-4">
+            <p class="text-muted small mb-0">아직 획득한 배지가 없습니다. 활동을 통해 배지를 모아보세요!</p>
           </div>
-        <% }) %>
+        <% } %>
       </div>
     </div>
   </div>
-  <% } %>
 
   <!-- 회원 탈퇴 -->
   <div class="text-end">
