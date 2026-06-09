@@ -21,7 +21,7 @@ const getCommentsByBoardId = async (boardId, page = 1) => {
     const totalCommentPages = Math.max(1, Math.ceil(totalComments / limit));
 
     const comments = await Comment.find({ board: boardId })
-        .populate('author', 'nickname profileImage avatar_emoji')
+        .populate('author', 'nickname profileImage avatar_emoji manner_score')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);

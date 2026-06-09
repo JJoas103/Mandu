@@ -5,7 +5,8 @@ const createMeeting = async (meetingData, imageUrl) => {
     // meetingData와 imageUrl을 객체로 합쳐서 전달 수정
     const newMeeting = new Meeting({ 
         ...meetingData, 
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
+        participants: [meetingData.author]
     });
     await newMeeting.save();
     return newMeeting;
@@ -32,7 +33,7 @@ const getAllMeetings = async (page = 1) => {
 const getMeetingById = async (id) => {
     const meeting = await Meeting.findById(id)
         .populate("author", "nickname profileImage avatar_emoji manner_score")
-        .populate("participants", "nickname profileImage");
+        .populate("participants", "nickname profileImage avatar_emoji manner_score");
     if (!meeting) throw new Error("모임을 찾을 수 없습니다");
     return meeting;
 };

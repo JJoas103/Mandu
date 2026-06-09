@@ -21,7 +21,11 @@
             <div>
               <h3 class="mb-1"><%= meeting.title %></h3>
               <div class="small text-muted">
-                주최자: <strong><%= meeting.author.nickname %> </strong>· 
+                주최자: <strong><%= meeting.author.nickname %></strong>
+                <span class="badge bg-light text-dark ms-1" style="border: 1px solid #ddd;">
+                  <%= meeting.author.manner_score.toFixed(1) %>°C
+                </span> · 
+                <span class="badge"></span>
                 작성일: <%= new Date(meeting.createdAt).toLocaleDateString() %>
               </div>
             </div>
@@ -105,8 +109,12 @@
                 <li class="list-group-item d-flex align-items-center gap-3 px-0">
                   <div style="font-size: 1.5rem;"><%= p.avatar_emoji %></div>
                   <div>
-                    <strong><%= p.nickname %></strong>
-                    <div class="small text-muted">매너점수 <%= p.manner_score %></div>
+                    <strong><%= p.nickname %>
+                      <% if(p._id.toString() === meeting.author._id.toString()) { %>
+                        <span class="badge bg-brand small text-dark">주최자</span>
+                      <% } %>
+                    </strong>
+                    <div class="small text-muted">매너온도 <%= p.manner_score.toFixed(1) %>°C</div>
                   </div>
                 </li>
               <% }) %>
@@ -126,8 +134,17 @@
           <% comments.forEach(comment => { %>
           <li class="list-group-item p-3">
             <div class="d-flex justify-content-between mb-1">
-              <span class="fw-bold"><%= comment.author.avatar_emoji %> <%= comment.author.nickname %></span>
-              <span class="small text-muted"><%= new Date(comment.createdAt).toLocaleString() %></span>
+              <span class="fw-bold">
+                <%= comment.author.avatar_emoji %> <%= comment.author.nickname %>
+                <span class="badge bg-light text-dark ms-1" style="border: 1px solid #ddd;">
+                <%= meeting.author.manner_score.toFixed(1) %>°C</span>
+                <% if(comment.author._id.toString() === meeting.author._id.toString()) { %>
+                <span class="badge bg-brand small ms-1 text-dark" style="font-size: 0.7rem;">주최자</span>
+                <% } %>
+              </span>
+              
+              <span class="small text-muted ms-auto"><%= new Date(comment.createdAt).toLocaleString() %></span>
+              
             </div>
             <p class="mb-1"><%= comment.content %></p>
             <% if(user && user.id === comment.author._id.toString()) { %>
