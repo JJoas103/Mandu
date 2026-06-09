@@ -71,6 +71,39 @@ const getMeetingsByArea = async (areaName) => {
         .limit(5);
 };
 
+// 모임 참여/취소 토글 처리
+const toggleMeetingParticipation = async (meetingId, userId) => {
+    const meeting = await Meeting.findById(meetingId);
+    if (!meeting) throw new Error("모임을 찾을 수 없습니다");
+    
+    if (meeting.author.toString() === userId) {
+        throw new Error("주최자는 참여를 취소할 수 없습니다");
+    }
+
+    const index = meeting.participants.indexOf(userId);
+    let action = '';
+
+    if (index > -1) {
+        // 이미 참여 중이면 취소
+        meeting.participants.splice(index, 1);
+        meeting.status = 'recruit'; // 정원 미달이 되므로 무조건 모집중으로 변경
+        action = 'leave';
+    } else {
+        // 미참여 중이면 참여
+        if (meeting.participants.length >= meeting.maxParticipants) {
+            throw new Error("모임 정원이 초과되었습니다");
+        }
+        meeting.participants.push(userId);
+        if (meeting.participants.length >= meeting.maxParticipants) {
+            meeting.status = 'full';
+        }
+        action = 'join';
+    }
+    
+    await meeting.save();
+    return { meeting, action };
+};
+
 module.exports = {
     createMeeting,
     getAllMeetings,
@@ -78,5 +111,6 @@ module.exports = {
     updateMeeting,
     deleteMeeting,
     getMainMeetings,
-    getMeetingsByArea
+    getMeetingsByArea,
+    toggleMeetingParticipation
 };

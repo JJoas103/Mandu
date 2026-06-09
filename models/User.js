@@ -53,7 +53,8 @@ const userSchema = new mongoose.Schema(
         alert_meeting: { type: Boolean, default: true },
         alert_comment: { type: Boolean, default: true },
         alert_badge: { type: Boolean, default: true },
-        alert_marketing: { type: Boolean, default: false }
+        alert_marketing: { type: Boolean, default: false },
+        badges: { type: [String], default: [] }
     },{
         timestamps : true
     }

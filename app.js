@@ -66,6 +66,7 @@ const commentRouter = require("./routes/commentRouter");
 const authRouter = require("./routes/authRouter");
 const placeRouter = require("./routes/placeRouter");
 const favoriteRouter = require("./routes/favoriteRouter");
+const visitRouter = require("./routes/visitRouter");
 
 app.use("/", mainRouter);
 app.use("/member", userRouter);
@@ -75,6 +76,7 @@ app.use("/comment", commentRouter);
 app.use("/auth", authRouter);
 app.use("/place", placeRouter);
 app.use("/favorite", favoriteRouter);
+app.use("/visit", visitRouter);
 
 // 에러 핸들링
 app.use(notFoundHandler);
