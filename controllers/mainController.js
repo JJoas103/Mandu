@@ -23,4 +23,16 @@ const getMain = async (req, res, next) => {
         next(error);        
     }
 }
-module.exports = { getMain };
+const getCongestion = async (req, res, next) => {
+    try {
+        const markerInfo = await placeService.getAllMarker();
+        const surgePlace = await placeService.getSurgeTop5();
+        const congestPlaceTopFive = await placeService.getCongestTop5();
+        const placeInfoLimt = await placeService.getPlaceInfoLimt();
+        res.json({ markerInfo, surgePlace, congestPlaceTopFive, placeInfoLimt });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { getMain, getCongestion };

@@ -1,54 +1,90 @@
 const appDiv = document.getElementById('markerInfo');
-const markerInfo = JSON.parse(appDiv.dataset.markers);
+const initialMarkerInfo = JSON.parse(appDiv.dataset.markers);
 
-var mapContainer = document.getElementById('map');
-
-const lat = 37.5665;
-const lng = 126.9780;
-var mapOption = {
-    center : new kakao.maps.LatLng(lat, lng),
-    level : 8
+const mapOption = {
+    center: new kakao.maps.LatLng(37.5665, 126.9780),
+    level: 8
 };
-var map = new kakao.maps.Map(mapContainer, mapOption);
+const map = new kakao.maps.Map(document.getElementById('map'), mapOption);
 
-var positions = markerInfo.map(function(p) {
-    return {
-        title: p.name,
-        area_cd: p.area_cd,
-        latlng: new kakao.maps.LatLng(p.latitude, p.longitude),
-        congest_lvl: p.congest_lvl
-    };
-});
+const MK_IMAGES = {
+    '혼잡':     './images/marker_crowdede.png',
+    '약간 붐빔': './images/marker_little_crowded.png',
+    '보통':     './images/marker_normal.png',
+};
+const MK_DEFAULT = './images/marker_available.png';
+const imageSize = new kakao.maps.Size(50, 50);
 
-var mk_img_available = "./images/marker_available.png";
-var mk_img_normal = "./images/marker_normal.png";
-var mk_img_little_crowded = "./images/marker_little_crowded.png";
-var mk_img_crowded = "./images/marker_crowdede.png";
+let activeMarkers = [];
 
-var imageSize = new kakao.maps.Size(50, 50);
+function renderMarkers(positions) {
+    activeMarkers.forEach(m => m.setMap(null));
+    activeMarkers = [];
 
-for (var i = 0; i < positions.length; i++) {
-    var markerImage;
-    if (positions[i].congest_lvl == '혼잡') {
-        markerImage = new kakao.maps.MarkerImage(mk_img_crowded, imageSize);
-    } else if (positions[i].congest_lvl == '약간 붐빔') {
-        markerImage = new kakao.maps.MarkerImage(mk_img_little_crowded, imageSize);
-    } else if (positions[i].congest_lvl == '보통') {
-        markerImage = new kakao.maps.MarkerImage(mk_img_normal, imageSize);
-    } else {
-        markerImage = new kakao.maps.MarkerImage(mk_img_available, imageSize);
-    }
-
-    var marker = new kakao.maps.Marker({
-        map: map,
-        position: positions[i].latlng,
-        title: positions[i].title,
-        image: markerImage
-    });
-
-    (function(m, pos) {
-        kakao.maps.event.addListener(m, 'click', function() {
+    positions.forEach(pos => {
+        const imageSrc = MK_IMAGES[pos.congest_lvl] || MK_DEFAULT;
+        const marker = new kakao.maps.Marker({
+            map,
+            position: new kakao.maps.LatLng(pos.latitude, pos.longitude),
+            title: pos.name,
+            image: new kakao.maps.MarkerImage(imageSrc, imageSize)
+        });
+        kakao.maps.event.addListener(marker, 'click', () => {
             window.location.href = '/place/' + pos.area_cd;
         });
-    })(marker, positions[i]);
+        activeMarkers.push(marker);
+    });
 }
+
+function updateSurgeList(surgeList) {
+    const ul = document.getElementById('surgeList');
+    if (!ul) return;
+    ul.innerHTML = surgeList.map(s =>
+        `<li class="list-group-item d-flex justify-content-between">
+            <span>${s.area_nm}</span>
+            <span class="text-danger fw-bold">${s.surge_pct}%</span>
+        </li>`
+    ).join('');
+}
+
+function updateCongestList(congestList) {
+    const ul = document.getElementById('congestList');
+    if (!ul) return;
+    ul.innerHTML = congestList.map(c =>
+        `<li class="list-group-item d-flex justify-content-between">
+            <span>${c.area_nm}</span>
+            <span class="text-danger fw-bold">${c.area_congest_lvl}</span>
+        </li>`
+    ).join('');
+}
+
+function updateLastUpdated() {
+    const el = document.getElementById('lastUpdated');
+    if (!el) return;
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    el.textContent = `갱신 ${hh}:${mm}`;
+}
+
+async function refreshCongestion() {
+    try {
+        const res = await fetch('/api/congestion');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderMarkers(data.markerInfo);
+        updateSurgeList(data.surgePlace);
+        updateCongestList(data.congestPlaceTopFive);
+        updateLastUpdated();
+    } catch (e) {
+        console.warn('혼잡도 갱신 실패:', e.message);
+    }
+}
+
+// 초기 렌더링
+renderMarkers(initialMarkerInfo);
+updateLastUpdated();
+
+// 5분마다 자동 갱신
+const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+setInterval(refreshCongestion, REFRESH_INTERVAL_MS);

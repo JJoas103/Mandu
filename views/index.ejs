@@ -54,15 +54,17 @@
 						<script type="text/javascript"
 							src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%= process.env.KAKAO_MAP_API %>"></script>
 						<div id="markerInfo" data-markers='<%- JSON.stringify(markerInfo) %>'></div>
-						<script src="/js/main.js"></script>
 					</div>
 
 					<!-- 실시간 급증 TOP 패널 -->
 					<div class="col-lg-3">
 						<div class="card shadow-sm h-100">
 							<div class="card-body">
-								<h6 class="card-title mb-3">🔥 실시간 급증 TOP</h6>
-								<ul class="list-group list-group-flush">
+								<div class="d-flex justify-content-between align-items-center mb-3">
+									<h6 class="card-title mb-0">🔥 실시간 급증 TOP</h6>
+									<small id="lastUpdated" class="text-muted"></small>
+								</div>
+								<ul id="surgeList" class="list-group list-group-flush">
 									<% surgePlace.forEach(surge => { %>
 									<li class="list-group-item d-flex justify-content-between">
 										<span><%= surge.area_nm %></span>
@@ -72,7 +74,7 @@
 								</ul>
 								<br>
 								<h6 class="card-title mb-3">🔥 혼잡붐빔 TOP 5</h6>
-								<ul class="list-group list-group-flush">
+								<ul id="congestList" class="list-group list-group-flush">
 									<% congestPlaceTopFive.forEach(surge => { %>
 									<li class="list-group-item d-flex justify-content-between">
 										<span><%= surge.area_nm %></span>
@@ -149,6 +151,7 @@
 		<!-- 푸터 -->
 		<%- include('partials/footer') %>
 			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+			<script src="/js/main.js"></script>
 
 </body>
 </html>

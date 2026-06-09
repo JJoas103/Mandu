@@ -72,35 +72,39 @@ const getMeetingsByArea = async (areaName) => {
         .limit(5);
 };
 
-const toggleJoin = async (meetingId, userId) => {
+// 모임 참여/취소 토글 처리
+const toggleMeetingParticipation = async (meetingId, userId) => {
     const meeting = await Meeting.findById(meetingId);
-    if(!meeting) throw new Error("모임을 찾을 수 없습니다");
-
-    if(meeting.author.toString() === userId) {
-        throw new Error("본인의 모임에 참여할 수 없습니다");
+    if (!meeting) throw new Error("모임을 찾을 수 없습니다");
+    
+    if (meeting.author.toString() === userId) {
+        throw new Error("주최자는 참여를 취소할 수 없습니다");
     }
 
-    // 이미 참여 중인지??
-    const isParticipating = meeting.participants.includes(userId);
+    const index = meeting.participants.indexOf(userId);
+    let action = '';
 
-    if(isParticipating) {
-       meeting.participants.pull(userId);
+    if (index > -1) {
+        // 이미 참여 중이면 취소
+        meeting.participants.splice(index, 1);
+        meeting.status = 'recruit'; // 정원 미달이 되므로 무조건 모집중으로 변경
+        action = 'leave';
     } else {
-        // 참여 중이 아니면 -> 참여
-        if(meeting.participants.length >= meeting.maxParticipants) {
-            throw new Error('정원이 가득 찼습니다');
+        // 미참여 중이면 참여
+        if (meeting.participants.length >= meeting.maxParticipants) {
+            throw new Error("모임 정원이 초과되었습니다");
         }
-        meeting.participants.push(userId); // 추가
-
-        // 정원이 다 찼으면 상태 변경
-        if(meeting.participants.length === meeting.maxParticipants) {
-            meeting.status = "full";
+        meeting.participants.push(userId);
+        if (meeting.participants.length >= meeting.maxParticipants) {
+            meeting.status = 'full';
         }
-    } 
+        action = 'join';
+    }
     
     await meeting.save();
-    return meeting;
+    return { meeting, action };
 };
+
 module.exports = {
     createMeeting,
     getAllMeetings,
@@ -109,5 +113,5 @@ module.exports = {
     deleteMeeting,
     getMainMeetings,
     getMeetingsByArea,
-    toggleJoin,
+    toggleMeetingParticipation
 };

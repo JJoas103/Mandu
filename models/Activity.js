@@ -8,12 +8,15 @@ const activitySchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['meeting_join', 'visit_verify', 'feed_write', 'favorite_add'],
+        enum: ['meeting_join', 'meeting_create', 'visit_verify', 'feed_write', 'favorite_add', 'like_received', 'comment_write'],
         required: true
     },
     message: {
         type: String,
         required: true
+    },
+    scoreChange: {
+        type: Number
     },
     relatedLink: {
         type: String

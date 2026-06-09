@@ -1,7 +1,9 @@
 const commentService = require("../services/commentService");
+const userService = require("../services/userService");
+const Activity = require("../models/Activity");
 
 //댓글 작성
-const createComment = async (req, res) => {
+const createComment = async (req, res, next) => {
   if (!req.isAuthenticated()) {
     return res.redirect("/member/login");
   }
@@ -11,8 +13,20 @@ const createComment = async (req, res) => {
 
   try {
     await commentService.createComment({ content, author, board }); //DB에 댓글 저장
+
+    // 매너 점수 상승 (+0.5) 및 활동 기록
+    const { actualChange } = await userService.updateMannerScore(author, 0.5);
+    
+    await Activity.create({
+        user: author,
+        type: 'comment_write',
+        message: `댓글 작성`,
+        scoreChange: actualChange,
+        relatedLink: `/feed/info/${board}`
+    });
+
   } catch (error) {
-    next(error);
+    return next(error);
   }
   res.redirect(`/feed/info/${board}`); //댓글을 작성한 게시글로 리다이렉트
 };
