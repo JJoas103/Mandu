@@ -9,8 +9,14 @@ const Activity = require("../models/Activity");
 const getList = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const { meetings, totalPages } = await meetingService.getAllMeetings(page);
-        res.render("meeting/list", { meetings, totalPages, currentPage: page });
+        const status = req.query.status || "";
+        const { meetings, totalPages } = await meetingService.getAllMeetings(page, status);
+        res.render("meeting/list", { 
+            meetings, 
+            totalPages, 
+            currentPage: page, 
+            currentStatus: status 
+        });
     } catch (error) {
         next(error);
     }

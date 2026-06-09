@@ -12,15 +12,20 @@ const createMeeting = async (meetingData, imageUrl) => {
     return newMeeting;
 };
 
-// 모든 모임 조회 (페이징 포함)
-const getAllMeetings = async (page = 1) => {
+// 모든 모임 조회 (페이징 및 필터 포함)
+const getAllMeetings = async (page = 1, status) => {
     const limit = 10;
     const skip = (page - 1) * limit;
     
-    const totalMeetings = await Meeting.countDocuments();
+    const query = {};
+    if (status) {
+        query.status = status;
+    }
+    
+    const totalMeetings = await Meeting.countDocuments(query);
     const totalPages = Math.ceil(totalMeetings / limit);
     
-    const meetings = await Meeting.find()
+    const meetings = await Meeting.find(query)
         .populate("author", "nickname profileImage avatar_emoji manner_score")
         .sort({ createdAt: -1 })
         .skip(skip)
