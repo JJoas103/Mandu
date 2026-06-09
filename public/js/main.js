@@ -29,9 +29,11 @@ function renderMarkers(positions) {
             title: pos.name,
             image: new kakao.maps.MarkerImage(imageSrc, imageSize)
         });
+
         kakao.maps.event.addListener(marker, 'click', () => {
             window.location.href = '/place/' + pos.area_cd;
         });
+
         activeMarkers.push(marker);
     });
 }
