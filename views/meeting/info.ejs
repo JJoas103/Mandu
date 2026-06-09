@@ -9,9 +9,10 @@
 </head>
 <body>
 
-	<!-- 헤더 -->
-    <%- include('../partials/header') %>
+<!-- 헤더 -->
+<%- include('../partials/header') %>
 <main class="container my-4">
+  <a href="/meeting/list" class="text-decoration-none text-muted small mb-3 d-inline-block">← 목록으로</a>
   <div class="row g-4">
     <div class="col-lg-8">
       <article class="card shadow-sm">
@@ -20,22 +21,42 @@
             <div>
               <h3 class="mb-1"><%= meeting.title %></h3>
               <div class="small text-muted">
-                주최자: <strong><%= meeting.author.nickname %> </strong>· 
+                주최자: <strong><%= meeting.author.nickname %></strong>
+                <span class="badge bg-light text-dark ms-1" style="border: 1px solid #ddd;">
+                  <%= meeting.author.manner_score.toFixed(1) %>°C
+                </span> · 
                 작성일: <%= new Date(meeting.createdAt).toLocaleDateString() %>
               </div>
             </div>
             <span class="chip chip-green">📍 <%= meeting.area %> · <%= meeting.congestionLevel %></span>
           </div>
 
-          <div class="meeting-meta mb-4 p-3 bg-light rounded">
-            <div class="row g-3">
-              <div class="col-6 col-md-3">
-                <div class="small text-muted">모임 일시</div>
-                <div class="fw-bold"><%= new Date(meeting.meetingDate).toLocaleString() %></div>
+          <!-- 모임 정보 요약 -->
+          <div class="row g-2 mb-4">
+            <!-- 장소 -->
+            <div class="col-md-4">
+              <div class="p-3 rounded" style="background:var(--surface2);">
+                <div class="small text-muted">장소</div>
+                <div class="fw-bold text-brand"><%= meeting.area %></div>
               </div>
-              <div class="col-6 col-md-3">
-                <div class="small text-muted">모집 인원</div>
-                <div class="fw-bold"><%= meeting.participants.length %> / <%= meeting.maxParticipants %> 명</div>
+            </div>
+            <!-- 일시 -->
+            <div class="col-md-4">
+              <div class="p-3 rounded" style="background:var(--surface2);">
+                <div class="small text-muted">일시</div>
+                <div class="fw-bold">
+                  <%= new Date(meeting.meetingDate).toLocaleDateString() %>
+                  <%= new Date(meeting.meetingDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                </div>
+              </div>
+            </div>
+            <!-- 인원 -->
+            <div class="col-md-4">
+              <div class="p-3 rounded" style="background:var(--surface2);">
+                <div class="small text-muted">인원</div>
+                <div class="fw-bold">
+                  <span class="text-brand"><%= meeting.participants.length %></span> / <%= meeting.maxParticipants %>명
+                </div>
               </div>
             </div>
           </div>
@@ -47,6 +68,14 @@
               class="rounded" 
               style="object-fit: cover;" 
               alt="모임 이미지">
+            </div>
+            <div class="alert mb-4" style="background:var(--brand-50); border:1px solid var(--brand-border); color:var(--ink);">
+              <strong class="d-block mb-2">📎 자동 첨부된 장소 정보</strong>
+              <div class="d-flex gap-2 flex-wrap">
+                <span class="chip chip-green"><span class="dot dot-green"></span> <%= meeting.congestionLevel %></span>
+                <span class="chip chip-brand">📍 <%= meeting.area %></span>
+                <!-- 여기에 주차장/화장실 정보가 있다면 추가 가능 -->
+              </div>
             </div>
             <%= meeting.content %>
           </div>
@@ -79,8 +108,12 @@
                 <li class="list-group-item d-flex align-items-center gap-3 px-0">
                   <div style="font-size: 1.5rem;"><%= p.avatar_emoji %></div>
                   <div>
-                    <strong><%= p.nickname %></strong>
-                    <div class="small text-muted">매너점수 <%= p.manner_score %></div>
+                    <strong><%= p.nickname %>
+                      <% if(p._id.toString() === meeting.author._id.toString()) { %>
+                        <span class="badge bg-brand small text-dark">주최자</span>
+                      <% } %>
+                    </strong>
+                    <div class="small text-muted">매너온도 <%= p.manner_score.toFixed(1) %>°C</div>
                   </div>
                 </li>
               <% }) %>
@@ -100,8 +133,17 @@
           <% comments.forEach(comment => { %>
           <li class="list-group-item p-3">
             <div class="d-flex justify-content-between mb-1">
-              <span class="fw-bold"><%= comment.author.avatar_emoji %> <%= comment.author.nickname %></span>
-              <span class="small text-muted"><%= new Date(comment.createdAt).toLocaleString() %></span>
+              <span class="fw-bold">
+                <%= comment.author.avatar_emoji %> <%= comment.author.nickname %>
+                <span class="badge bg-light text-dark ms-1" style="border: 1px solid #ddd;">
+                <%= comment.author.manner_score.toFixed(1) %>°C</span>
+                <% if(comment.author._id.toString() === meeting.author._id.toString()) { %>
+                <span class="badge bg-brand small ms-1 text-dark" style="font-size: 0.7rem;">주최자</span>
+                <% } %>
+              </span>
+              
+              <span class="small text-muted ms-auto"><%= new Date(comment.createdAt).toLocaleString() %></span>
+              
             </div>
             <p class="mb-1"><%= comment.content %></p>
             <% if(user && user.id === comment.author._id.toString()) { %>
@@ -147,9 +189,9 @@
 
               <% 
                 let percent = (meeting.participants.length / meeting.maxParticipants) * 100; 
-                let barStyle = `width: ${percent}%;, background-color: var(--brand);`;
+                let barStyle = `width: ${percent}%; background-color: var(--brand);`;
               %>
-              <div class="progress-bar" <%=`style="${barStyle}"` %>></div>
+              <div class="progress-bar" style="<%= barStyle %>" role="progressbar" aria-valuenow="<%= percent %>" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
           </div>
           <% if (!user) { %>
@@ -173,6 +215,11 @@
                 <% } %>
               </div>
             </form>
+            <hr>
+            <div class="small text-muted">
+              모임 24시간 전까지 취소 가능합니다<br>
+              매너 있는 모임 문화를 위해 노쇼에 주의해 주세요.
+            </div>
           <% } %>
         </div>
       </div>

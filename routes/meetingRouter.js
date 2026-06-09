@@ -4,24 +4,26 @@ const meetingController = require("../controllers/meetingController");
 const passport = require('../config/passport');
 const { uploadBoard } = require('../config/upload');
 const { joinValidationRules, validate } = require('../middlewares/validationMiddleware');
+const { isLoggedIn } = require('../middlewares/authMiddleware');
+
 // 모임 목록
 router.get("/list", meetingController.getList);
 
 // 모임 작성
-router.get("/write", meetingController.getWrite);
-router.post("/write", uploadBoard.single('imageUrl'), meetingController.postWrite);
+router.get("/write", isLoggedIn, meetingController.getWrite);
+router.post("/write", isLoggedIn, uploadBoard.single('imageUrl'), meetingController.postWrite);
 
 // 모임 상세
 router.get("/info/:id", meetingController.getInfo);
 
 // 모임 수정
-router.get("/modify/:id", meetingController.getModify);
-router.post("/modify/:id", uploadBoard.single('imageUrl'), meetingController.postModify);
+router.get("/modify/:id", isLoggedIn, meetingController.getModify);
+router.post("/modify/:id", isLoggedIn, uploadBoard.single('imageUrl'), meetingController.postModify);
 
 // 모임 삭제
-router.post("/delete/:id", meetingController.postDelete);
+router.post("/delete/:id", isLoggedIn, meetingController.postDelete);
 
-// 모임 참여
-router.post("/join/:id", meetingController.postJoin);
+// 모임 참가
+router.post("/join/:id", isLoggedIn, meetingController.postJoin);
 
 module.exports = router;

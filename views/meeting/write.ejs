@@ -67,8 +67,13 @@
 							<!-- 일시 + 인원 -->
 							<div class="row g-3 mb-3">
 								<div class="col-md-6">
+									<%
+										// 오늘 날짜를 미리 넣어둠
+										const today = new Date().toISOString().split('T')[0];
+									%>
 									<label for="meeting_date" class="form-label">모임 날짜 <span class="text-danger">*</span></label>
-									<input type="date" id="meeting_date" name="meeting_date" class="form-control" required>
+									<input type="date" id="meeting_date" name="meeting_date" class="form-control" 
+													min="<%= today %>" value="<%= today %>" required>
 								</div>
 								<div class="col-md-3">
 									<label for="meeting_time" class="form-label">시간 <span class="text-danger">*</span></label>
@@ -170,6 +175,19 @@
 							alert(p.name + ' 장소가 선택되었습니다.');
 					});
 					return marker;
+			});
+			document.getElementById('meeting_date').addEventListener('blur', function(e) {
+				const val = e.target.value; // 형식: "YYYY-MM-DD"
+				if (val) {
+					const year = parseInt(val.split('-')[0], 10);
+					// 허용할 최대 연도
+					const MAX_ALLOWED_YEAR = 2030; 
+					if (year > MAX_ALLOWED_YEAR) {
+						// 오늘로 리셋
+						alert(MAX_ALLOWED_YEAR + '년 이전만 선택 가능합니다')
+						e.target.value = new Date().toISOString().split('T')[0];
+					}
+				}
 			});
 		</script>
   </body>

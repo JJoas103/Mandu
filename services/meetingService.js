@@ -5,22 +5,28 @@ const createMeeting = async (meetingData, imageUrl) => {
     // meetingData와 imageUrl을 객체로 합쳐서 전달 수정
     const newMeeting = new Meeting({ 
         ...meetingData, 
-        imageUrl: imageUrl
+        imageUrl: imageUrl,
+        participants: [meetingData.author]
     });
     await newMeeting.save();
     return newMeeting;
 };
 
-// 모든 모임 조회 (페이징 포함)
-const getAllMeetings = async (page = 1) => {
+// 모든 모임 조회 (페이징 및 필터 포함)
+const getAllMeetings = async (page = 1, status) => {
     const limit = 10;
     const skip = (page - 1) * limit;
     
-    const totalMeetings = await Meeting.countDocuments();
+    const query = {};
+    if (status) {
+        query.status = status;
+    }
+    
+    const totalMeetings = await Meeting.countDocuments(query);
     const totalPages = Math.ceil(totalMeetings / limit);
     
-    const meetings = await Meeting.find()
-        .populate("author", "nickname profileImage avatar_emoji")
+    const meetings = await Meeting.find(query)
+        .populate("author", "nickname profileImage avatar_emoji manner_score")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -31,8 +37,8 @@ const getAllMeetings = async (page = 1) => {
 // 특정 모임 조회
 const getMeetingById = async (id) => {
     const meeting = await Meeting.findById(id)
-        .populate("author", "nickname profileImage avatar_emoji")
-        .populate("participants", "nickname profileImage");
+        .populate("author", "nickname profileImage avatar_emoji manner_score")
+        .populate("participants", "nickname profileImage avatar_emoji manner_score");
     if (!meeting) throw new Error("모임을 찾을 수 없습니다");
     return meeting;
 };

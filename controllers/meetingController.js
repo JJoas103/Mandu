@@ -9,8 +9,14 @@ const Activity = require("../models/Activity");
 const getList = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const { meetings, totalPages } = await meetingService.getAllMeetings(page);
-        res.render("meeting/list", { meetings, totalPages, currentPage: page });
+        const status = req.query.status || "";
+        const { meetings, totalPages } = await meetingService.getAllMeetings(page, status);
+        res.render("meeting/list", { 
+            meetings, 
+            totalPages, 
+            currentPage: page, 
+            currentStatus: status 
+        });
     } catch (error) {
         next(error);
     }
@@ -18,7 +24,6 @@ const getList = async (req, res, next) => {
 
 // 모임 작성 페이지
 const getWrite = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         const area = req.query.area || '';
         let placeInfo = null;
@@ -45,7 +50,6 @@ const getWrite = async (req, res, next) => {
 
 // 모임 작성 처리
 const postWrite = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         // 이미지 필수 삽입 기능 추가
         if (!req.file) {
@@ -132,6 +136,7 @@ const postModify = async (req, res, next) => {
 
 // 모임 삭제 처리
 const postDelete = async (req, res, next) => {
+
     try {
         await meetingService.deleteMeeting(req.params.id, req.user.id);
         res.redirect("/meeting/list");
@@ -184,5 +189,5 @@ module.exports = {
     getModify, 
     postModify, 
     postDelete,
-    postJoin
+    postJoin,
 };
