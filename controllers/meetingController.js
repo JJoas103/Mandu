@@ -3,6 +3,7 @@ const commentService = require("../services/commentService");
 const placeService = require("../services/placeService");
 const kakaoLocalService = require("../services/kakaoLocalService");
 const userService = require("../services/userService");
+const feedService = require("../services/feedService");
 const Activity = require("../models/Activity");
 
 // 모임 목록 조회
@@ -123,11 +124,30 @@ const getInfo = async (req, res, next) => {
         const commentPage = parseInt(req.query.commentPage) || 1;
         const { comments, totalCommentPages } = await commentService.getCommentsByBoardId(meetingId, commentPage);
         
+        // 해당 지역의 부가 정보 (주차장, 화장실) 가져오기
+        let parkingCount = 0;
+        let restroomCount = 0;
+        const placeInfo = await placeService.getPlaceByName(meeting.area);
+        if (placeInfo) {
+            const [parkingInfo, restroomInfo] = await Promise.all([
+                kakaoLocalService.getNearbyParking(placeInfo.latitude, placeInfo.longitude),
+                kakaoLocalService.getNearbyRestrooms(placeInfo.latitude, placeInfo.longitude)
+            ]);
+            parkingCount = parkingInfo.length;
+            restroomCount = restroomInfo.length;
+        }
+
+        // 해당 지역의 실시간 제보 가져오기
+        const recentFeeds = await feedService.getRecentFeedsByLocation(meeting.area, 5);
+        
         res.render("meeting/info", { 
             meeting, 
             comments, 
             totalCommentPages, 
-            currentCommentPage: commentPage 
+            currentCommentPage: commentPage,
+            recentFeeds,
+            parkingCount,
+            restroomCount
         });
     } catch (error) {
         next(error);

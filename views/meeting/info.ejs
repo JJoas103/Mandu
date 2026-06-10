@@ -80,14 +80,44 @@
               style="object-fit: cover;" 
               alt="모임 이미지">
             </div>
-            <div class="alert mb-4" style="background:var(--brand-50); border:1px solid var(--brand-border); color:var(--ink);">
-              <strong class="d-block mb-2">📎 자동 첨부된 장소 정보</strong>
-              <div class="d-flex gap-2 flex-wrap">
-                <span class="chip <%= chipClass %>"><span class="dot <%= dotClass %>"></span> <%= meeting.congestionLevel %></span>
+            <div class="alert mb-4 p-3" style="background:var(--brand-50); border:1px solid var(--brand-border); color:var(--ink); border-radius: 12px;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong class="fs-6">📎 자동 첨부된 장소 정보</strong>
+                <a href="/feed/list?place_name=<%= encodeURIComponent(meeting.area) %>" class="small text-decoration-none" style="color:var(--brand); font-weight: 600;">제보 더보기 →</a>
+              </div>
+              
+              <div class="d-flex gap-2 flex-wrap mb-3">
+                <span class="chip <%= chipClass %>" title="혼잡도"><span class="dot <%= dotClass %>"></span> <%= meeting.congestionLevel %></span>
                 <span class="chip chip-brand">📍 <%= meeting.area %></span>
-                <!-- 여기에 주차장/화장실 정보가 있다면 추가 가능 -->
+                <% if (parkingCount > 0) { %>
+                  <span class="chip chip-soft">🚗 주차장 <%= parkingCount %></span>
+                <% } %>
+                <% if (restroomCount > 0) { %>
+                  <span class="chip chip-soft">🚻 화장실 <%= restroomCount %></span>
+                <% } %>
+              </div>
+
+              <!-- 실시간 제보 섹션 (내부로 통합) -->
+              <div id="realtime-reports-container" class="bg-white bg-opacity-50 rounded p-2" style="max-height: 200px; overflow-y: auto; border: 1px dashed var(--brand-border);">
+                <% if (recentFeeds && recentFeeds.length > 0) { %>
+                  <% recentFeeds.forEach(feed => { %>
+                    <div class="report-item p-2 mb-1 bg-white rounded shadow-xs small border-bottom">
+                      <div class="d-flex justify-content-between mb-0">
+                        <span class="fw-bold" style="font-size: 0.8rem;"><%= feed.author.avatar_emoji %> <%= feed.author.nickname %></span>
+                        <span class="text-muted" style="font-size: 0.7rem;">
+                          <%= new Date(feed.createdAt).toLocaleDateString('ko-KR', {month: 'long', day: 'numeric'}) %>
+                          <%= new Date(feed.createdAt).toLocaleTimeString('ko-KR', {hour: '2-digit', minute:'2-digit', hour12: true}) %>
+                        </span>
+                      </div>
+                      <p class="mb-0 text-truncate" style="font-size: 0.85rem;"><%= feed.content %></p>
+                    </div>
+                  <% }) %>
+                <% } else { %>
+                  <div id="no-reports-msg" class="text-center py-2 text-muted small">현재 이 장소에 등록된 제보가 없습니다.</div>
+                <% } %>
               </div>
             </div>
+
             <%= meeting.content %>
           </div>
 
@@ -262,5 +292,45 @@
 <!-- 푸터 -->
 		<%- include('../partials/footer') %>
 			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                // Socket.IO 실시간 제보 업데이트 로직
+                document.addEventListener('DOMContentLoaded', () => {
+                    const area = "<%= meeting.area %>";
+                    const container = document.getElementById('realtime-reports-container');
+                    const noReportsMsg = document.getElementById('no-reports-msg');
+
+                    if (typeof socket !== 'undefined' && area) {
+                        // 해당 지역 방에 입장
+                        socket.emit("joinDistrict", area);
+
+                        // 새로운 제보 수신 시 UI 업데이트
+                        socket.on("newReportInDistrict", (data) => {
+                            if (noReportsMsg) noReportsMsg.remove();
+
+                            const dateObj = new Date(data.createdAt);
+                            const dateStr = dateObj.toLocaleDateString('ko-KR', {month: 'long', day: 'numeric'});
+                            const timeStr = dateObj.toLocaleTimeString('ko-KR', {hour: '2-digit', minute:'2-digit', hour12: true});
+                            
+                            const reportHtml = `
+                                <div class="report-item p-2 mb-1 bg-white rounded shadow-xs small border-bottom animate__animated animate__fadeInDown">
+                                    <div class="d-flex justify-content-between mb-0">
+                                        <span class="fw-bold" style="font-size: 0.8rem;">${data.authorEmoji} ${data.authorNickname}</span>
+                                        <span class="text-muted" style="font-size: 0.7rem;">${dateStr} ${timeStr}</span>
+                                    </div>
+                                    <p class="mb-0 text-truncate" style="font-size: 0.85rem;">${data.content}</p>
+                                </div>
+                            `;
+                            
+                            container.insertAdjacentHTML('afterbegin', reportHtml);
+
+                            // 최대 5개 유지 (선택사항)
+                            const items = container.getElementsByClassName('report-item');
+                            if (items.length > 5) {
+                                container.removeChild(items[items.length - 1]);
+                            }
+                        });
+                    }
+                });
+            </script>
   </body>
 </html>
