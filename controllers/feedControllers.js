@@ -103,8 +103,19 @@ const postWrite = async (req, res, next) => {
                  content: newFeed.content,
                  feedId: newFeed._id,
                 message: `${district}에 새로운 실시간 제보가 등록되었습니다.`
-    });
-}
+              });
+            }
+            
+            // 해당 지역(district) 방에 있는 모든 사용자에게도 브로드캐스트 (실시간 페이지 반영용)
+            io.to(district).emit("newReportInDistrict", {
+                feedId: newFeed._id,
+                content: newFeed.content,
+                authorNickname: req.user.nickname,
+                authorEmoji: req.user.avatar_emoji,
+                createdAt: newFeed.createdAt,
+                image: newFeed.image,
+                locationTag: newFeed.locationTag
+            });
         }
         res.redirect("/feed/list");
     } catch (error) {

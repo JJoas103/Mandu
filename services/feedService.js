@@ -57,11 +57,20 @@ const addReaction = async (id, type) => {
     return await Feed.findByIdAndUpdate(id, { $inc: update }, { new: true });
 };
 
+// 특정 장소의 최근 제보 조회
+const getRecentFeedsByLocation = async (locationTag, limit = 5) => {
+    return await Feed.find({ locationTag })
+        .populate("author", "nickname avatar_emoji manner_score")
+        .sort({ createdAt: -1 })
+        .limit(limit);
+};
+
 module.exports = { 
     createFeed, 
     getAllFeeds, 
     getFeedById, 
     updateFeed, 
     deleteFeed,
-    addReaction
+    addReaction,
+    getRecentFeedsByLocation
 };
