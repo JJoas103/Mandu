@@ -41,7 +41,7 @@
 
       <!-- 검색 -->
       <form action="/meeting/list" method="get" class="d-flex gap-2 mb-4">
-        <div class="input-group">
+        <div class="input-group input-group-lg">
           <input type="text" name="keyword" class="form-control" placeholder="🔍 모임 제목·지역·태그 검색" value="<%= currentKeyword %>">
           <% if (currentStatus) { %><input type="hidden" name="status" value="<%= currentStatus %>"><% } %>
           <% if (currentCongestion) { %><input type="hidden" name="congestion" value="<%= currentCongestion %>"><% } %>
