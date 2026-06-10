@@ -43,10 +43,10 @@
 									<div class="d-flex gap-2 flex-wrap">
 										<!-- 혼잡도 정보 -->
 										 <% if (placeInfo.congest_lvl === '여유') { %>
-										<span class="chip chip-green"><span class="dot dot-green"></span> 현재 여유</span>
-										 <% } else if (placeInfo.congest_lvl === '보통' || placeInfo.congest_lvl === '약간 붐빔') { %>
+										<span class="chip chip-green"><span class="dot dot-green"></span> <%= placeInfo.congest_lvl %></span>
+										 <% } else if (placeInfo.congest_lvl === '보통') { %>
 										<span class="chip chip-yellow"><span class="dot dot-yellow"></span> <%= placeInfo.congest_lvl %></span>
-										 <% } else if (placeInfo.congest_lvl === '혼잡' || placeInfo.congest_lvl === '붐빔') { %>
+										 <% } else if (placeInfo.congest_lvl === '약간 붐빔' || placeInfo.congest_lvl === '혼잡' || placeInfo.congest_lvl === '붐빔') { %>
 										<span class="chip chip-red"><span class="dot dot-red"></span> <%= placeInfo.congest_lvl %></span>
 										 <% } %>
 											<% if (typeof parkingCount !== 'undefined' && parkingCount > 0) { %>

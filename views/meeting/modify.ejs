@@ -38,10 +38,10 @@
 								<div class="d-flex gap-2 flex-wrap">
 									<!-- 혼잡도 정보 -->
 									 <% if (meeting.congestionLevel === '여유') { %>
-									<span class="chip chip-green"><span class="dot dot-green"></span> 현재 여유</span>
-									 <% } else if (meeting.congestionLevel === '보통' || meeting.congestionLevel === '약간 붐빔') { %>
+									<span class="chip chip-green"><span class="dot dot-green"></span> <%= meeting.congestionLevel %></span>
+									 <% } else if (meeting.congestionLevel === '보통') { %>
 									<span class="chip chip-yellow"><span class="dot dot-yellow"></span> <%= meeting.congestionLevel %></span>
-									 <% } else if (meeting.congestionLevel === '혼잡' || meeting.congestionLevel === '붐빔') { %>
+									 <% } else if (meeting.congestionLevel === '약간 붐빔' || meeting.congestionLevel === '혼잡' || meeting.congestionLevel === '붐빔') { %>
 									<span class="chip chip-red"><span class="dot dot-red"></span> <%= meeting.congestionLevel %></span>
 									 <% } %>
 								</div>

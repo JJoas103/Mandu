@@ -61,8 +61,13 @@
                         <% 
                           let chipClass = 'chip-green';
                           let dotClass = 'dot-green';
-                          if (meeting.congestionLevel === '혼잡' || meeting.congestionLevel === '붐빔') { chipClass = 'chip-red'; dotClass = 'dot-red'; }
-                          else if (meeting.congestionLevel === '보통' || meeting.congestionLevel === '약간 붐빔') { chipClass = 'chip-yellow'; dotClass = 'dot-yellow'; }
+                          if (meeting.congestionLevel === '혼잡' || meeting.congestionLevel === '붐빔' || meeting.congestionLevel === '약간 붐빔') { 
+                            chipClass = 'chip-red'; 
+                            dotClass = 'dot-red'; 
+                          } else if (meeting.congestionLevel === '보통') { 
+                            chipClass = 'chip-yellow'; 
+                            dotClass = 'dot-yellow'; 
+                          }
                         %>
                         <span class="chip <%= chipClass %>"><span class="dot <%= dotClass %>"></span>
                           <%= meeting.congestionLevel %>
