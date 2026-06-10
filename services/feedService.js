@@ -16,7 +16,7 @@ const getAllFeeds = async (page = 1) => {
     const totalPages = Math.ceil(totalFeeds / limit);
     
     const feeds = await Feed.find()
-        .populate("author", "nickname avatar_emoji")
+        .populate("author", "nickname avatar_emoji manner_score")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -27,7 +27,7 @@ const getAllFeeds = async (page = 1) => {
 // 특정 제보 조회
 const getFeedById = async (id) => {
     const feed = await Feed.findById(id)
-        .populate("author", "nickname profileImage avatar_emoji");
+        .populate("author", "nickname profileImage avatar_emoji manner_score");
     if (!feed) throw new Error("제보를 찾을 수 없습니다");
     return feed;
 };

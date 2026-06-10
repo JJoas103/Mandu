@@ -1,12 +1,20 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
+const http = require("http");
+const { Server } = require("socket.io");
 const connectDB = require("./config/database");
 const session = require("express-session");
 const passport = require("./config/passport");
 const { errorHandler, notFoundHandler } = require("./middlewares/errorMiddleware");
 
 const app = express();
+
+const server = http.createServer(app);
+
+const io = new Server(server);
+
+app.set("io", io);
 
 // DB 연결
 connectDB();
@@ -82,13 +90,33 @@ app.use("/place", placeRouter);
 app.use("/favorite", favoriteRouter);
 app.use("/visit", visitRouter);
 
+// Socket.IO 연결
+io.on("connection", (socket) => {
+  console.log("소켓 연결됨:", socket.id);
+  // 동네 기준 방 입장
+  socket.on("joinDistrict", (district) => {
+    if (!district) return;
+    socket.join(district);
+    console.log(`${socket.id} 사용자가 ${district} 방에 입장`);
+  });
+  // 사용자 개인 방 입장
+  socket.on("joinUser", (userId) => {
+    if (!userId) return;
+    socket.join(`user:${userId}`);
+    console.log(`${socket.id} 사용자가 user:${userId} 방에 입장`);
+  });
+  socket.on("disconnect", () => {
+    console.log("소켓 연결 해제:", socket.id);
+  });
+});
+
 // 에러 핸들링
 app.use(notFoundHandler);
 app.use(errorHandler);
 
 // 포트 설정 (로그를 더 자세히 찍도록 변경)
 const PORT = 3000;
-app
+server
   .listen(PORT, "0.0.0.0", () => {
     console.log(`서버 실행 중: http://localhost:${PORT}`);
   })

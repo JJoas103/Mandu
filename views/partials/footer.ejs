@@ -5,3 +5,35 @@
     <div class="small mt-1">팀 프로젝트 1조</div>
   </div>
 </footer>
+<% if (typeof user !== 'undefined' && user) { %>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const userId = "<%= user._id %>";
+    const userDistrict = "<%= user.address ? user.address : '' %>";
+    const meetingAlertEnabled = <%= user.alert_meeting ? 'true' : 'false' %>;
+    if (userId) {
+      socket.emit("joinUser", userId);
+    }
+    if (userDistrict && meetingAlertEnabled) {
+      socket.emit("joinDistrict", userDistrict);
+    }
+    socket.on("newMeetingAlert", (data) => {
+      alert(
+        "[새 모임 알림]\n" +
+        data.message + "\n\n" +
+        "모임명: " + data.title + "\n" +
+        "동네: " + data.district + "\n" +
+        "일시: " + data.meetingDate
+      );
+    });
+    socket.on("newFeedAlert", (data) => {
+      alert(
+        "[새 실시간 제보 알림]\n" +
+        data.message + "\n\n" +
+        "장소: " + data.district + "\n" +
+        "내용: " + data.content
+      );
+    });
+  </script>
+<% } %>

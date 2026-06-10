@@ -34,23 +34,19 @@
                   </div>
                 </div>
               <% } else { %>
+                <input type="hidden" name="place_id" id="place_id">
                 <input type="hidden" name="place_name" id="place_name">
                 <input type="hidden" name="locationTag" id="locationTag">
-                <div class="mb-3">
-                  <label for="place_id" class="form-label">📍 장소 태그 <span class="text-danger">* 필수</span></label>
-                  <select id="place_id" name="place_id" class="form-select" required onchange="syncPlace(this)">
-                    <option value="">장소를 선택하세요</option>
-                    <option value="연남동">연남동 (마포구)</option>
-                    <option value="북촌">북촌 (종로구)</option>
-                    <option value="강남역">강남역 (강남구)</option>
-                    <option value="서래마을">서래마을 (서초구)</option>
-                    <option value="잠실">잠실 (송파구)</option>
-                    <option value="서울숲">서울숲 (성동구)</option>
-                    <option value="성수동">성수동 (성동구)</option>
-                    <option value="익선동">익선동 (종로구)</option>
-                  </select>
-                </div>
-              <% } %>
+
+              <div class="mb-3">
+                <label class="form-label">📍 장소 선택 <span class="text-danger">* 필수</span></label>
+              <div id="map" style="width:100%; height:300px; margin-bottom:10px;"></div>
+
+                <input type="text" id="selected_place" class="form-control" placeholder="지도에서 장소를 선택하세요" readonly required>
+
+              <div id="markerInfo" data-markers='<%- JSON.stringify(markerInfo) %>'></div>
+              </div>
+               <% } %>
 
               <div class="mb-3">
                 <label for="category" class="form-label">카테고리 <span class="text-danger">*</span></label>
@@ -75,11 +71,6 @@
                 <input type="file" name="uploadFile" class="form-control" accept="image/*" />
               </div>
 
-              <div class="form-check mb-4">
-                <input class="form-check-input" type="checkbox" name="gps_verified" value="true" id="gpsChk">
-                <label class="form-check-label" for="gpsChk">현재 위치 GPS 인증</label>
-              </div>
-
               <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-brand btn-lg">제보 등록</button>
                 <% if (prePlace) { %>
@@ -97,15 +88,46 @@
   </main>
 
   <%- include('../partials/footer') %>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function syncPlace(sel) {
-      const val = sel.value;
-      document.getElementById('place_name').value = val;
-      document.getElementById('locationTag').value = val;
-    }
-  </script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%= process.env.KAKAO_MAP_API %>"></script>
+<script>
+  const markerDataDiv = document.getElementById('markerInfo');
+  if (markerDataDiv) {
+    const markerData = JSON.parse(markerDataDiv.dataset.markers);
+    const mapContainer = document.getElementById('map');
+    const mapOption = {
+      center: new kakao.maps.LatLng(37.5665, 126.9780),
+      level: 8
+    };
+    const map = new kakao.maps.Map(mapContainer, mapOption);
+    const imageSize = new kakao.maps.Size(35, 35);
+    markerData.forEach((p) => {
+      let mkImg = "/images/marker_available.png";
+      if (p.congest_lvl === '혼잡') {
+        mkImg = "/images/marker_crowdede.png";
+      } else if (p.congest_lvl === '약간 붐빔') {
+        mkImg = "/images/marker_little_crowded.png";
+      } else if (p.congest_lvl === '보통') {
+        mkImg = "/images/marker_normal.png";
+      }
+      const markerImage = new kakao.maps.MarkerImage(mkImg, imageSize);
+      const marker = new kakao.maps.Marker({
+        map: map,
+        position: new kakao.maps.LatLng(p.latitude, p.longitude),
+        title: p.name,
+        image: markerImage
+      });
+      kakao.maps.event.addListener(marker, 'click', function () {
+        document.getElementById('place_id').value = p.name;
+        document.getElementById('place_name').value = p.name;
+        document.getElementById('locationTag').value = p.name;
+        document.getElementById('selected_place').value = p.name;
+        alert(p.name + ' 장소가 선택되었습니다.');
+      });
+    });
+  }
+</script>
 </body>
-
 </html>

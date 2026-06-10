@@ -41,6 +41,11 @@
                           <span class="fw-bold small">
                             <%= feed.author ? feed.author.nickname : '탈퇴한 사용자' %>
                           </span>
+                          <% if (feed.author && typeof feed.author.manner_score === 'number') { %>
+                           <span class="manner-temp-badge ms-1">
+                            <%= feed.author.manner_score.toFixed(1) %>℃
+                             </span>
+                              <% } %>
                           <span class="ms-auto text-muted small">
                             <%= new Date(feed.createdAt).toLocaleDateString() %>
                           </span>
