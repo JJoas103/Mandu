@@ -125,8 +125,8 @@ const getMemberInfo = async (req, res, next) => {
                    .populate('author', 'nickname avatar_emoji')
                    .sort({ createdAt: -1 }),
             Feed.find({ author: userId }).sort({ createdAt: -1 }),
-            Activity.find({ user: userId }).sort({ createdAt: -1 }).limit(10),
-            Activity.find({ user: userId, scoreChange: { $exists: true, $ne: 0 } }).sort({ createdAt: -1 }).limit(5)
+            Activity.find({ user: userId }).sort({ createdAt: -1 }).limit(6),
+            Activity.find({ user: userId, scoreChange: { $exists: true, $ne: 0 } }).sort({ createdAt: -1 }).limit(6)
         ]);
 
         const meetingCount = myMeetings.length;
@@ -150,13 +150,17 @@ const getFavorites = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         const userId = req.user.id;
-        const [favorites, notifications] = await Promise.all([
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
+        const skip = (page - 1) * limit;
+
+        const [favorites, notifications, totalNotifications] = await Promise.all([
             Favorite.find({ user: userId }),
-            Notification.find({ user: userId }).sort({ createdAt: -1 }).limit(20)
+            Notification.find({ user: userId }).sort({ createdAt: -1 }).skip(skip).limit(limit),
+            Notification.countDocuments({ user: userId })
         ]);
 
-        // 페이지 접속 시 모든 알림 읽음 처리
-        await Notification.updateMany({ user: userId, isRead: false }, { isRead: true });
+        const totalPages = Math.ceil(totalNotifications / limit);
         
         // 각 찜한 장소의 상세 정보 가져오기
         const placeDetails = await Promise.all(favorites.map(async (fav) => {
@@ -175,10 +179,45 @@ const getFavorites = async (req, res, next) => {
             title: '찜·알림 설정',
             user: req.user,
             places: placeDetails.filter(p => p !== null),
-            notifications // 알림 목록 추가
+            notifications,
+            currentPage: page,
+            totalPages
         });
     } catch (error) {
         next(error);
+    }
+};
+
+// 알림 읽음 처리
+const markNotificationsAsRead = async (req, res, next) => {
+    try {
+        const { ids } = req.body;
+        await Notification.updateMany({ _id: { $in: ids }, user: req.user.id }, { isRead: true });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+// 알림 삭제 처리
+const deleteNotifications = async (req, res, next) => {
+    try {
+        const { ids } = req.body;
+        await Notification.deleteMany({ _id: { $in: ids }, user: req.user.id });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+// 현재 페이지의 읽은 알림 전체 삭제
+const deleteReadNotifications = async (req, res, next) => {
+    try {
+        const { ids } = req.body; // 현재 페이지에 표시된 읽은 알림들의 ID 목록
+        await Notification.deleteMany({ _id: { $in: ids }, user: req.user.id, isRead: true });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
     }
 };
 
@@ -276,4 +315,23 @@ const postDelete = async (req, res, next) => {
     }
 };
 
-module.exports = { getJoin, postJoin, getSocialJoin, postSocialJoin, checkEmail, getLogin, logout, getMapView, getMemberInfo, getModify, getFavorites, postModify, getDelete, postDelete, postNotifySettings };
+module.exports = { 
+    getJoin, 
+    postJoin, 
+    getSocialJoin, 
+    postSocialJoin, 
+    checkEmail, 
+    getLogin, 
+    logout, 
+    getMapView, 
+    getMemberInfo, 
+    getModify, 
+    getFavorites, 
+    postModify, 
+    getDelete, 
+    postDelete, 
+    postNotifySettings,
+    markNotificationsAsRead,
+    deleteNotifications,
+    deleteReadNotifications
+};
