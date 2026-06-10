@@ -1,9 +1,12 @@
 const feedService = require("../services/feedService");
 const commentService = require("../services/commentService");
 const userService = require("../services/userService");
+const placeService = require("../services/placeService");
 const Notification = require("../models/Notification");
 const Feed = require("../models/Feed");
 const Activity = require("../models/Activity");
+const Meeting = require("../models/Meeting");
+const User = require("../models/User");
 
 // 제보 목록 조회
 const getList = async (req, res, next) => {
@@ -15,16 +18,19 @@ const getList = async (req, res, next) => {
         next(error);
     }
 };
-
 // 제보 작성 페이지
-const getWrite = (req, res) => {
+const getWrite = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
-    const prePlace = req.query.place_id
-        ? { id: req.query.place_id, name: decodeURIComponent(req.query.place_name || '') }
-        : null;
-    res.render("feed/write", { prePlace });
+    try {
+        const prePlace = req.query.place_id
+            ? { id: req.query.place_id, name: decodeURIComponent(req.query.place_name || '') }
+            : null;
+        const markerInfo = await placeService.getAllMarker();
+        res.render("feed/write", { prePlace, markerInfo });
+    } catch (error) {
+        next(error);
+    }
 };
-
 // 제보 작성 처리
 const postWrite = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect("/member/login");
@@ -35,11 +41,10 @@ const postWrite = async (req, res, next) => {
             author: userId,
             image: req.file ? req.file.filename : null
         };
+        // 1. 제보 저장
         const newFeed = await feedService.createFeed(feedData);
-
-        // 매너 점수 상승 (+1) 및 활동 기록
+        // 2. 매너 점수 상승 (+1) 및 활동 기록
         const { actualChange } = await userService.updateMannerScore(userId, 1);
-        
         await Activity.create({
             user: userId,
             type: 'feed_write',
@@ -47,7 +52,60 @@ const postWrite = async (req, res, next) => {
             scoreChange: actualChange,
             relatedLink: `/feed/info/${newFeed._id}`
         });
-
+        // 3. Socket.IO 객체 가져오기
+        const io = req.app.get("io");
+        // 4. 제보 장소
+        const district = newFeed.locationTag;
+        if (io && district) {
+            const now = new Date();
+            const oneHourBefore = new Date(now.getTime() - 1 * 60 * 60 * 1000);
+            const twoHoursAfter = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+            // 5. 현재 기준 -1시간 ~ +2시간 사이의 같은 장소 모임 조회
+            const relatedMeetings = await Meeting.find({
+                area: district,
+                meetingDate: {
+                    $gte: oneHourBefore,
+                    $lte: twoHoursAfter
+                }
+            });
+            // 6. 알림 대상 사용자 ID 수집
+            const targetUserIds = new Set();
+            // 6-1. 같은 장소의 시간 조건에 맞는 모임 작성자 + 참여자
+            relatedMeetings.forEach((meeting) => {
+                if (meeting.author) {
+                    targetUserIds.add(meeting.author.toString());
+                }
+                meeting.participants.forEach((participantId) => {
+                    targetUserIds.add(participantId.toString());
+                });
+            });
+            // 6-2. 회원정보 주소가 제보 장소와 같은 사용자
+            const sameAddressUsers = await User.find({
+                address: district,
+                alert_meeting: true
+            });
+            sameAddressUsers.forEach((user) => {
+                targetUserIds.add(user._id.toString());
+            });
+            // 7. 제보 작성자는 자기 알림 대상에서 제외
+            targetUserIds.delete(userId);
+            // 8. 중복 제거된 대상자에게 개인 방으로만 알림 전송
+            for (const targetUserId of targetUserIds) {
+              await Notification.create({
+                 user: targetUserId,
+                 type: "system",
+                 message: `${district}에 새로운 실시간 제보가 등록되었습니다.`,
+                relatedLink: `/feed/info/${newFeed._id}`
+              });
+              io.to(`user:${targetUserId}`).emit("newFeedAlert", {
+                 title: "새 실시간 제보",
+                 district,
+                 content: newFeed.content,
+                 feedId: newFeed._id,
+                message: `${district}에 새로운 실시간 제보가 등록되었습니다.`
+    });
+}
+        }
         res.redirect("/feed/list");
     } catch (error) {
         next(error);

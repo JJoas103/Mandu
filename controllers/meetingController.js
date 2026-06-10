@@ -47,7 +47,6 @@ const getWrite = async (req, res, next) => {
         next(error);
     }
 };
-
 // 모임 작성 처리
 const postWrite = async (req, res, next) => {
     try {
@@ -55,6 +54,7 @@ const postWrite = async (req, res, next) => {
         if (!req.file) {
             return res.status(400).send("잘못된 접근입니다");
         }
+
         const meetingDate = new Date(`${req.body.meeting_date}T${req.body.meeting_time}`);
         
         // 과거 시간 검증 추가
@@ -67,13 +67,15 @@ const postWrite = async (req, res, next) => {
             meetingDate,
             author: req.user.id
         };
+
         const imageUrl = req.file.filename;
+
+        // 1. 모임 생성
         const newMeeting = await meetingService.createMeeting(meetingData, imageUrl);
 
-        // 매너 점수 상승 (+5) 및 활동 기록
+        // 2. 매너 점수 상승 (+5) 및 활동 기록
         const { actualChange } = await userService.updateMannerScore(req.user.id, 5);
 
-        // 최근 활동 기록 추가
         await Activity.create({
             user: req.user.id,
             type: 'meeting_create', 
@@ -81,6 +83,31 @@ const postWrite = async (req, res, next) => {
             scoreChange: actualChange,
             relatedLink: `/meeting/info/${newMeeting._id}`
         });
+
+        // 3. Socket.IO 객체 가져오기
+        const io = req.app.get("io");
+
+        // 4. 현재 시간 기준 -1시간 ~ +2시간 범위 계산
+        const now = new Date();
+        const oneHourBefore = new Date(now.getTime() - 1 * 60 * 60 * 1000);
+        const twoHoursAfter = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+
+        const isInTimeRange =
+            newMeeting.meetingDate >= oneHourBefore &&
+            newMeeting.meetingDate <= twoHoursAfter;
+
+        // 5. 모임 장소/동네 기준
+        const district = newMeeting.area;
+
+        // 6. 조건에 맞으면 같은 동네 사용자에게 실시간 알림 전송
+        if (io && isInTimeRange && district) {
+            io.to(district).emit("newMeetingAlert", {
+                title: newMeeting.title,
+                district,
+                meetingDate: newMeeting.meetingDate.toLocaleString("ko-KR"),
+                message: `${district} 근처에 곧 진행되는 새 모임이 등록되었습니다.`
+            });
+        }
 
         res.redirect("/meeting/list");
     } catch (error) {

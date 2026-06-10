@@ -70,12 +70,6 @@
                 <input type="file" name="uploadFile" class="form-control" accept="image/*" />
               </div>
 
-              <div class="form-check mb-4">
-                <input class="form-check-input" type="checkbox" name="gps_verified" value="true" id="gpsChk"
-                  <%= feed.gps_verified ? 'checked' : '' %>>
-                <label class="form-check-label" for="gpsChk">현재 위치 GPS 인증</label>
-              </div>
-
               <div class="d-grid gap-2">
                 <button type="submit" class="btn btn-brand btn-lg">수정 저장</button>
                 <a href="/feed/info/<%= feed._id %>" class="btn btn-outline-secondary">취소</a>
