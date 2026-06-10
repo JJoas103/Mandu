@@ -36,7 +36,6 @@
 
 ## 🗂️ 흐름도 ↔ 파일 매핑
 
-<<<<<<< HEAD
 | 흐름도 항목 | 담당 파일 |
 | ----------------------------------------------------- | ----------------------------------------------------- |
 | 지도 페이지 (실시간 지역 정보, 모임 마커, 핫플 랭킹) | `index.html` |
@@ -66,39 +65,6 @@
 | `feed_reactions`          | `feed_info.html`, `feed_list.html` (👍 버튼)                       |
 | `visit_logs`              | `place_info.html` (방문 인증 모달), `member_info.html` (방문 기록) |
 | `badges`, `user_badges`   | `member_info.html` (획득 배지 그리드)                              |
-
-=======
-| 흐름도 항목 | 담당 파일 |
-|---|---|
-| 지도 페이지 (실시간 지역 정보, 모임 마커, 핫플 랭킹) | `index.html` |
-| 장소 상세 (혼잡도, 주차장/화장실 API, 해당 장소 모임) | `place_info.html` |
-| 모임 게시판 / 모임 만들기 | `meeting_list.html`, `meeting_write.html` |
-| 모임 상세 / 참여 신청·수락 | `meeting_info.html` |
-| 제보 피드 (목록) / 제보하기 | `feed_list.html`, `feed_write.html`, `feed_info.html` |
-| 마이페이지 (방문기록 인증, 획득 배지, 매너 점수) | `member_info.html` |
-| 참여중인 모임 / 내가 제보한 글 / 방문한 지역 | `member_info.html` 내 섹션 |
-| 찜한 장소 · 알림 설정 (신규) | `member_favorites.html` |
-| 로그인 / 회원가입 | `member_login.html`, `member_join.html` |
-
-## 🗄️ DB 테이블 ↔ 페이지 매핑
-
-| DB 테이블                 | 연결되는 페이지                                                    |
-| ------------------------- | ------------------------------------------------------------------ |
-| `users`                   | `member_*.html` 전체                                               |
-| `places`                  | `index.html`, `place_info.html`, `meeting_write.html` (select)     |
-| `place_congestion_hourly` | `place_info.html` (시간대 혼잡도 바)                               |
-| `place_infra`             | `place_info.html` (주차/화장실/교통/날씨 카드)                     |
-| `nearby_spots`            | `place_info.html` (주변 편의시설)                                  |
-| `meetings`                | `meeting_*.html` 전체, `place_info.html` (이 장소 모임)            |
-| `meeting_participants`    | `meeting_info.html` (참여자 목록, 참여 신청)                       |
-| `meeting_tags`            | `meeting_write.html`, `meeting_list.html` (태그 체크박스)          |
-| `feeds`                   | `feed_*.html` 전체                                                 |
-| `feed_comments`           | `feed_info.html` (댓글 섹션)                                       |
-| `feed_reactions`          | `feed_info.html`, `feed_list.html` (👍 버튼)                       |
-| `visit_logs`              | `place_info.html` (방문 인증 모달), `member_info.html` (방문 기록) |
-| `badges`, `user_badges`   | `member_info.html` (획득 배지 그리드)                              |
-
-> > > > > > > 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
 
 ## 🛠️ 사용 기술 (예시 폴더와 동일)
 
