@@ -149,6 +149,22 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 		<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=<%= process.env.KAKAO_MAP_API %>"></script>
 		<script>
+			// 폼 제출 시 과거 시간 검증
+			document.querySelector('form').addEventListener('submit', function(e) {
+				const dateVal = document.getElementById('meeting_date').value;
+				const timeVal = document.getElementById('meeting_time').value;
+				
+				if (dateVal && timeVal) {
+					const selectedDate = new Date(`${dateVal}T${timeVal}`);
+					const now = new Date();
+					
+					if (selectedDate < now) {
+						e.preventDefault();
+						alert('과거 시간으로 모임을 설정할 수 없습니다.');
+						return false;
+					}
+				}
+			});
 			const markerDataDiv = document.getElementById('markerInfo');
 			const markerData = JSON.parse(markerDataDiv.dataset.markers);
 			const mapContainer = document.getElementById('map');
