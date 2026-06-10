@@ -100,17 +100,7 @@ async function getNearbyTransit(lat, lng) {
 }
 
 async function getPlaceImage(placeName) {
-    try {
-        const response = await axios.get('https://dapi.kakao.com/v2/search/image', {
-            headers,
-            params: { query: `${placeName} 서울 풍경`, size: 1 }
-        });
-        const docs = response.data.documents;
-        return docs.length > 0 ? docs[0].thumbnail_url : null;
-    } catch (e) {
-        console.warn('이미지 API 호출 실패:', e.message);
-        return null;
-    }
+    return `/images/places/${encodeURIComponent(placeName)}.jpg`;
 }
 
 module.exports = { getNearbyParking, getNearbyRestrooms, getNearbyTransit, getPlaceImage };

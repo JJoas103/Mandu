@@ -29,6 +29,7 @@
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "passport-naver-v2": "^2.0.8",
+    "socket.io": "^4.8.3",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

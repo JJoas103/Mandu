@@ -17,8 +17,10 @@
       <div class="row justify-content-center">
         <div class="col-lg-8">
           <div class="card shadow-sm mb-4">
-            <% if(feed.image) { %>
-              <img src="/images/upload/<%= feed.image %>" class="card-img-top" alt="제보 이미지">
+           <% if(feed.image) { %>
+            <div class="feed-detail-image-wrap">
+             <img src="/images/upload/<%= feed.image %>" class="feed-detail-image" alt="제보 이미지">
+             </div>
               <% } %>
                 <div class="card-body">
                   <div class="d-flex align-items-center mb-3">
@@ -28,6 +30,11 @@
                     <div>
                       <div class="fw-bold">
                         <%= feed.author ? feed.author.nickname : '탈퇴한 사용자' %>
+                        <% if (feed.author && typeof feed.author.manner_score === 'number') { %>
+                        <span class="manner-temp-badge ms-1">
+                         <%= feed.author.manner_score.toFixed(1) %>℃
+                         </span>
+                         <% } %>
                       </div>
                       <div class="text-muted small">📍 <%= feed.locationTag %> · <%= new
                             Date(feed.createdAt).toLocaleString() %>
@@ -81,6 +88,11 @@
                               <span class="fw-bold small">
                                 <%= comment.author ? comment.author.avatar_emoji : '👤' %>
                                   <%= comment.author ? comment.author.nickname : '탈퇴한 사용자' %>
+                                  <% if (comment.author && typeof comment.author.manner_score === 'number') { %>
+                                   <span class="manner-temp-badge ms-1">
+                                    <%= comment.author.manner_score.toFixed(1) %>℃
+                                  </span>
+                                  <% } %>
                               </span>
                               <span class="text-muted small">
                                 <%= new Date(comment.createdAt).toLocaleString() %>
