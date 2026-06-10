@@ -56,6 +56,12 @@ const postWrite = async (req, res, next) => {
             return res.status(400).send("잘못된 접근입니다");
         }
         const meetingDate = new Date(`${req.body.meeting_date}T${req.body.meeting_time}`);
+        
+        // 과거 시간 검증 추가
+        if (meetingDate < new Date()) {
+            return res.status(400).send("과거 시간으로 모임을 생성할 수 없습니다.");
+        }
+
         const meetingData = {
             ...req.body,
             meetingDate,
@@ -124,7 +130,13 @@ const postModify = async (req, res, next) => {
         }
         // 날짜와 시간 합치기
         if (req.body.meeting_date && req.body.meeting_time) {
-            updateData.meetingDate = new Date(`${req.body.meeting_date}T${req.body.meeting_time}`);
+            const meetingDate = new Date(`${req.body.meeting_date}T${req.body.meeting_time}`);
+            
+            // 과거 시간 검증 추가
+            if (meetingDate < new Date()) {
+                return res.status(400).send("과거 시간으로 수정할 수 없습니다.");
+            }
+            updateData.meetingDate = meetingDate;
         }
         
         await meetingService.updateMeeting(req.params.id, updateData, req.user.id);

@@ -12,6 +12,17 @@
 <!-- 헤더 -->
 <%- include('../partials/header') %>
 <main class="container my-4">
+  <%
+    let chipClass = 'chip-green';
+    let dotClass = 'dot-green';
+    if (meeting.congestionLevel === '혼잡' || meeting.congestionLevel === '붐빔' || meeting.congestionLevel === '약간 붐빔') { 
+      chipClass = 'chip-red'; 
+      dotClass = 'dot-red'; 
+    } else if (meeting.congestionLevel === '보통') { 
+      chipClass = 'chip-yellow'; 
+      dotClass = 'dot-yellow'; 
+    }
+  %>
   <a href="/meeting/list" class="text-decoration-none text-muted small mb-3 d-inline-block">← 목록으로</a>
   <div class="row g-4">
     <div class="col-lg-8">
@@ -28,7 +39,7 @@
                 작성일: <%= new Date(meeting.createdAt).toLocaleDateString() %>
               </div>
             </div>
-            <span class="chip chip-green">📍 <%= meeting.area %> · <%= meeting.congestionLevel %></span>
+            <span class="chip <%= chipClass %>">📍 <%= meeting.area %> · <%= meeting.congestionLevel %></span>
           </div>
 
           <!-- 모임 정보 요약 -->
@@ -72,7 +83,7 @@
             <div class="alert mb-4" style="background:var(--brand-50); border:1px solid var(--brand-border); color:var(--ink);">
               <strong class="d-block mb-2">📎 자동 첨부된 장소 정보</strong>
               <div class="d-flex gap-2 flex-wrap">
-                <span class="chip chip-green"><span class="dot dot-green"></span> <%= meeting.congestionLevel %></span>
+                <span class="chip <%= chipClass %>"><span class="dot <%= dotClass %>"></span> <%= meeting.congestionLevel %></span>
                 <span class="chip chip-brand">📍 <%= meeting.area %></span>
                 <!-- 여기에 주차장/화장실 정보가 있다면 추가 가능 -->
               </div>

@@ -32,12 +32,10 @@
 							<span class="chip chip-green"><span class="dot dot-green"></span> 현재 여유</span>
 						<% } else if (place.congest_lvl === '보통') { %>
 							<span class="chip chip-yellow"><span class="dot dot-yellow"></span> 현재 보통</span>
-						<% } else if (place.congest_lvl === '약간 붐빔') { %>
-							<span class="chip chip-yellow"><span class="dot dot-yellow"></span> 현재 약간 붐빔</span>
-						<% } else if (place.congest_lvl === '혼잡') { %>
-							<span class="chip chip-red"><span class="dot dot-red"></span> 현재 혼잡</span>
+						<% } else if (place.congest_lvl === '약간 붐빔' || place.congest_lvl === '붐빔' || place.congest_lvl === '혼잡') { %>
+							<span class="chip chip-red"><span class="dot dot-red"></span> 현재 <%= place.congest_lvl %></span>
 						<% } %>
-						<% if (parkingInfo.length > 0) { %>
+					</div>
 							<span class="chip chip-brand">🅿️ 주차 <%= parkingInfo.length %>곳</span>
 						<% } %>
 						<% if (restroomInfo.length > 0) { %>

@@ -17,7 +17,7 @@ const meetingSchema = new mongoose.Schema(
     tags: [String], // ['조용한카페', '주차가능']
     congestionLevel: {
       type: String,
-      enum: ["여유", "보통", "혼잡"],
+      enum: ["여유", "보통", "약간 붐빔", "혼잡"],
       default: "보통",
     },
     imageUrl: {

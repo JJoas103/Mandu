@@ -49,13 +49,27 @@
             <% meetings.forEach(meeting=> { %>
               <div class="col-md-6">
                 <a href="/meeting/info/<%= meeting._id %>" class="text-decoration-none text-dark">
-                  <div class="card h-100 shadow-sm">
+                  <div class="card h-100 shadow-sm <%= meeting.isExpired ? 'expired-card' : '' %>">
                     <div class="card-body">
                       <div class="d-flex justify-content-between mb-2">
                         <h6 class="card-title mb-0">
                           <%= meeting.title %>
+                          <% if(meeting.isExpired) { %>
+                            <span class="badge bg-secondary ms-1">기간만료</span>
+                          <% } %>
                         </h6>
-                        <span class="chip chip-green"><span class="dot dot-green"></span>
+                        <% 
+                          let chipClass = 'chip-green';
+                          let dotClass = 'dot-green';
+                          if (meeting.congestionLevel === '혼잡' || meeting.congestionLevel === '붐빔' || meeting.congestionLevel === '약간 붐빔') { 
+                            chipClass = 'chip-red'; 
+                            dotClass = 'dot-red'; 
+                          } else if (meeting.congestionLevel === '보통') { 
+                            chipClass = 'chip-yellow'; 
+                            dotClass = 'dot-yellow'; 
+                          }
+                        %>
+                        <span class="chip <%= chipClass %>"><span class="dot <%= dotClass %>"></span>
                           <%= meeting.congestionLevel %>
                         </span>
                       </div>
