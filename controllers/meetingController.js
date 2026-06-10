@@ -10,13 +10,18 @@ const Activity = require("../models/Activity");
 const getList = async (req, res, next) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const status = req.query.status || "";
-        const { meetings, totalPages } = await meetingService.getAllMeetings(page, status);
+        const { status, keyword, congestion } = req.query;
+        
+        const filters = { status, keyword, congestion };
+        const { meetings, totalPages } = await meetingService.getAllMeetings(page, filters);
+        
         res.render("meeting/list", { 
             meetings, 
             totalPages, 
             currentPage: page, 
-            currentStatus: status 
+            currentStatus: status || "",
+            currentKeyword: keyword || "",
+            currentCongestion: congestion || ""
         });
     } catch (error) {
         next(error);

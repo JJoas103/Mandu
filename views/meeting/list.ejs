@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>장소 상세 - 모여봄</title>
+  <title>모임 게시판 - 모여봄</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="/css/style.css" rel="stylesheet">
 </head>
@@ -31,11 +31,23 @@
       <!-- 필터 + 글쓰기 -->
       <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <div class="d-flex flex-wrap gap-2">
-          <a href="/meeting/list" class="btn <%= !currentStatus ? 'btn-brand active-board' : 'btn-outline-brand' %>">전체</a>
+          <a href="/meeting/list" class="btn <%= !currentStatus && !currentCongestion ? 'btn-brand active-board' : 'btn-outline-brand' %>">전체</a>
           <a href="/meeting/list?status=recruit" class="btn <%= currentStatus === 'recruit' ? 'btn-brand active-board' : 'btn-outline-brand' %>">모집중</a>
+          <a href="/meeting/list?status=full" class="btn <%= currentStatus === 'full' ? 'btn-brand active-board' : 'btn-outline-brand' %>">마감임박</a>
+          <a href="/meeting/list?congestion=uncrowded" class="btn <%= currentCongestion === 'uncrowded' ? 'btn-brand active-board' : 'btn-outline-brand' %>">🌿 한산한 지역만</a>
         </div>
         <a class="btn btn-lg btn-brand" href="/meeting/write">+ 모임 만들기</a>
       </div>
+
+      <!-- 검색 -->
+      <form action="/meeting/list" method="get" class="d-flex gap-2 mb-4">
+        <div class="input-group">
+          <input type="text" name="keyword" class="form-control" placeholder="🔍 모임 제목·지역·태그 검색" value="<%= currentKeyword %>">
+          <% if (currentStatus) { %><input type="hidden" name="status" value="<%= currentStatus %>"><% } %>
+          <% if (currentCongestion) { %><input type="hidden" name="congestion" value="<%= currentCongestion %>"><% } %>
+          <button type="submit" class="btn btn-brand">검색</button>
+        </div>
+      </form>
 
       <hr class="my-4" />
 
@@ -49,19 +61,26 @@
             <% meetings.forEach(meeting=> { %>
               <div class="col-md-6">
                 <a href="/meeting/info/<%= meeting._id %>" class="text-decoration-none text-dark">
-                  <div class="card h-100 shadow-sm <%= meeting.isExpired ? 'expired-card' : '' %>">
+                  <div class="card h-100 shadow-sm <%= meeting.isExpired ? 'opacity-50' : (meeting.isFull ? 'opacity-75' : '') %>">
                     <div class="card-body">
                       <div class="d-flex justify-content-between mb-2">
                         <h6 class="card-title mb-0">
                           <%= meeting.title %>
                           <% if(meeting.isExpired) { %>
                             <span class="badge bg-secondary ms-1">기간만료</span>
+                          <% } else if(meeting.isFull) { %>
+                            <span class="badge bg-danger ms-1">정원마감</span>
+                          <% } else if(meeting.isClosingSoon) { %>
+                            <span class="badge bg-warning text-dark ms-1">마감임박</span>
                           <% } %>
                         </h6>
                         <% 
                           let chipClass = 'chip-green';
                           let dotClass = 'dot-green';
-                          if (meeting.congestionLevel === '혼잡' || meeting.congestionLevel === '붐빔' || meeting.congestionLevel === '약간 붐빔') { 
+                          if (meeting.isExpired) {
+                            chipClass = 'chip-secondary';
+                            dotClass = 'dot-secondary';
+                          } else if (meeting.congestionLevel === '혼잡' || meeting.congestionLevel === '붐빔' || meeting.congestionLevel === '약간 붐빔') { 
                             chipClass = 'chip-red'; 
                             dotClass = 'dot-red'; 
                           } else if (meeting.congestionLevel === '보통') { 
@@ -70,11 +89,10 @@
                           }
                         %>
                         <span class="chip <%= chipClass %>"><span class="dot <%= dotClass %>"></span>
-                          <%= meeting.congestionLevel %>
+                          <%= meeting.isExpired ? '종료' : meeting.congestionLevel %>
                         </span>
                       </div>
                       <div class="small text-muted mb-2">
-                        <!-- 작성자 및 매너온도 추가 -->
                         <span><%= meeting.author.avatar_emoji %> <%= meeting.author.nickname %></span>
                         <span class="badge bg-light text-dark ms-1" style="border: 1px solid #ddd;">
                           <%= meeting.author.manner_score.toFixed(1) %>°C
@@ -107,8 +125,14 @@
         <nav class="mt-4">
           <ul class="pagination justify-content-center">
             <% for(let i=1; i<=totalPages; i++) { %>
+              <% 
+                let queryStr = `?page=${i}`;
+                if (currentStatus) queryStr += `&status=${currentStatus}`;
+                if (currentKeyword) queryStr += `&keyword=${currentKeyword}`;
+                if (currentCongestion) queryStr += `&congestion=${currentCongestion}`;
+              %>
               <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                <a class="page-link" href="/meeting/list?page=<%= i %>">
+                <a class="page-link" href="/meeting/list<%= queryStr %>">
                   <%= i %>
                 </a>
               </li>
@@ -119,9 +143,7 @@
     </main>
 
     <!-- 푸터 -->
-		<%- include('../partials/footer') %>
-			<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  
-
+    <%- include('../partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
