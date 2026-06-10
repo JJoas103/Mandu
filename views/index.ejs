@@ -28,14 +28,16 @@
 
 			<!-- 검색바 -->
 			<div class="mb-4">
-				<form action="/place/search" method="get" class="d-flex gap-2">
-					<input type="text" name="keyword" class="form-control form-control-lg"
-						placeholder="🔍 지역·장소·모임 검색" />
-					<button type="submit" class="btn btn-brand btn-lg">검색</button>
-				</form>
-				<% if (typeof searchError !== 'undefined' && searchError) { %>
-					<div class="alert alert-warning mt-2 mb-0"><%= searchError %></div>
-				<% } %>
+				<form action="/place/search" method="get">
+					<div class="input-group input-group-lg">
+						<input type="text" name="keyword" class="form-control form-control-lg"
+							placeholder="🔍 지역·장소·모임 검색" />
+						<button type="submit" class="btn btn-brand btn-lg">검색</button>
+					</form>
+					<% if (typeof searchError !== 'undefined' && searchError) { %>
+						<div class="alert alert-warning mt-2 mb-0"><%= searchError %></div>
+					<% } %>
+				</div>
 			</div>
 
 			<!-- 지도 시각화 (더미) -->
