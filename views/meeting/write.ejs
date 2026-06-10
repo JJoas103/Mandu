@@ -31,7 +31,8 @@
 							<div class="mb-3">
 									<label class="form-label">장소 선택 <span class="text-danger">*</span></label>
 									<div id="map" style="width:100%; height:300px; margin-bottom:10px;"></div> <!-- 지도 컨테이너 -->
-									<input type="text" id="place_name" name="area" class="form-control" readonly required>
+									<input type="text" id="place_name" name="area" class="form-control" value="<%= area %>" readonly required>
+									<input type="hidden" id="congestion_level" name="congestionLevel" value="<%= placeInfo ? placeInfo.congest_lvl : '보통' %>">
 									<div id="markerInfo" data-markers='<%- JSON.stringify(markerInfo) %>'></div>
 							</div>
 
@@ -45,8 +46,8 @@
 										<span class="chip chip-green"><span class="dot dot-green"></span> 현재 여유</span>
 										 <% } else if (placeInfo.congest_lvl === '보통' || placeInfo.congest_lvl === '약간 붐빔') { %>
 										<span class="chip chip-yellow"><span class="dot dot-yellow"></span> <%= placeInfo.congest_lvl %></span>
-										 <% } else if (placeInfo.congest_lvl === '혼잡') { %>
-										<span class="chip chip-red"><span class="dot dot-red"></span> 혼잡</span>
+										 <% } else if (placeInfo.congest_lvl === '혼잡' || placeInfo.congest_lvl === '붐빔') { %>
+										<span class="chip chip-red"><span class="dot dot-red"></span> <%= placeInfo.congest_lvl %></span>
 										 <% } %>
 											<% if (typeof parkingCount !== 'undefined' && parkingCount > 0) { %>
 										<span class="chip chip-brand">🅿️ 주변 주차장 <%= parkingCount %>곳</span>
@@ -152,8 +153,8 @@
 			const markerData = JSON.parse(markerDataDiv.dataset.markers);
 			const mapContainer = document.getElementById('map');
 			const mapOption = {
-					center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울 중심
-					level: 8
+					center: new kakao.maps.LatLng(<%= placeInfo ? placeInfo.latitude : 37.5665 %>, <%= placeInfo ? placeInfo.longitude : 126.9780 %>),
+					level: <%= placeInfo ? 5 : 8 %>
 			};
 			const map = new kakao.maps.Map(mapContainer, mapOption);
 			const imageSize = new kakao.maps.Size(35, 35);
@@ -171,6 +172,7 @@
 					});
 					kakao.maps.event.addListener(marker, 'click', function() {
 							document.getElementById('place_name').value = p.name;
+							document.getElementById('congestion_level').value = p.congest_lvl;
 							// 선택 시 강조 효과나 알림을 줄 수 있음
 							alert(p.name + ' 장소가 선택되었습니다.');
 					});

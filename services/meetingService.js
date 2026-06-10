@@ -16,6 +16,7 @@ const createMeeting = async (meetingData, imageUrl) => {
 const getAllMeetings = async (page = 1, status) => {
     const limit = 10;
     const skip = (page - 1) * limit;
+    const now = new Date();
     
     const query = {};
     if (status) {
@@ -25,11 +26,18 @@ const getAllMeetings = async (page = 1, status) => {
     const totalMeetings = await Meeting.countDocuments(query);
     const totalPages = Math.ceil(totalMeetings / limit);
     
-    const meetings = await Meeting.find(query)
+    let meetings = await Meeting.find(query)
         .populate("author", "nickname profileImage avatar_emoji manner_score")
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(limit);
+        .limit(limit)
+        .lean(); // lean()을 사용하여 일반 JS 객체로 변환 (속성 추가 용이)
+        
+    // 각 모임에 만료 여부 추가
+    meetings = meetings.map(meeting => ({
+        ...meeting,
+        isExpired: new Date(meeting.meetingDate) < now
+    }));
         
     return { meetings, totalPages };
 };
