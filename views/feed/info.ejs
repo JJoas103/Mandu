@@ -68,7 +68,7 @@
               <h6 class="mb-3">댓글</h6>
 
               <% if(user) { %>
-                <form action="/comment/write" method="post" class="mb-4">
+                <form action="/comment/write" method="post" class="mb-4" onsubmit="disableSubmitButton(this)">
                   <input type="hidden" name="boardId" value="<%= feed._id %>">
                   <input type="hidden" name="onModel" value="Feed">
                   <div class="input-group">
@@ -77,6 +77,15 @@
                   </div>
                 </form>
                 <% } %>
+
+                <script>
+                  function disableSubmitButton(form) {
+                    const btn = form.querySelector('button[type="submit"]');
+                    btn.disabled = true; // 버튼 비활성화
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>등록 중..'; // 로딩
+                  }
+                </script>
+
 
                   <ul class="list-group list-group-flush">
                     <% if(comments.length===0) { %>
@@ -113,6 +122,19 @@
                           </li>
                           <% }) %>
                   </ul>
+                              <!-- 댓글 페이지네이션 UI -->
+            <% if (totalCommentPages > 1) { %>
+            <nav aria-label="Comment navigation" class="mb-4">
+                <ul class="pagination pagination-sm justify-content-center">
+                  <% for(let i = 1; i <= totalCommentPages; i++) { %>
+                    <li class="page-item <%= currentCommentPage === i ? 'active' : '' %>">
+                      <a class="page-link" href="?commentPage=<%= i %>"><%= i %></a>
+                    </li>
+                  <% } %>
+                </ul>
+              </nav>
+              <% } %>
+
             </div>
           </div>
         </div>

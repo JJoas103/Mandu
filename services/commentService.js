@@ -14,7 +14,7 @@ const createComment = async ({ content, author, board, onModel }) => {
 
 // 특정 게시글의 댓글 목록 가져오기
 const getCommentsByBoardId = async (boardId, page = 1) => {
-    const limit = 5;
+    const limit = 10;
     const skip = (page - 1) * limit;
     
     const totalComments = await Comment.countDocuments({ board: boardId });

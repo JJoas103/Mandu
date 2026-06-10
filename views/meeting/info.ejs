@@ -168,12 +168,25 @@
           </li>
           <% }) %>
         </ul>
+
+        <!-- 댓글 페이지네이션 UI -->
+        <% if (totalCommentPages > 1) { %>
+        <nav aria-label="Comment navigation" class="mb-4">
+            <ul class="pagination pagination-sm justify-content-center">
+              <% for(let i = 1; i <= totalCommentPages; i++) { %>
+                <li class="page-item <%= currentCommentPage === i ? 'active' : '' %>">
+                  <a class="page-link" href="?commentPage=<%= i %>"><%= i %></a>
+                </li>
+              <% } %>
+            </ul>
+          </nav>
+          <% } %>
     
         <!-- 댓글 작성 -->
         <% if(user) { %>
         <div class="card">
           <div class="card-body">
-            <form action="/comment/write" method="POST">
+            <form action="/comment/write" method="POST" onsubmit="disableSubmitButton(this)">
               <input type="hidden" name="boardId" value="<%= meeting._id %>">
               <input type="hidden" name="onModel" value="Meeting">
               <div class="mb-3">
@@ -181,6 +194,13 @@
               </div>
               <button type="submit" class="btn btn-brand">댓글 등록</button>
             </form>
+            <script>
+              function disableSubmitButton(form) {
+                const btn = form.querySelector('button[type="submit"]');
+                btn.disabled = true; // 버튼 비활성화
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>등록 중..'; // 로딩
+              }
+            </script>
           </div>
         </div>
         <% } %>
