@@ -42,6 +42,11 @@ router.post('/social-join', uploadProfile.single('uploadFile'), userController.p
 router.get('/favorites', userController.getFavorites);
 router.post('/notify-settings', userController.postNotifySettings);
 
+// 알림 관리
+router.patch('/notifications/read', userController.markNotificationsAsRead);
+router.delete('/notifications', userController.deleteNotifications);
+router.delete('/notifications/read', userController.deleteReadNotifications);
+
 //회원 탈퇴
 router.get('/delete', userController.getDelete);
 router.post('/delete', userController.postDelete);

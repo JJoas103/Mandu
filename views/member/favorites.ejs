@@ -6,6 +6,24 @@
 	<title><%= title %> - 모여봄</title>
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link href="/css/style.css" rel="stylesheet">
+	<style>
+		/* 알림 체크박스 강조 */
+		.noti-checkbox {
+			width: 1.25rem;
+			height: 1.25rem;
+			cursor: pointer;
+			border: 2px solid #adb5bd;
+		}
+		.noti-checkbox:checked {
+			background-color: #ff6b6b; /* 브랜드 컬러 예시 */
+			border-color: #ff6b6b;
+		}
+		.form-check-input#selectAllNoti {
+			width: 1.1rem;
+			height: 1.1rem;
+			border: 2px solid #adb5bd;
+		}
+	</style>
 </head>
 <body>
 
@@ -85,30 +103,75 @@
 				<!-- 알림 내역 -->
 				<div class="card shadow-sm mt-3">
 					<div class="card-body">
-						<h6 class="card-title mb-3">💬 알림 내역 <small class="text-muted fw-normal">(최근 20건)</small></h6>
+						<div class="d-flex justify-content-between align-items-center mb-3">
+							<h6 class="card-title mb-0">💬 알림 내역</h6>
+							<% if (notifications && notifications.length > 0) { %>
+								<div class="form-check small">
+									<input class="form-check-input" type="checkbox" id="selectAllNoti">
+									<label class="form-check-label text-muted" for="selectAllNoti">전체선택</label>
+								</div>
+							<% } %>
+						</div>
 						
 						<% if (notifications && notifications.length > 0) { %>
-							<div class="list-group list-group-flush">
+							<div class="list-group list-group-flush border-top border-bottom mb-3" id="notiList">
 								<% notifications.forEach(function(noti) { %>
-									<a href="<%= noti.relatedLink || '#' %>" class="list-group-item list-group-item-action px-0 py-3">
-										<div class="d-flex justify-content-between align-items-start">
-											<div class="flex-grow-1">
-												<div class="d-flex align-items-center gap-2 mb-1">
-													<% if (noti.type === 'like') { %>
-														<span class="badge bg-success-subtle text-success">추천</span>
-													<% } else if (noti.type === 'comment') { %>
-														<span class="badge bg-primary-subtle text-primary">댓글</span>
-													<% } else { %>
-														<span class="badge bg-secondary-subtle text-secondary">알림</span>
-													<% } %>
-													<small class="text-muted"><%= new Date(noti.createdAt).toLocaleString() %></small>
-												</div>
-												<div class="text-dark"><%= noti.message %></div>
+									<div class="list-group-item px-0 py-3 <%= noti.isRead ? 'opacity-50' : '' %>" data-id="<%= noti._id %>" data-read="<%= noti.isRead %>">
+										<div class="d-flex align-items-start gap-3">
+											<div class="form-check mt-1">
+												<input class="form-check-input noti-checkbox" type="checkbox" value="<%= noti._id %>">
 											</div>
-											<span class="text-muted small">〉</span>
+											<a href="<%= noti.relatedLink || '#' %>" class="text-decoration-none flex-grow-1">
+												<div class="d-flex justify-content-between align-items-start">
+													<div>
+														<div class="d-flex align-items-center gap-2 mb-1">
+															<% if (noti.type === 'like') { %>
+																<span class="badge bg-success-subtle text-success">추천</span>
+															<% } else if (noti.type === 'comment') { %>
+																<span class="badge bg-primary-subtle text-primary">댓글</span>
+															<% } else { %>
+																<span class="badge bg-secondary-subtle text-secondary">알림</span>
+															<% } %>
+															<small class="text-muted"><%= new Date(noti.createdAt).toLocaleString() %></small>
+															<% if (!noti.isRead) { %>
+																<span class="badge bg-danger rounded-pill" style="font-size: 8px;">N</span>
+															<% } %>
+														</div>
+														<div class="text-dark"><%= noti.message %></div>
+													</div>
+													<span class="text-muted small">〉</span>
+												</div>
+											</a>
 										</div>
-									</a>
+									</div>
 								<% }); %>
+							</div>
+
+							<!-- 페이징 및 관리 버튼 -->
+							<div class="d-flex justify-content-between align-items-start mt-3">
+								<!-- 페이징 -->
+								<nav aria-label="Notification pagination">
+									<ul class="pagination pagination-sm mb-0">
+										<li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+											<a class="page-link" href="?page=<%= currentPage - 1 %>">이전</a>
+										</li>
+										<% for(let i = 1; i <= totalPages; i++) { %>
+											<li class="page-item <%= currentPage === i ? 'active' : '' %>">
+												<a class="page-link" href="?page=<%= i %>"><%= i %></a>
+											</li>
+										<% } %>
+										<li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+											<a class="page-link" href="?page=<%= currentPage + 1 %>">다음</a>
+										</li>
+									</ul>
+								</nav>
+
+								<!-- 관리 버튼 -->
+								<div class="d-flex gap-1">
+									<button type="button" class="btn btn-sm btn-outline-secondary" onclick="markAsRead()">읽음</button>
+									<button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteSelected()">삭제</button>
+									<button type="button" class="btn btn-sm btn-danger" onclick="deletePageRead()">전체삭제</button>
+								</div>
 							</div>
 						<% } else { %>
 							<div class="text-center py-5 text-muted">
@@ -176,5 +239,93 @@
     <%- include('../partials/footer') %>
 
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script>
+		// 전체 선택 기능
+		const selectAllCheck = document.getElementById('selectAllNoti');
+		const notiChecks = document.querySelectorAll('.noti-checkbox');
+
+		if (selectAllCheck) {
+			selectAllCheck.addEventListener('change', function() {
+				notiChecks.forEach(check => {
+					check.checked = this.checked;
+				});
+			});
+		}
+
+		// 선택된 알림 ID들 가져오기
+		function getSelectedIds() {
+			const selected = [];
+			document.querySelectorAll('.noti-checkbox:checked').forEach(check => {
+				selected.push(check.value);
+			});
+			return selected;
+		}
+
+		// 읽음 처리
+		async function markAsRead() {
+			const ids = getSelectedIds();
+			if (ids.length === 0) return alert('선택된 알림이 없습니다.');
+
+			try {
+				const response = await fetch('/member/notifications/read', {
+					method: 'PATCH',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ ids })
+				});
+				const result = await response.json();
+				if (result.success) location.reload();
+				else alert('처리에 실패했습니다.');
+			} catch (error) {
+				console.error(error);
+				alert('오류가 발생했습니다.');
+			}
+		}
+
+		// 선택 삭제
+		async function deleteSelected() {
+			const ids = getSelectedIds();
+			if (ids.length === 0) return alert('선택된 알림이 없습니다.');
+			if (!confirm('선택한 알림을 삭제하시겠습니까?')) return;
+
+			try {
+				const response = await fetch('/member/notifications', {
+					method: 'DELETE',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ ids })
+				});
+				const result = await response.json();
+				if (result.success) location.reload();
+				else alert('삭제에 실패했습니다.');
+			} catch (error) {
+				console.error(error);
+				alert('오류가 발생했습니다.');
+			}
+		}
+
+		// 현재 페이지 읽은 알림 전체 삭제
+		async function deletePageRead() {
+			const readIds = [];
+			document.querySelectorAll('.list-group-item[data-read="true"]').forEach(item => {
+				readIds.push(item.dataset.id);
+			});
+
+			if (readIds.length === 0) return alert('현재 페이지에 읽은 알림이 없습니다.');
+			if (!confirm('현재 페이지의 읽은 알림을 모두 삭제하시겠습니까?')) return;
+
+			try {
+				const response = await fetch('/member/notifications/read', {
+					method: 'DELETE',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ ids: readIds })
+				});
+				const result = await response.json();
+				if (result.success) location.reload();
+				else alert('삭제에 실패했습니다.');
+			} catch (error) {
+				console.error(error);
+				alert('오류가 발생했습니다.');
+			}
+		}
+	</script>
 </body>
 </html>
