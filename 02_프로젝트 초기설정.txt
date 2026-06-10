@@ -25,15 +25,6 @@
 
 
 #2 헤더/푸터 분리
-<<<<<<< HEAD
-
-#3 DB 연결
-.env에 DB url 변수 저장
-config/database.js에 DB 연결 코드 추가
-app.js에 require('dotenv').config(); 추가
-app.js에 connectDB(); 추가
-models 폴더에 컬렉션 스키마 규칙을 정의한 model 파일 들 생성
-=======
 == views > index.ejs 생성
 - index.html 코드 복사 후 index.ejs에 불여넣기
 - views > partials > header.ejs / footer.ejs 만들기
@@ -83,4 +74,4 @@ models 폴더에 컬렉션 스키마 규칙을 정의한 model 파일 들 생성
 - config/database.js에 DB 연결 코드 추가
 - app.js에 require('dotenv').config(); 추가
 - app.js에 connectDB(); 추가
->>>>>>> 5dfe5ec01bf7e474f6493cdbb5da4f87d14f29cd
+- models 폴더에 컬렉션 스키마 규칙을 정의한 model 파일 들 생성
