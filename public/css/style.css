@@ -105,8 +105,9 @@ body {
   color: var(--brand);
 }
 .pagination .page-item.active .page-link {
-  background: var(--brand);
-  border-color: var(--brand);
+  background: var(--brand) !important;
+  border-color: var(--brand) !important;
+  color: #fff !important;
 }
 
 /* ───────── 푸터 ───────── */
