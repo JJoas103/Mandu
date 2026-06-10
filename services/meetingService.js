@@ -55,22 +55,50 @@ const getAllMeetings = async (page = 1, filters = {}) => {
     const totalMeetings = await Meeting.countDocuments(query);
     const totalPages = Math.ceil(totalMeetings / limit);
     
-    let meetings = await Meeting.find(query)
-        .populate("author", "nickname profileImage avatar_emoji manner_score")
-        .sort({ meetingDate: -1 }) // 최신 순서
-        .skip(skip)
-        .limit(limit)
-        .lean();
+    // 고급 정렬: 진행 예정 모임(가까운 날짜순) -> 종료된 모임(최근 종료순)
+    const meetings = await Meeting.aggregate([
+        { $match: query },
+        {
+            $addFields: {
+                isPast: { $cond: [{ $lt: ["$meetingDate", now] }, 1, 0] },
+                // 날짜 차이의 절대값 (현재와 가까운 순서 정렬용)
+                dateDiff: { $abs: { $subtract: ["$meetingDate", now] } }
+            }
+        },
+        {
+            $sort: {
+                isPast: 1,    // 0(진행예정) 먼저, 1(종료) 나중에
+                dateDiff: 1   // 현재 시간과 가까운 순서대로
+            }
+        },
+        { $skip: skip },
+        { $limit: limit },
+        {
+            $lookup: {
+                from: "users",
+                localField: "author",
+                foreignField: "_id",
+                as: "author"
+            }
+        },
+        { $unwind: "$author" },
+        {
+            $project: {
+                "author.password": 0,
+                "author.email": 0
+            }
+        }
+    ]);
         
     // 각 모임에 만료 여부 및 상태 정보 추가
-    meetings = meetings.map(meeting => ({
+    const processedMeetings = meetings.map(meeting => ({
         ...meeting,
         isExpired: new Date(meeting.meetingDate) < now,
         isClosingSoon: new Date(meeting.meetingDate) >= now && new Date(meeting.meetingDate) <= new Date(now.getTime() + 24 * 60 * 60 * 1000),
         isFull: meeting.status === 'full' || meeting.participants.length >= meeting.maxParticipants
     }));
         
-    return { meetings, totalPages };
+    return { meetings: processedMeetings, totalPages };
 };
 
 // 특정 모임 조회
