@@ -35,7 +35,7 @@
 						<% } else if (place.congest_lvl === '약간 붐빔' || place.congest_lvl === '붐빔' || place.congest_lvl === '혼잡') { %>
 							<span class="chip chip-red"><span class="dot dot-red"></span> 현재 <%= place.congest_lvl %></span>
 						<% } %>
-					</div>
+						<% if (parkingInfo.length > 0) { %>
 							<span class="chip chip-brand">🅿️ 주차 <%= parkingInfo.length %>곳</span>
 						<% } %>
 						<% if (restroomInfo.length > 0) { %>
