@@ -99,8 +99,7 @@
                         </span>
                       </div>
                       <div class="small text-muted mb-2">
-                        📍 <%= meeting.area %> · <%= meeting.meetingDate ? new
-                            Date(meeting.meetingDate).toLocaleDateString() : '' %> ·
+                        📍 <%= meeting.area %> · <%= formatMeetingDate(meeting.meetingDate) %> ·
                             <%= meeting.participants.length %>/<%= meeting.maxParticipants %>명
                       </div>
                       <p class="small mb-2 text-truncate">
