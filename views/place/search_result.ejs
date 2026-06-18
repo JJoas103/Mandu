@@ -13,11 +13,22 @@
 
 	<main class="container my-4">
 		<a href="/" class="text-decoration-none text-muted small mb-3 d-inline-block">← 지도로 돌아가기</a>
-		<h4 class="mb-4">"<%= keyword %>" 검색 결과 — <%= results.length %>곳</h4>
+		<!-- 제목 조건 처리 -->
+		<% if (keyword === '전체 장소' || keyword === '한산한 명소') { %>
+			<h4 class="mb-4"><%= keyword %> — <%= results.length %>곳</h4>
+		<% } else { %>
+			<h4 class="mb-4">"<%= keyword %>" 검색 결과 — <%= results.length %>곳</h4>
+		<% } %>
 
 		<div class="row g-3">
-			<% results.forEach(function(place) { %>
-				<div class="col-md-4 col-6">
+			<% if (results.length === 0) { %>
+				<div class="col-12 text-center py-5 text-muted">
+					<h4>검색된 장소가 없습니다.</h4>
+					<p>다른 검색어로 다시 시도해 보세요.</p>
+				</div>
+			<% } else { %>
+				<% results.forEach(function(place) { %>
+					<div class="col-md-4 col-6">
 					<a href="/place/<%= place.area_cd %>" class="text-decoration-none text-dark">
 						<div class="card h-100 shadow-sm">
 							<% if (place.imageUrl) { %>
@@ -39,6 +50,7 @@
 					</a>
 				</div>
 			<% }) %>
+			<% } %>
 		</div>
 	</main>
 

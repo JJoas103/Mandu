@@ -47,6 +47,12 @@ async function getPlaceInfoLimt() {
                             .limit(4);
     return placeInfoLimt;
 }
+// 여유있는 장소 추가
+async function getAllQuietPlaces() {
+    return await Place.find({ congest_lvl: '여유'})
+        .select('area_cd name congest_lvl')
+        .sort({updateAt : -1});
+}
 
 async function getPlaceByAreaCd(area_cd) {
     const place = await Place.findOne({ area_cd });
@@ -66,4 +72,4 @@ async function searchPlacesByName(keyword) {
                       .limit(10);
 }
 
-module.exports = { getAllMarker, getPlaceInfoLimt, getSurgeTop5, getCongestTop5, getCongestionDetail, getPlaceByAreaCd, getPlaceByName, searchPlacesByName };
+module.exports = { getAllMarker, getPlaceInfoLimt, getSurgeTop5, getCongestTop5, getCongestionDetail, getPlaceByAreaCd, getPlaceByName, searchPlacesByName, getAllQuietPlaces };
