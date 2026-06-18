@@ -1,95 +1,22 @@
 # 모여봄 (MoyeoBom) — 서울 모임 플랫폼
 
-> 실시간 혼잡도 기반으로 서울 곳곳의 여유로운 동네에서 모임을 만들고 찾을 수 있는 플랫폼
+> 실시간 혼잡도 데이터를 기반으로 서울 곳곳의 여유로운 동네를 탐색하고, 사람들과의 만남을 주도하는 위치 기반 모임 플랫폼
 
-## 📁 폴더 구조
-
-```
-모여봄/
-├── app.js                      ← 메인 서버 실행 파일
-├── config/                     ← 데이터베이스 및 환경 설정
-├── controllers/                ← 비즈니스 로직 처리 (MVC의 C)
-├── models/                     ← MongoDB 스키마 정의 (MVC의 M)
-├── routes/                     ← URL 경로 라우팅 설정
-├── services/                   ← 외부 API 연동 및 복잡한 DB 로직
-├── public/                     ← 정적 리소스 파일
-│   ├── css/
-│   │   └── style.css           ← 공통 스타일 (모여봄 그린 테마)
-│   ├── images/
-│   └── js/
-└── views/                      ← EJS 뷰 템플릿 (MVC의 V)
-    ├── index.ejs               ← ① 지도 탐색 (메인)
-    ├── place/                  ← 장소 관련 템플릿
-    │   ├── place_info.ejs      ← ① 장소 상세 (혼잡도·주차·화장실·날씨)
-    │   └── search_result.ejs   ← ① 장소 검색 결과 및 전체/한산한 명소 리스트
-    ├── meeting/                ← 모임 관련 템플릿
-    │   ├── list.ejs            ← ② 모임 게시판 목록
-    │   ├── info.ejs            ← ② 모임 상세 + 참여 신청
-    │   ├── write.ejs           ← ② 모임 만들기
-    │   └── modify.ejs          ← ② 모임 수정
-    ├── feed/                   ← 제보 피드 관련 템플릿
-    │   ├── list.ejs            ← ③ 실시간 제보 피드
-    │   ├── info.ejs            ← ③ 제보 상세 + 댓글
-    │   ├── write.ejs           ← ③ 제보 작성 (장소 태그 필수)
-    │   └── modify.ejs          ← ③ 제보 수정
-    ├── member/                 ← 회원 관련 템플릿
-    │   ├── login.ejs           ← 로그인
-    │   ├── join.ejs            ← 회원가입
-    │   ├── info.ejs            ← ④ 마이페이지 (매너점수·배지·방문기록)
-    │   ├── modify.ejs          ← ④ 회원정보 수정
-    │   └── favorites.ejs       ← ④ 찜한 장소 · 알림 설정
-    └── partials/               ← 공통 헤더, 푸터 템플릿
-```
-
-## 🗂️ 흐름도 ↔ 파일 매핑
-
-| 흐름도 항목 | 담당 파일 |
-| ----------------------------------------------------- | ----------------------------------------------------- |
-| 지도 페이지 (실시간 지역 정보, 모임 마커, 핫플 랭킹) | `views/index.ejs` |
-| 장소 목록 (검색 결과, 전체 장소, 한산한 명소) | `views/place/search_result.ejs` |
-| 장소 상세 (혼잡도, 주차장/화장실 API, 해당 장소 모임) | `views/place/place_info.ejs` |
-| 모임 게시판 / 모임 만들기 | `views/meeting/list.ejs`, `views/meeting/write.ejs` |
-| 모임 상세 / 참여 신청·수락 | `views/meeting/info.ejs` |
-| 제보 피드 (목록) / 제보하기 | `views/feed/list.ejs`, `views/feed/write.ejs`, `views/feed/info.ejs` |
-| 마이페이지 (방문기록 인증, 획득 배지, 매너 점수) | `views/member/info.ejs` |
-| 참여중인 모임 / 내가 제보한 글 / 방문한 지역 | `views/member/info.ejs` 내 섹션 |
-| 찜한 장소 · 알림 설정 | `views/member/favorites.ejs` |
-| 로그인 / 회원가입 | `views/member/login.ejs`, `views/member/join.ejs` |
-
-## 🗄️ DB 테이블(컬렉션) ↔ 라우터/모델 매핑
-
-| DB 컬렉션 (Models)        | 연결되는 주요 라우터 (Routes)                                      |
-| ------------------------- | ------------------------------------------------------------------ |
-| `users`                   | `userRouter.js`, `authRouter.js`                                    |
-| `places`                  | `mainRouter.js`, `placeRouter.js`, `meetingRouter.js` (장소 선택)   |
-| `place_congestion_hourly` | `placeRouter.js` (시간대 혼잡도 데이터)                               |
-| `place_infra`             | `placeRouter.js` (주차/화장실/교통/날씨 정보)                       |
-| `nearby_spots`            | `placeRouter.js` (주변 편의시설)                                  |
-| `meetings`                | `meetingRouter.js`, `placeRouter.js` (해당 장소 모임)              |
-| `meeting_participants`    | `meetingRouter.js` (참여자 목록, 참여 신청)                       |
-| `meeting_tags`            | `meetingRouter.js` (태그 정보)                                     |
-| `feeds`                   | `feedRouter.js`                                                    |
-| `feed_comments`           | `commentRouter.js`                                                 |
-| `feed_reactions`          | `feedRouter.js` (👍 버튼)                                         |
-| `visit_logs`              | `visitRouter.js` (방문 인증), `userRouter.js` (방문 기록)           |
-| `badges`, `user_badges`   | `userRouter.js` (획득 배지 목록)                                   |
+---
 
 ## 🛠️ 기술 스택 (Tech Stack)
 
 - **Backend**: Node.js, Express.js
 - **Database**: MongoDB (Mongoose)
-- **View Engine**: EJS (Embedded JavaScript templates)
-- **Frontend**: Vanilla HTML/JS, Bootstrap 5.3.3 (CDN)
-- **Design/Font**: Noto Sans KR (가독성 최적화)
+- **View Engine**: EJS, Bootstrap 5.3.3
+- **Authentication**: Passport.js (Local, Google OAuth 2.0, Naver OAuth 2.0), bcrypt, express-session
+- **Real-Time Features**: Socket.IO (양방향 실시간 통신 및 지역 기반 룸 시스템)
+- **Background Tasks**: node-cron (실시간 데이터 스케줄러)
+- **File Uploads**: Multer (프로필 5MB, 게시글 20MB 제한 및 MIME 타입 검증)
+- **External API**: axios (카카오 로컬 API, 서울시 실시간 공공데이터 API, wttr.in 날씨 API)
+- **Validation**: express-validator
 
-## 🎨 컬러 테마
-
-`public/css/style.css` 상단 `:root`에 CSS 변수로 정의:
-
-- `--brand: #1d9e75` (메인 초록)
-- `--brand-700: #16a34a` (진한 초록)
-- `--brand-50: #e6f9f4` (배경 초록)
-- 혼잡도: 여유=초록, 보통=노랑, 혼잡=빨강
+---
 
 ## 🚀 실행 방법 (Getting Started)
 
@@ -97,37 +24,101 @@
    ```bash
    npm install
    ```
-2. **환경변수 설정**
-   * 프로젝트 루트에 `.env` 파일을 생성하고 필요한 API 키 및 DB 접속 정보를 입력하세요. (카카오 지도 API 키 등)
-3. **서버 실행**
+
+2. **환경 변수 설정 (`.env`)**
+   `.env_sample`을 참고하여 프로젝트 루트에 `.env` 파일을 생성합니다.
+   - `PORT`, `MONGO_URI`, `SESSION_SECRET`
+   - 카카오 REST API 키, 서울시 공공데이터 API 키 등 외부 서비스 키
+   - 소셜 로그인 (Google, Naver) Client ID & Secret
+
+3. **초기 시드 데이터 주입 (DB 초기화)**
    ```bash
-   npm start
-   # 또는 node app.js
+   npm run seed:places   # 기준이 되는 서울 지역 장소 데이터 주입
+   npm run seed:parking  # 기본 주차장 데이터 주입
    ```
-4. **접속**
-   * 브라우저에서 `http://localhost:3000` (설정된 포트)에 접속합니다.
 
-## 📌 주요 라우트 (Routes) 구조
+4. **서버 실행**
+   ```bash
+   npm run start  # 일반 실행
+   npm run dev    # 개발 모드 (nodemon)
+   ```
 
-### View (화면 렌더링) 라우트
-- `GET /` : 메인 지도 화면
-- `GET /place` : 전체 장소 리스트 보기
-- `GET /place/quiet` : 한산한 명소 리스트 보기
-- `GET /place/search?keyword=...` : 장소 검색 및 결과 리스트
-- `GET /place/:area_cd` : 장소 상세 정보
-- `GET /meeting` : 모임 리스트
-- `GET /feed` : 제보 피드 리스트
-- `GET /member/info` : 마이페이지
+---
 
-### API (데이터 처리) 라우트
-- `POST /auth/join`, `/auth/login` : 회원가입 / 로그인
-- `POST /user/modify`, `/user/delete` : 회원정보 수정 / 탈퇴
-- `POST /meeting/write`, `/meeting/modify`, `/meeting/delete` : 모임 C/U/D
-- `POST /meeting/join` : 모임 참여 신청
-- `POST /feed/write`, `/feed/modify`, `/feed/delete` : 제보 C/U/D
-- `POST /comment/write` : 댓글 작성
-- `POST /visit/verify` : GPS 방문 인증
-- `POST /favorite/add`, `/favorite/delete` : 장소 찜 C/D
+## 📁 디렉터리 구조 및 파일 맵핑 (Folder Structure)
+
+```text
+모여봄/
+├── app.js               # Express 메인 진입점 (미들웨어, 세션, Socket.IO 바인딩)
+├── config/              # DB 연결, Multer 업로드 설정, Passport 전략 구성
+├── controllers/         # MVC의 C: 라우트별 비즈니스 로직 및 뷰 렌더링 응답 처리
+├── middlewares/         # 인증(auth), 에러 처리(error), 유효성 검사(validation)
+├── models/              # Mongoose DB 스키마 (16개 컬렉션)
+├── routes/              # 엔드포인트 라우팅 처리
+├── schedulers/          # 백그라운드 작업 (예: 혼잡도 자동 갱신)
+├── services/            # 핵심 로직 분리 및 외부 API(서울시, 카카오 등) 통신
+└── views/               # EJS 뷰 템플릿 화면
+    ├── error/           # 400, 404, 500 에러 처리 화면
+    ├── feed/            # 제보 게시판 (목록, 작성, 상세조회)
+    ├── meeting/         # 모임 게시판 (목록, 개설, 상세조회)
+    ├── member/          # 회원 관리 (로그인, 가입, 마이페이지, 찜/알림 설정)
+    ├── place/           # 장소 탐색 (검색 결과 리스트, 장소 상세 인포)
+    └── index.ejs        # 메인 홈페이지 (지도 및 통합 랭킹)
+```
+
+---
+
+## 🗄️ 데이터베이스 스키마 (DB Models)
+
+총 16개의 정교한 컬렉션 구조로 이루어져 있습니다.
+
+| 모델 (Model) | 설명 (Description) |
+|---|---|
+| **User** | 계정, 지역 설정, 세부 알림 수신 동의 여부, **매너 점수 및 랭크** 관리 |
+| **Activity** | **매너 점수 변동의 핵심 추적 테이블**. 회원의 모든 행동 이력(모임 참여, 제보, 방문 등)을 기록 |
+| **Meeting** | 모임 개설 정보. 장소 태그, 모집 상태, 인원수 제한, 참여자 배열 관리 |
+| **Feed** | 실시간 지역 제보. 카테고리별 제보 내용, 이미지, 받은 추천(Like) 관리 |
+| **Comment** | 다형성 참조(`onModel`)를 사용하여 모임, 피드, 일반 게시판 어디든 달릴 수 있는 범용 댓글 모델 |
+| **Favorite** | 회원의 장소 찜하기 기록 (중복 방지 인덱스 처리) |
+| **VisitLog** | 1일 1회 GPS 기반 장소 방문 인증을 통한 점수 획득 기록 |
+| **Notification** | 알림(좋아요, 댓글, 시스템 등) 내역 보관, 읽음 처리, 관련 링크 매핑 |
+| **Place** | 플랫폼 내 관리 대상 지역. 기온, 하늘상태, 습도 등 날씨 정보 및 기본 정보 캐싱 |
+| **Congestion** | **실시간 혼잡도 및 예측 데이터**. (시간대별 예상 인구 및 인구 급증률 데이터 보관) |
+| **ParkingInfo** | 카카오 및 공공데이터를 가공한 해당 지역 주차장 실시간 현황 |
+| 기타 | `Board`(자유게시판), `FeedComment`(피드 전용 댓글), `PlaceInfra`(주변 인프라), `NearBySpots`(주변 상권), `ToiletInfo`(화장실 인프라) |
+
+---
+
+## 🔄 핵심 비즈니스 로직 및 기능 작동 흐름 (Core Logic)
+
+### 1. 매너 점수 시스템 (Gamification & Manner Score)
+모든 활동은 사용자의 신뢰도를 나타내는 `manner_score` (기본 50점, 최대 100점)에 영향을 미치며, `Activity` 모델에 로그가 남습니다.
+- **+5.0점**: 모임 개설 (`POST /meeting/write`)
+- **+2.0점**: 모임 참가 (`POST /meeting/join`), 장소 방문 GPS 인증 (`POST /visit/verify`), 내 제보가 추천을 받음 (`POST /feed/like`)
+- **+1.0점**: 제보 작성 (`POST /feed/write`), 장소 찜하기 (`POST /favorite/add`)
+- **+0.5점**: 댓글 작성 (`POST /comment/write`)
+
+### 2. 정교한 실시간 알림 시스템 (Socket.IO & DB Notification)
+사용자에게 피로감을 주지 않도록 **지역 기반 필터링**을 거칩니다.
+- **모임 및 제보 발생 시**: 현재 시간 기준 -1~+2시간 이내에 **같은 동네(District)**에 위치한 모임의 방장/참가자, 그리고 해당 동네 알림을 켜둔 유저를 선별합니다.
+- 선별된 유저에게는 DB 상에 `Notification` 객체를 즉시 생성하고, **Socket.IO** 개인 룸(`user:{id}`)과 지역 룸을 통해 실시간으로 알림 팝업 및 피드 데이터를 브로드캐스트합니다. (새로고침 없이 UI 반영)
+
+### 3. 외부 API 및 백그라운드 스케줄러 자동화 (node-cron)
+- **`congestionScheduler.js`**: `node-cron`을 활용하여 매 10분(`*/10 * * * *`)마다 서울시 공공데이터 API를 호출하고, MongoDB의 혼잡도 컬렉션을 최신 상태로 갱신 및 캐싱합니다.
+- **카카오 로컬 인프라 연결**: 장소 상세 페이지(`views/place/place_info.ejs`) 접근 시 `kakaoLocalService`가 가동하여 좌표 기반 주변 주차장, 화장실, 대중교통 위치를 병합하여 제공합니다.
+
+---
+
+## 📌 주요 라우팅 요약 (Routes Mapping)
+
+- **`mainRouter` (`/`)**: 메인 페이지 렌더링. 실시간 혼잡도 급증 장소, 한산한 장소 추천, 최신 모임 통합 제공.
+- **`authRouter` / `userRouter` (`/member`, `/auth`)**: 
+  - 로컬 회원가입(유효성 검사 적용), 소셜 로그인 콜백, 마이페이지(활동 내역 및 뱃지 표시).
+  - 유저 세부 알림 설정(`POST /notify-settings`) 및 알림 읽음/삭제 처리.
+- **`placeRouter` (`/place`)**: 전체 장소 보기, 한산한 곳만 모아보기(`/quiet`), 장소 검색, 특정 지역 통합 상세 정보 제공.
+- **`meetingRouter` (`/meeting`)**: 모임 개설, 참여/취소, 목록 필터링(마감 임박, 여유 지역 필터 지원).
+- **`feedRouter` (`/feed`)**: 제보 등록(GPS 마커 지정), 조회, 실시간 좋아요(추천) 처리.
+- **`favoriteRouter` / `visitRouter`**: 장소 찜하기 토글 및 프론트엔드 GPS 검증을 통한 방문 인증 API.
 
 ---
 
