@@ -1,124 +1,204 @@
 # 모여봄 (MoyeoBom) — 서울 모임 플랫폼
 
-> 실시간 혼잡도 데이터를 기반으로 서울 곳곳의 여유로운 동네를 탐색하고, 사람들과의 만남을 주도하는 위치 기반 모임 플랫폼
+> 실시간 혼잡도 기반으로 서울의 여유로운 동네에서 모임을 만들고 찾을 수 있는 위치 기반 플랫폼
 
 ---
 
-## 🛠️ 기술 스택 (Tech Stack)
+## 🛠️ 기술 스택
 
-- **Backend**: Node.js, Express.js
-- **Database**: MongoDB (Mongoose)
-- **View Engine**: EJS, Bootstrap 5.3.3
-- **Authentication**: Passport.js (Local, Google OAuth 2.0, Naver OAuth 2.0), bcrypt, express-session
-- **Real-Time Features**: Socket.IO (양방향 실시간 통신 및 지역 기반 룸 시스템)
-- **Background Tasks**: node-cron (실시간 데이터 스케줄러)
-- **File Uploads**: Multer (프로필 5MB, 게시글 20MB 제한 및 MIME 타입 검증)
-- **External API**: axios (카카오 로컬 API, 서울시 실시간 공공데이터 API, wttr.in 날씨 API)
-- **Validation**: express-validator
+| 분류 | 사용 기술 |
+|------|-----------|
+| Backend | Node.js, Express.js |
+| Database | MongoDB (Mongoose) |
+| View Engine | EJS, Bootstrap 5.3.3 |
+| Authentication | Passport.js (Local, Google OAuth 2.0, Naver OAuth 2.0), bcrypt, express-session |
+| Real-Time | Socket.IO |
+| Scheduler | node-cron (10분 주기 혼잡도 갱신) |
+| File Upload | Multer (프로필 5MB / 게시글 20MB, MIME 검증) |
+| External API | axios — 카카오 로컬, 서울시 실시간 도시데이터, wttr.in 날씨 |
+| Validation | express-validator |
 
 ---
 
-## 🚀 실행 방법 (Getting Started)
+## 🚀 실행 방법
 
 1. **패키지 설치**
    ```bash
    npm install
    ```
 
-2. **환경 변수 설정 (`.env`)**
-   `.env_sample`을 참고하여 프로젝트 루트에 `.env` 파일을 생성합니다.
+2. **환경 변수 설정**
+   `.env_sample`을 참고하여 `.env` 파일 생성
    - `PORT`, `MONGO_URI`, `SESSION_SECRET`
-   - 카카오 REST API 키, 서울시 공공데이터 API 키 등 외부 서비스 키
-   - 소셜 로그인 (Google, Naver) Client ID & Secret
+   - 카카오 REST API 키, 서울시 공공데이터 API 키
+   - Google / Naver 소셜 로그인 Client ID & Secret
 
-3. **초기 시드 데이터 주입 (DB 초기화)**
+3. **시드 데이터 주입** (최초 실행 시)
    ```bash
-   npm run seed:places   # 기준이 되는 서울 지역 장소 데이터 주입
-   npm run seed:parking  # 기본 주차장 데이터 주입
+   npm run seed:places
+   npm run seed:parking
    ```
 
 4. **서버 실행**
    ```bash
-   npm run start  # 일반 실행
-   npm run dev    # 개발 모드 (nodemon)
+   npm run start   # node app.js
+   npm run dev     # nodemon
    ```
 
 ---
 
-## 📁 디렉터리 구조 및 파일 맵핑 (Folder Structure)
+## 📁 디렉터리 구조
 
 ```text
 모여봄/
-├── app.js               # Express 메인 진입점 (미들웨어, 세션, Socket.IO 바인딩)
-├── config/              # DB 연결, Multer 업로드 설정, Passport 전략 구성
-├── controllers/         # MVC의 C: 라우트별 비즈니스 로직 및 뷰 렌더링 응답 처리
-├── middlewares/         # 인증(auth), 에러 처리(error), 유효성 검사(validation)
-├── models/              # Mongoose DB 스키마 (16개 컬렉션)
-├── routes/              # 엔드포인트 라우팅 처리
-├── schedulers/          # 백그라운드 작업 (예: 혼잡도 자동 갱신)
-├── services/            # 핵심 로직 분리 및 외부 API(서울시, 카카오 등) 통신
-└── views/               # EJS 뷰 템플릿 화면
-    ├── error/           # 400, 404, 500 에러 처리 화면
-    ├── feed/            # 제보 게시판 (목록, 작성, 상세조회)
-    ├── meeting/         # 모임 게시판 (목록, 개설, 상세조회)
-    ├── member/          # 회원 관리 (로그인, 가입, 마이페이지, 찜/알림 설정)
-    ├── place/           # 장소 탐색 (검색 결과 리스트, 장소 상세 인포)
-    └── index.ejs        # 메인 홈페이지 (지도 및 통합 랭킹)
+├── app.js               # Express 진입점, Socket.IO 바인딩
+├── config/              # DB 연결, Multer, Passport 설정
+├── controllers/         # 라우트별 비즈니스 로직
+├── middlewares/         # 인증, 에러 처리, 유효성 검사
+├── models/              # Mongoose 스키마 (16개)
+├── routes/              # 라우터 정의
+├── schedulers/          # 혼잡도 자동 갱신 (node-cron)
+├── services/            # 외부 API 통신 및 DB 쿼리 로직
+└── views/
+    ├── error/           # 400, 404, 500
+    ├── feed/            # 제보 (목록, 작성, 상세, 수정)
+    ├── meeting/         # 모임 (목록, 개설, 상세, 수정)
+    ├── member/          # 회원 (로그인, 가입, 마이페이지, 찜/알림, 탈퇴)
+    ├── place/           # 장소 (검색 결과, 상세)
+    ├── partials/        # 공통 헤더, 푸터
+    └── index.ejs        # 메인 (지도, 랭킹)
 ```
 
 ---
 
-## 🗄️ 데이터베이스 스키마 (DB Models)
+## 🗂️ 흐름도 ↔ 파일 매핑
 
-총 16개의 정교한 컬렉션 구조로 이루어져 있습니다.
-
-| 모델 (Model) | 설명 (Description) |
-|---|---|
-| **User** | 계정, 지역 설정, 세부 알림 수신 동의 여부, **매너 점수 및 랭크** 관리 |
-| **Activity** | **매너 점수 변동의 핵심 추적 테이블**. 회원의 모든 행동 이력(모임 참여, 제보, 방문 등)을 기록 |
-| **Meeting** | 모임 개설 정보. 장소 태그, 모집 상태, 인원수 제한, 참여자 배열 관리 |
-| **Feed** | 실시간 지역 제보. 카테고리별 제보 내용, 이미지, 받은 추천(Like) 관리 |
-| **Comment** | 다형성 참조(`onModel`)를 사용하여 모임, 피드, 일반 게시판 어디든 달릴 수 있는 범용 댓글 모델 |
-| **Favorite** | 회원의 장소 찜하기 기록 (중복 방지 인덱스 처리) |
-| **VisitLog** | 1일 1회 GPS 기반 장소 방문 인증을 통한 점수 획득 기록 |
-| **Notification** | 알림(좋아요, 댓글, 시스템 등) 내역 보관, 읽음 처리, 관련 링크 매핑 |
-| **Place** | 플랫폼 내 관리 대상 지역. 기온, 하늘상태, 습도 등 날씨 정보 및 기본 정보 캐싱 |
-| **Congestion** | **실시간 혼잡도 및 예측 데이터**. (시간대별 예상 인구 및 인구 급증률 데이터 보관) |
-| **ParkingInfo** | 카카오 및 공공데이터를 가공한 해당 지역 주차장 실시간 현황 |
-| 기타 | `Board`(자유게시판), `FeedComment`(피드 전용 댓글), `PlaceInfra`(주변 인프라), `NearBySpots`(주변 상권), `ToiletInfo`(화장실 인프라) |
+| 화면 흐름 | 담당 파일 |
+|-----------|-----------|
+| 메인 지도 (혼잡도 랭킹, 모임 마커) | `views/index.ejs` |
+| 장소 검색 결과 / 전체 장소 / 한산한 명소 | `views/place/search_result.ejs` |
+| 장소 상세 (혼잡도, 주차, 화장실, 날씨, 모임) | `views/place/place_info.ejs` |
+| 모임 목록 / 모임 개설 | `views/meeting/list.ejs`, `write.ejs` |
+| 모임 상세 / 참여 신청 | `views/meeting/info.ejs` |
+| 제보 목록 / 제보 작성 / 제보 상세 | `views/feed/list.ejs`, `write.ejs`, `info.ejs` |
+| 마이페이지 (활동 내역, 매너 점수, 뱃지) | `views/member/info.ejs` |
+| 찜한 장소 / 알림 설정 | `views/member/favorites.ejs` |
+| 로그인 / 회원가입 / 소셜 가입 | `views/member/login.ejs`, `join.ejs`, `social_join.ejs` |
+| 회원정보 수정 / 탈퇴 | `views/member/modify.ejs`, `delete.ejs` |
 
 ---
 
-## 🔄 핵심 비즈니스 로직 및 기능 작동 흐름 (Core Logic)
+## 🗄️ DB 컬렉션 (Models)
 
-### 1. 매너 점수 시스템 (Gamification & Manner Score)
-모든 활동은 사용자의 신뢰도를 나타내는 `manner_score` (기본 50점, 최대 100점)에 영향을 미치며, `Activity` 모델에 로그가 남습니다.
-- **+5.0점**: 모임 개설 (`POST /meeting/write`)
-- **+2.0점**: 모임 참가 (`POST /meeting/join`), 장소 방문 GPS 인증 (`POST /visit/verify`), 내 제보가 추천을 받음 (`POST /feed/like`)
-- **+1.0점**: 제보 작성 (`POST /feed/write`), 장소 찜하기 (`POST /favorite/add`)
-- **+0.5점**: 댓글 작성 (`POST /comment/write`)
-
-### 2. 정교한 실시간 알림 시스템 (Socket.IO & DB Notification)
-사용자에게 피로감을 주지 않도록 **지역 기반 필터링**을 거칩니다.
-- **모임 및 제보 발생 시**: 현재 시간 기준 -1~+2시간 이내에 **같은 동네(District)**에 위치한 모임의 방장/참가자, 그리고 해당 동네 알림을 켜둔 유저를 선별합니다.
-- 선별된 유저에게는 DB 상에 `Notification` 객체를 즉시 생성하고, **Socket.IO** 개인 룸(`user:{id}`)과 지역 룸을 통해 실시간으로 알림 팝업 및 피드 데이터를 브로드캐스트합니다. (새로고침 없이 UI 반영)
-
-### 3. 외부 API 및 백그라운드 스케줄러 자동화 (node-cron)
-- **`congestionScheduler.js`**: `node-cron`을 활용하여 매 10분(`*/10 * * * *`)마다 서울시 공공데이터 API를 호출하고, MongoDB의 혼잡도 컬렉션을 최신 상태로 갱신 및 캐싱합니다.
-- **카카오 로컬 인프라 연결**: 장소 상세 페이지(`views/place/place_info.ejs`) 접근 시 `kakaoLocalService`가 가동하여 좌표 기반 주변 주차장, 화장실, 대중교통 위치를 병합하여 제공합니다.
+| Model | 용도 |
+|-------|------|
+| User | 계정, 프로필, 지역, 매너 점수, 알림 수신 설정 |
+| Activity | 사용자 활동 이력 및 매너 점수 변동 기록 |
+| Meeting | 모임 정보, 모집 상태(recruit/full/completed), 참여자 목록 |
+| Feed | 실시간 지역 제보, 이미지, 추천(Like) |
+| Comment | 범용 댓글 — 다형성 참조(`onModel`: Meeting/Feed/Board) |
+| Board | 자유게시판 |
+| FeedComment | 피드 전용 댓글 (Comment와 별도로 존재) |
+| Favorite | 장소 찜하기 (user + place_id 복합 유니크 인덱스) |
+| VisitLog | 방문 인증 기록 (1일 1회 제한) |
+| Notification | 알림 내역 (like/comment/badge/system), 읽음 여부 |
+| Place | 관리 대상 장소, 좌표, 날씨 캐싱 |
+| Congestion | 실시간 혼잡도, 예측 인구, 급증률(surge_pct) |
+| ParkingInfo | 주차장 현황 |
+| PlaceInfra | 장소별 인프라 정보 (주차, 화장실, 와이파이 등) |
+| NearBySpots | 주변 시설 (카페, 식당, 공원) |
+| ToiletInfo | 공공 화장실 (현재 빈 스키마) |
 
 ---
 
-## 📌 주요 라우팅 요약 (Routes Mapping)
+## 📌 라우트 매핑
 
-- **`mainRouter` (`/`)**: 메인 페이지 렌더링. 실시간 혼잡도 급증 장소, 한산한 장소 추천, 최신 모임 통합 제공.
-- **`authRouter` / `userRouter` (`/member`, `/auth`)**: 
-  - 로컬 회원가입(유효성 검사 적용), 소셜 로그인 콜백, 마이페이지(활동 내역 및 뱃지 표시).
-  - 유저 세부 알림 설정(`POST /notify-settings`) 및 알림 읽음/삭제 처리.
-- **`placeRouter` (`/place`)**: 전체 장소 보기, 한산한 곳만 모아보기(`/quiet`), 장소 검색, 특정 지역 통합 상세 정보 제공.
-- **`meetingRouter` (`/meeting`)**: 모임 개설, 참여/취소, 목록 필터링(마감 임박, 여유 지역 필터 지원).
-- **`feedRouter` (`/feed`)**: 제보 등록(GPS 마커 지정), 조회, 실시간 좋아요(추천) 처리.
-- **`favoriteRouter` / `visitRouter`**: 장소 찜하기 토글 및 프론트엔드 GPS 검증을 통한 방문 인증 API.
+### 화면 렌더링 (GET)
+
+| 경로 | 설명 | 인증 |
+|------|------|------|
+| `GET /` | 메인 페이지 | - |
+| `GET /api/congestion` | 혼잡도 JSON API | - |
+| `GET /place` | 전체 장소 리스트 | - |
+| `GET /place/quiet` | 한산한 명소만 | - |
+| `GET /place/search?keyword=` | 장소 검색 | - |
+| `GET /place/:area_cd` | 장소 상세 | - |
+| `GET /meeting/list` | 모임 목록 (필터링 지원) | - |
+| `GET /meeting/write` | 모임 개설 폼 | ✅ |
+| `GET /meeting/info/:id` | 모임 상세 | - |
+| `GET /meeting/modify/:id` | 모임 수정 폼 | ✅ |
+| `GET /feed/list` | 제보 목록 | - |
+| `GET /feed/write` | 제보 작성 폼 | - |
+| `GET /feed/info/:id` | 제보 상세 | - |
+| `GET /member/join` | 회원가입 | - |
+| `GET /member/login` | 로그인 | - |
+| `GET /member/social-join` | 소셜 추가 정보 입력 | - |
+| `GET /member/info` | 마이페이지 | - |
+| `GET /member/favorites` | 찜 목록 / 알림 | - |
+| `GET /member/modify` | 회원정보 수정 | - |
+| `GET /member/delete` | 탈퇴 확인 | - |
+| `GET /member/check-email` | 이메일 중복 체크 API | - |
+| `GET /member/logout` | 로그아웃 | - |
+| `GET /auth/google` | 구글 로그인 | - |
+| `GET /auth/naver` | 네이버 로그인 | - |
+
+### 데이터 처리 (POST / PATCH / DELETE)
+
+| 경로 | 설명 | 비고 |
+|------|------|------|
+| `POST /member/join` | 회원가입 처리 | Multer (프로필) |
+| `POST /member/login` | 로그인 처리 | Passport Local |
+| `POST /member/social-join` | 소셜 가입 처리 | Multer (프로필) |
+| `POST /member/modify` | 회원정보 수정 | Multer (프로필) |
+| `POST /member/delete` | 회원 탈퇴 | 비밀번호 확인 |
+| `POST /member/notify-settings` | 알림 설정 변경 | |
+| `PATCH /member/notifications/read` | 알림 읽음 처리 | |
+| `DELETE /member/notifications` | 알림 삭제 | |
+| `DELETE /member/notifications/read` | 읽은 알림 삭제 | |
+| `POST /meeting/write` | 모임 생성 | Multer (이미지), Socket.IO 브로드캐스트 |
+| `POST /meeting/modify/:id` | 모임 수정 | 작성자만 |
+| `POST /meeting/delete/:id` | 모임 삭제 | 작성자만 |
+| `POST /meeting/join/:id` | 모임 참가/취소 토글 | |
+| `POST /feed/write` | 제보 작성 | Multer, Socket.IO + Notification |
+| `POST /feed/modify/:id` | 제보 수정 | 작성자만 |
+| `POST /feed/delete/:id` | 제보 삭제 | |
+| `POST /feed/like/:id` | 제보 추천 | 중복/본인 불가, Notification |
+| `POST /comment/write` | 댓글 작성 | Notification |
+| `POST /comment/delete` | 댓글 삭제 | |
+| `POST /favorite/add` | 장소 찜하기 | 중복 확인 |
+| `POST /favorite/delete` | 찜 해제 | |
+| `POST /visit/verify` | 방문 인증 | 1일 1회, 매너 점수 100점 상한 |
+
+---
+
+## 🎯 매너 점수 시스템
+
+기본 50점에서 시작, 최대 100점. 모든 변동은 `Activity`에 기록됩니다.
+
+| 점수 | 행동 |
+|------|------|
+| +5 | 모임 개설 |
+| +2 | 모임 참가, 방문 인증, 추천 받음 |
+| +1 | 제보 작성, 장소 찜하기 |
+| +0.5 | 댓글 작성 |
+
+---
+
+## ⚡ 실시간 처리 (Socket.IO)
+
+| 이벤트 | 발생 조건 | 대상 |
+|--------|-----------|------|
+| `newMeetingAlert` | 모임 생성 (현재 시간 ±1~2시간 이내) | 같은 동네 룸(`district`) |
+| `newReportInDistrict` | 제보 작성 | 같은 동네 룸 |
+| `newFeedAlert` | 제보 작성 | 동네 모임 참가자 + 알림 설정 켠 주민 개인 룸(`user:{id}`) |
+
+---
+
+## 🔄 백그라운드 스케줄러
+
+| 스케줄러 | 주기 | 동작 |
+|----------|------|------|
+| `congestionScheduler.js` | 10분 (`*/10 * * * *`) | 서울시 실시간 도시데이터 API 호출 → `Congestion`, `Place` 컬렉션 갱신 |
 
 ---
 
