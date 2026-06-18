@@ -43,12 +43,7 @@ const getSearch = async (req, res, next) => {
             return res.redirect(`/place/${results[0].area_cd}`);
         }
         if (results.length === 0) {
-            const markerInfo = await placeService.getAllMarker();
-            const placeInfoLimtRaw = await placeService.getPlaceInfoLimt();
-            const images = await Promise.all(placeInfoLimtRaw.map(p => kakaoLocalService.getPlaceImage(p.name)));
-            const placeInfoLimt = placeInfoLimtRaw.map((p, i) => ({ ...p.toObject(), imageUrl: images[i] }));
-            const mainMeetings = await meetingService.getMainMeetings();
-            return res.render('index', { markerInfo, placeInfoLimt, mainMeetings, searchError: `"${keyword}"에 해당하는 장소를 찾을 수 없습니다.` });
+            return res.render('place/search_result', { keyword, results: [] });
         }
         const imagesArr = await Promise.all(results.map(r => kakaoLocalService.getPlaceImage(r.name)));
         const resultsWithImages = results.map((r, i) => ({ ...r.toObject(), imageUrl: imagesArr[i] }));
@@ -58,4 +53,32 @@ const getSearch = async (req, res, next) => {
     }
 };
 
-module.exports = { getPlaceInfo, getSearch };
+const getAllPlaces = async (req, res, next) => {
+    try {
+        const markerInfo = await placeService.getAllMarker();
+        const imagesArr = await Promise.all(markerInfo.map(r => kakaoLocalService.getPlaceImage(r.name)));
+        const results = markerInfo.map((r, i) => {
+            const obj = typeof r.toObject === 'function' ? r.toObject() : r;
+            return { ...obj, imageUrl: imagesArr[i] };
+        });
+        res.render('place/search_result', { keyword: '전체 장소', results });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getQuietPlaces = async (req, res, next) => {
+    try {
+        const quietPlaces = await placeService.getAllQuietPlaces();
+        const imagesArr = await Promise.all(quietPlaces.map(r => kakaoLocalService.getPlaceImage(r.name)));
+        const results = quietPlaces.map((r, i) => {
+            const obj = typeof r.toObject === 'function' ? r.toObject() : r;
+            return { ...obj, imageUrl: imagesArr[i] };
+        });
+        res.render('place/search_result', { keyword: '한산한 명소', results });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { getPlaceInfo, getSearch, getAllPlaces, getQuietPlaces };
