@@ -126,46 +126,49 @@
 | `GET /meeting/info/:id` | 모임 상세 | - |
 | `GET /meeting/modify/:id` | 모임 수정 폼 | ✅ |
 | `GET /feed/list` | 제보 목록 | - |
-| `GET /feed/write` | 제보 작성 폼 | - |
+| `GET /feed/write` | 제보 작성 폼 | ✅ |
 | `GET /feed/info/:id` | 제보 상세 | - |
+| `GET /feed/modify/:id` | 제보 수정 폼 | ✅ |
 | `GET /member/join` | 회원가입 | - |
 | `GET /member/login` | 로그인 | - |
 | `GET /member/social-join` | 소셜 추가 정보 입력 | - |
-| `GET /member/info` | 마이페이지 | - |
-| `GET /member/favorites` | 찜 목록 / 알림 | - |
-| `GET /member/modify` | 회원정보 수정 | - |
-| `GET /member/delete` | 탈퇴 확인 | - |
+| `GET /member/info` | 마이페이지 | ✅ |
+| `GET /member/favorites` | 찜 목록 / 알림 | ✅ |
+| `GET /member/modify` | 회원정보 수정 | ✅ |
+| `GET /member/delete` | 탈퇴 확인 | ✅ |
 | `GET /member/check-email` | 이메일 중복 체크 API | - |
 | `GET /member/logout` | 로그아웃 | - |
 | `GET /auth/google` | 구글 로그인 | - |
 | `GET /auth/naver` | 네이버 로그인 | - |
 
+> ✅ 표시된 경로는 `middlewares/authMiddleware.js`의 `isLoggedIn` 미들웨어를 거칩니다. 비로그인 접근 시 일반 페이지 이동은 confirm 후 로그인 페이지 이동/뒤로가기, fetch 기반 요청(`Accept: application/json`)은 `401 { authRequired: true }` JSON으로 응답합니다.
+
 ### 데이터 처리 (POST / PATCH / DELETE)
 
-| 경로 | 설명 | 비고 |
-|------|------|------|
-| `POST /member/join` | 회원가입 처리 | Multer (프로필) |
-| `POST /member/login` | 로그인 처리 | Passport Local |
-| `POST /member/social-join` | 소셜 가입 처리 | Multer (프로필) |
-| `POST /member/modify` | 회원정보 수정 | Multer (프로필) |
-| `POST /member/delete` | 회원 탈퇴 | 비밀번호 확인 |
-| `POST /member/notify-settings` | 알림 설정 변경 | |
-| `PATCH /member/notifications/read` | 알림 읽음 처리 | |
-| `DELETE /member/notifications` | 알림 삭제 | |
-| `DELETE /member/notifications/read` | 읽은 알림 삭제 | |
-| `POST /meeting/write` | 모임 생성 | Multer (이미지), Socket.IO 브로드캐스트 |
-| `POST /meeting/modify/:id` | 모임 수정 | 작성자만 |
-| `POST /meeting/delete/:id` | 모임 삭제 | 작성자만 |
-| `POST /meeting/join/:id` | 모임 참가/취소 토글 | |
-| `POST /feed/write` | 제보 작성 | Multer, Socket.IO + Notification |
-| `POST /feed/modify/:id` | 제보 수정 | 작성자만 |
-| `POST /feed/delete/:id` | 제보 삭제 | |
-| `POST /feed/like/:id` | 제보 추천 | 중복/본인 불가, Notification |
-| `POST /comment/write` | 댓글 작성 | Notification |
-| `POST /comment/delete` | 댓글 삭제 | |
-| `POST /favorite/add` | 장소 찜하기 | 중복 확인 |
-| `POST /favorite/delete` | 찜 해제 | |
-| `POST /visit/verify` | 방문 인증 | 1일 1회, 매너 점수 100점 상한 |
+| 경로 | 설명 | 인증 | 비고 |
+|------|------|------|------|
+| `POST /member/join` | 회원가입 처리 | - | Multer (프로필) |
+| `POST /member/login` | 로그인 처리 | - | Passport Local |
+| `POST /member/social-join` | 소셜 가입 처리 | - | Multer (프로필) |
+| `POST /member/modify` | 회원정보 수정 | ✅ | Multer (프로필) |
+| `POST /member/delete` | 회원 탈퇴 | ✅ | 비밀번호 확인 |
+| `POST /member/notify-settings` | 알림 설정 변경 | ✅ | |
+| `PATCH /member/notifications/read` | 알림 읽음 처리 | ✅ | |
+| `DELETE /member/notifications` | 알림 삭제 | ✅ | |
+| `DELETE /member/notifications/read` | 읽은 알림 삭제 | ✅ | |
+| `POST /meeting/write` | 모임 생성 | ✅ | Multer (이미지), Socket.IO 브로드캐스트 |
+| `POST /meeting/modify/:id` | 모임 수정 | ✅ | 작성자만 |
+| `POST /meeting/delete/:id` | 모임 삭제 | ✅ | 작성자만 |
+| `POST /meeting/join/:id` | 모임 참가/취소 토글 | ✅ | |
+| `POST /feed/write` | 제보 작성 | ✅ | Multer, Socket.IO + Notification |
+| `POST /feed/modify/:id` | 제보 수정 | ✅ | 작성자만 |
+| `POST /feed/delete/:id` | 제보 삭제 | ✅ | |
+| `POST /feed/like/:id` | 제보 추천 | ✅ | 중복/본인 불가, Notification |
+| `POST /comment/write` | 댓글 작성 | ✅ | Notification |
+| `POST /comment/delete` | 댓글 삭제 | ✅ | |
+| `POST /favorite/add` | 장소 찜하기 | ✅ | 중복 확인 |
+| `POST /favorite/delete` | 찜 해제 | ✅ | |
+| `POST /visit/verify` | 방문 인증 | ✅ | 1일 1회, 매너 점수 100점 상한 |
 
 ---
 

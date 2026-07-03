@@ -108,7 +108,6 @@ const logout = (req, res, next) => {
 
 // 마이페이지
 const getMemberInfo = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         const userId = req.user.id;
         const [myMeetings, myFeeds, activities, scoreActivities] = await Promise.all([
@@ -138,7 +137,6 @@ const getMemberInfo = async (req, res, next) => {
 }
 //# 찜·알림 설정 페이지
 const getFavorites = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         const userId = req.user.id;
         const page = parseInt(req.query.page) || 1;
@@ -249,7 +247,6 @@ const postNotifySettings = async (req, res, next) => {
 
 // 회원 수정 페이지
 const getModify = (req, res) => {
-    if (!req.isAuthenticated()) return res.redirect("/member/login");
     res.render("member/modify", { user: req.user });
 };
 
@@ -274,10 +271,6 @@ const getDelete = (req, res) => {
 //# 회원 탈퇴 처리
 const postDelete = async (req, res, next) => {
     try {
-        if (!req.user) {
-            return res.redirect('/member/login');
-        }
-
         const userId = req.user._id;
         const { password } = req.body;
         

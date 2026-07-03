@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { joinValidationRules, validate } = require('../middlewares/validationMiddleware');
+const { isLoggedIn } = require('../middlewares/authMiddleware');
 const userController = require('../controllers/userController');
 const passport = require('../config/passport');
 const { uploadProfile } = require('../config/upload');
@@ -28,23 +29,23 @@ router.post('/login', passport.authenticate('local', {
 router.get('/logout', userController.logout);
 
 //마이페이지
-router.get('/info', userController.getMemberInfo);
+router.get('/info', isLoggedIn, userController.getMemberInfo);
 
 // 회원 수정
-router.get('/modify', userController.getModify);
-router.post('/modify', uploadProfile.single('uploadFile'), userController.postModify);
+router.get('/modify', isLoggedIn, userController.getModify);
+router.post('/modify', isLoggedIn, uploadProfile.single('uploadFile'), userController.postModify);
 
 //회원 탈퇴
-router.get('/favorites', userController.getFavorites);
-router.post('/notify-settings', userController.postNotifySettings);
+router.get('/favorites', isLoggedIn, userController.getFavorites);
+router.post('/notify-settings', isLoggedIn, userController.postNotifySettings);
 
 // 알림 관리
-router.patch('/notifications/read', userController.markNotificationsAsRead);
-router.delete('/notifications', userController.deleteNotifications);
-router.delete('/notifications/read', userController.deleteReadNotifications);
+router.patch('/notifications/read', isLoggedIn, userController.markNotificationsAsRead);
+router.delete('/notifications', isLoggedIn, userController.deleteNotifications);
+router.delete('/notifications/read', isLoggedIn, userController.deleteReadNotifications);
 
 //회원 탈퇴
-router.get('/delete', userController.getDelete);
-router.post('/delete', userController.postDelete);
+router.get('/delete', isLoggedIn, userController.getDelete);
+router.post('/delete', isLoggedIn, userController.postDelete);
 
 module.exports = router;

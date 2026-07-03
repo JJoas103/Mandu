@@ -5,6 +5,16 @@
     <div class="small mt-1">팀 프로젝트 1조</div>
   </div>
 </footer>
+<script>
+  // 비로그인 상태에서 로그인 필요한 링크 클릭 시, 화면 이동 전에 confirm으로 안내
+  function requireLogin(event) {
+    event.preventDefault();
+    if (confirm('로그인이 필요합니다.')) {
+      location.href = '/member/login';
+    }
+    return false;
+  }
+</script>
 <% if (typeof user !== 'undefined' && user) { %>
   <script src="/socket.io/socket.io.js"></script>
   <script>

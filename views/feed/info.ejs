@@ -151,10 +151,12 @@
             try {
               const response = await fetch('/feed/like/<%= feed._id %>', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
               });
               const result = await response.json();
-              if (result.success) {
+              if (result.authRequired) {
+                if (confirm(result.message)) location.href = '/member/login';
+              } else if (result.success) {
                 document.getElementById('likeCount').innerText = result.likeCount;
                 alert('추천되었습니다! 작성자의 매너 점수가 상승했습니다.');
               } else {

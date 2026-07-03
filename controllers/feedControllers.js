@@ -20,7 +20,6 @@ const getList = async (req, res, next) => {
 };
 // 제보 작성 페이지
 const getWrite = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         const prePlace = req.query.place_id
             ? { id: req.query.place_id, name: decodeURIComponent(req.query.place_name || '') }
@@ -33,7 +32,6 @@ const getWrite = async (req, res, next) => {
 };
 // 제보 작성 처리
 const postWrite = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect("/member/login");
     try {
         const userId = req.user.id;
         const feedData = {
@@ -180,7 +178,6 @@ const postDelete = async (req, res, next) => {
 
 // 제보 추천 처리
 const postLike = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.json({ success: false, message: "로그인이 필요합니다" });
     try {
         const feedId = req.params.id;
         const feed = await Feed.findById(feedId); // feedService 대신 모델 직접 접근 (likedBy 확인 위해)

@@ -36,7 +36,7 @@
           <a href="/meeting/list?status=full" class="btn <%= currentStatus === 'full' ? 'btn-brand active-board' : 'btn-outline-brand' %>">마감임박</a>
           <a href="/meeting/list?congestion=uncrowded" class="btn <%= currentCongestion === 'uncrowded' ? 'btn-brand active-board' : 'btn-outline-brand' %>">🌿 한산한 지역만</a>
         </div>
-        <a class="btn btn-lg btn-brand" href="/meeting/write">+ 모임 만들기</a>
+        <a class="btn btn-lg btn-brand" href="/meeting/write" <% if (!user) { %>onclick="return requireLogin(event)"<% } %>>+ 모임 만들기</a>
       </div>
 
       <!-- 검색 -->

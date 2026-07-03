@@ -16,7 +16,7 @@
     <main class="container my-4">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h4>📡 실시간 제보 피드</h4>
-        <a href="/feed/write" class="btn btn-brand">제보하기</a>
+        <a href="/feed/write" class="btn btn-brand" <% if (!user) { %>onclick="return requireLogin(event)"<% } %>>제보하기</a>
       </div>
 
       <div class="row g-3">

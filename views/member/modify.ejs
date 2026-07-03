@@ -57,7 +57,10 @@
               <!-- 프로필 이모지 -->
               <div class="col-12">
                 <label class="form-label">프로필 이모지</label>
-                <input type="text" class="form-control" name="avatar_emoji" value="<%= user.avatar_emoji %>" maxlength="2" />
+                <div class="input-group">
+                  <input type="text" class="form-control" name="avatar_emoji" id="avatarEmojiInput" value="<%= user.avatar_emoji %>" maxlength="2" readonly/>
+                  <button type="button" class="btn btn-outline-secondary" id="emoji-button">😊 선택</button>
+                </div>
               </div>
 
               <!-- 프로필 이미지 -->
@@ -78,3 +81,35 @@
 </main>
 
 <%- include('../partials/footer') %>
+
+<script type="module">
+  import { EmojiButton } from 'https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.4/dist/index.min.js';
+
+  const button = document.querySelector('#emoji-button');
+  const picker = new EmojiButton({
+    i18n: {
+      search: 'Search emojis...',
+      categories: {
+        recents: 'Recent Emojis',
+        smileys: 'Smileys & Emotion',
+        people: 'People & Body',
+        animals: 'Animals & Nature',
+        food: 'Food & Drink',
+        activities: 'Activities',
+        travel: 'Travel & Places',
+        objects: 'Objects',
+        symbols: 'Symbols',
+        flags: 'Flags'
+      },
+      notFound: 'No emojis found'
+    }
+  });
+
+  picker.on('emoji', selection => {
+    document.getElementById('avatarEmojiInput').value = selection.emoji;
+  });
+
+  button.addEventListener('click', () => {
+    picker.togglePicker(button);
+  });
+</script>

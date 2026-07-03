@@ -3,7 +3,6 @@ const Activity = require('../models/Activity');
 const userService = require('../services/userService');
 
 const addFavorite = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('/member/login');
     try {
         const { place_id, reason } = req.body;
         const userId = req.user.id;
@@ -49,7 +48,6 @@ const addFavorite = async (req, res, next) => {
 };
 
 const deleteFavorite = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.redirect('/member/login');
     try {
         const { place_id } = req.body;
         const userId = req.user.id;

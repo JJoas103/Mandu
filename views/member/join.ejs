@@ -81,7 +81,10 @@
               <!-- 프로필 이모지 -->
               <div class="col-12">
                 <label class="form-label">프로필 이모지 (선택)</label>
-                <input type="text" class="form-control" name="avatar_emoji" placeholder="😊" maxlength="2" />
+                <div class="input-group">
+                  <input type="text" class="form-control" name="avatar_emoji" id="avatarEmojiInput"  placeholder="😊" maxlength="2" readonly/>
+                  <button type="button" class="btn btn-outline-secondary" id="emoji-button">😊 선택</button>
+                </div>
                 <div class="form-text">이모지 하나로 프로필을 표현해보세요</div>
               </div>
 
@@ -91,7 +94,7 @@
                 <input type="file" class="form-control" accept="image/*" name="uploadFile" />
               </div>
             </div>
-
+            
             <div class="d-grid mt-4">
               <button type="submit" class="btn btn-brand btn-lg" id="submitBtn">가입하기</button>
             </div>
@@ -104,7 +107,9 @@
 
 <%- include('../partials/footer') %>
 
-<script>
+<script type="module">
+  import { EmojiButton } from 'https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.4/dist/index.min.js';
+
   const emailInput = document.getElementById("emailInput");
   const emailCheckBtn = document.getElementById("emailCheckBtn");
   const emailFeedback = document.getElementById("emailFeedback");
@@ -143,5 +148,32 @@
       e.preventDefault();
       alert("이메일 중복확인을 해주세요");
     }
+  });
+  const button = document.querySelector('#emoji-button');
+  const picker = new EmojiButton({
+    i18n: {
+      search: 'Search emojis...',
+      categories: {
+        recents: 'Recent Emojis',
+        smileys: 'Smileys & Emotion',
+        people: 'People & Body',
+        animals: 'Animals & Nature',
+        food: 'Food & Drink',
+        activities: 'Activities',
+        travel: 'Travel & Places',
+        objects: 'Objects',
+        symbols: 'Symbols',
+        flags: 'Flags'
+      },
+      notFound: 'No emojis found'
+    }
+  });
+
+  picker.on('emoji', selection => {
+    document.getElementById('avatarEmojiInput').value = selection.emoji;
+  });
+
+  button.addEventListener('click', () => {
+    picker.togglePicker(button);
   });
 </script>

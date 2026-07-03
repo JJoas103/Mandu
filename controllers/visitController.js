@@ -3,10 +3,6 @@ const VisitLog = require('../models/VisitLog');
 const Activity = require('../models/Activity');
 
 const postVerify = async (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.json({ success: false, message: '로그인이 필요합니다.' });
-    }
-
     const { place_id, place_name } = req.body;
     const userId = req.user._id;
 

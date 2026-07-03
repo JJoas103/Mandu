@@ -5,7 +5,6 @@ const Meeting = require('../models/Meeting');
 
 // 댓글 작성
 const createComment = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.status(401).send("로그인이 필요합니다");
     try {
         const { content, boardId, onModel } = req.body;
         await commentService.createComment({
@@ -41,7 +40,6 @@ const createComment = async (req, res, next) => {
 
 // 댓글 삭제
 const deleteComment = async (req, res, next) => {
-    if (!req.isAuthenticated()) return res.status(401).send("로그인이 필요합니다");
     try {
         const { commentId, boardId, onModel } = req.body;
         await commentService.deleteComment(commentId, req.user.id);
