@@ -3,7 +3,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 
 // 회원가입 서비스
-async function createUser({ email, password, nickname, city, address, avatar_emoji, uploadFile }) {
+const createUser = async ({ email, password, nickname, city, address, avatar_emoji, uploadFile }) => {
     // 닉네임 중복 확인
     const existingNickname = await User.findOne({ nickname });
     if (existingNickname) {
@@ -28,10 +28,10 @@ async function createUser({ email, password, nickname, city, address, avatar_emo
 
     await newUser.save();
     return newUser;
-}
+};
 
 // 소셜 회원가입/로그인 처리
-async function createSocialUser({ email, nickname, city, address, avatar_emoji, uploadFile, provider }) {
+const createSocialUser = async ({ email, nickname, city, address, avatar_emoji, uploadFile, provider }) => {
     let user = await User.findOne({ email });
     if (user) return user;
 
@@ -57,26 +57,26 @@ async function createSocialUser({ email, nickname, city, address, avatar_emoji, 
     });
     await newUser.save();
     return newUser;
-}
+};
 
 // 이메일 중복 확인
-async function checkEmail(email) {
+const checkEmail = async (email) => {
     const user = await User.findOne({ email });
     return !user; // 없으면 true (사용 가능)
-}
+};
 
 // ID로 사용자 찾기
-async function findUserById(id) {
+const findUserById = async (id) => {
     return await User.findById(id);
-}
+};
 
 // 이메일로 사용자 찾기
-async function findUserByEmail(email) {
+const findUserByEmail = async (email) => {
     return await User.findOne({ email });
-}
+};
 
 // 회원 정보 수정
-async function updateUser(userId, { password, nickname, city, address, avatar_emoji, uploadFile }) {
+const updateUser = async (userId, { password, nickname, city, address, avatar_emoji, uploadFile }) => {
     const user = await User.findById(userId);
     if (!user) throw new Error("사용자를 찾을 수 없습니다");
 
@@ -91,10 +91,10 @@ async function updateUser(userId, { password, nickname, city, address, avatar_em
 
     await user.save();
     return user;
-}
+};
 
 // 회원 탈퇴
-async function deleteUser(userId, password) {
+const deleteUser = async (userId, password) => {
     const user = await User.findById(userId);
     if (!user) {
         return { success: false, message: '사용자를 찾을 수 없습니다.' };
@@ -110,18 +110,18 @@ async function deleteUser(userId, password) {
 
     await User.findByIdAndDelete(userId);
     return { success: true };
-}
+};
 
 //# 알림 설정 업데이트
-async function updateNotifySettings(userId, settings) {
+const updateNotifySettings = async (userId, settings) => {
     return await User.findByIdAndUpdate(userId, settings, { new: true });
-}
+};
 
 // 매너 점수 업데이트
-async function updateMannerScore(userId, amount) {
+const updateMannerScore = async (userId, amount) => {
     const user = await User.findById(userId);
     if (!user) return null;
-    
+
     const oldScore = user.manner_score || 50;
     const newScore = Math.min(100, Math.max(0, oldScore + amount));
     const actualChange = newScore - oldScore;
@@ -129,21 +129,16 @@ async function updateMannerScore(userId, amount) {
     user.manner_score = newScore;
     await user.save();
     return { user, actualChange };
-}
+};
 
-async function getMapView(){
-    // ... (기존 코드 유지)
-}
-
-module.exports = { 
-    createUser, 
-    createSocialUser, 
-    checkEmail, 
-    findUserByEmail, 
-    findUserById, 
-    getMapView, 
-    updateUser, 
-    updateNotifySettings, 
+module.exports = {
+    createUser,
+    createSocialUser,
+    checkEmail,
+    findUserByEmail,
+    findUserById,
+    updateUser,
+    updateNotifySettings,
     deleteUser,
     updateMannerScore
 };

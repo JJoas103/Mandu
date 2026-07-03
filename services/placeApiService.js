@@ -1,17 +1,17 @@
 const axios = require('axios');
-const Place = require('../models/place');
-const Congestion = require('../models/congestion');
+const Place = require('../models/Place');
+const Congestion = require('../models/Congestion');
 
 const CONGEST_SCORE = { '여유': 0, '보통': 1, '약간 붐빔': 2, '붐빔': 3 };
 const API_KEY = process.env.SEOUL_API_KEY || '516f6562436b79753932784c6f6568';
 const API_BASE = `http://openapi.seoul.go.kr:8088/${API_KEY}/json/citydata/1/5`;
 const DELAY_MS = 300;
 
-function sleep(ms) {
+const sleep = (ms) => {
     return new Promise((resolve) => setTimeout(resolve, ms));
-}
+};
 
-function extractCongestionData(cityData) {
+const extractCongestionData = (cityData) => {
     if (!cityData) return null;
     const raw = cityData.LIVE_PPLTN_STTS;
     if (!raw) return null;
@@ -47,18 +47,18 @@ function extractCongestionData(cityData) {
     }
 
     return { ppltn_time, area_congest_lvl, congest_score, area_ppltn_max, surge_pct, fcst_yn, fcst_list };
-}
+};
 
-async function fetchAndParse(area_cd) {
+const fetchAndParse = async (area_cd) => {
     const url = `${API_BASE}/${area_cd}`;
     const response = await axios.get(url, { timeout: 10000 });
     const cityData = response.data['CITYDATA'];
     const data = extractCongestionData(cityData);
     if (!data) throw new Error('LIVE_PPLTN_STTS 데이터 없음');
     return data;
-}
+};
 
-async function updateAllCongestion() {
+const updateAllCongestion = async () => {
     const places = await Place.find({}).select('area_cd name');
     let success = 0, fail = 0;
 
@@ -85,6 +85,6 @@ async function updateAllCongestion() {
     }
 
     console.log(`[혼잡도 갱신] 완료 — 성공 ${success} / 실패 ${fail}`);
-}
+};
 
 module.exports = { updateAllCongestion };

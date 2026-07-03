@@ -3,7 +3,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const axios = require('axios');
 const XLSX = require('xlsx');
 const mongoose = require('mongoose');
-const Place = require('../models/place');
+const Place = require('../models/Place');
 const ParkingInfo = require('../models/ParkingInfo');
 
 const EXCEL_PATH = process.env.EXCEL_PATH || 'C:/Users/kyumi/Downloads/서울시 주요 121장소 목록 (1).xlsx';
@@ -92,7 +92,7 @@ async function fetchPlaceData(areaCd) {
 }
 
 async function seed() {
-    await mongoose.connect('mongodb://kyumi1701_db_user:z73e47pzWWfi41SR@ac-5wmdvfn-shard-00-00.temoaxo.mongodb.net:27017,ac-5wmdvfn-shard-00-01.temoaxo.mongodb.net:27017,ac-5wmdvfn-shard-00-02.temoaxo.mongodb.net:27017/MoyeoBom?ssl=true&replicaSet=atlas-14jimc-shard-0&authSource=admin&appName=Cluster0');
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('DB 연결 성공');
 
     const places = readPlacesFromExcel();

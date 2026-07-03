@@ -29,7 +29,7 @@
 
 2. **환경 변수 설정**
    `.env_sample`을 참고하여 `.env` 파일 생성
-   - `PORT`, `MONGO_URI`, `SESSION_SECRET`
+   - `MONGODB_URI`, `SESSION_SECRET`
    - 카카오 REST API 키, 서울시 공공데이터 API 키
    - Google / Naver 소셜 로그인 Client ID & Secret
 
@@ -55,9 +55,10 @@
 ├── config/              # DB 연결, Multer, Passport 설정
 ├── controllers/         # 라우트별 비즈니스 로직
 ├── middlewares/         # 인증, 에러 처리, 유효성 검사
-├── models/              # Mongoose 스키마 (16개)
+├── models/              # Mongoose 스키마 (12개)
 ├── routes/              # 라우터 정의
 ├── schedulers/          # 혼잡도 자동 갱신 (node-cron)
+├── scripts/             # 초기 시딩용 수동 실행 스크립트 (장소, 주차장)
 ├── services/            # 외부 API 통신 및 DB 쿼리 로직
 └── views/
     ├── error/           # 400, 404, 500
@@ -98,16 +99,12 @@
 | Feed | 실시간 지역 제보, 이미지, 추천(Like) |
 | Comment | 범용 댓글 — 다형성 참조(`onModel`: Meeting/Feed/Board) |
 | Board | 자유게시판 |
-| FeedComment | 피드 전용 댓글 (Comment와 별도로 존재) |
 | Favorite | 장소 찜하기 (user + place_id 복합 유니크 인덱스) |
 | VisitLog | 방문 인증 기록 (1일 1회 제한) |
 | Notification | 알림 내역 (like/comment/badge/system), 읽음 여부 |
 | Place | 관리 대상 장소, 좌표, 날씨 캐싱 |
 | Congestion | 실시간 혼잡도, 예측 인구, 급증률(surge_pct) |
 | ParkingInfo | 주차장 현황 |
-| PlaceInfra | 장소별 인프라 정보 (주차, 화장실, 와이파이 등) |
-| NearBySpots | 주변 시설 (카페, 식당, 공원) |
-| ToiletInfo | 공공 화장실 (현재 빈 스키마) |
 
 ---
 

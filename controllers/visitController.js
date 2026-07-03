@@ -2,7 +2,7 @@ const User = require('../models/User');
 const VisitLog = require('../models/VisitLog');
 const Activity = require('../models/Activity');
 
-exports.postVerify = async (req, res) => {
+const postVerify = async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.json({ success: false, message: '로그인이 필요합니다.' });
     }
@@ -56,3 +56,5 @@ exports.postVerify = async (req, res) => {
         newScore: updatedUser.manner_score
     });
 };
+
+module.exports = { postVerify };

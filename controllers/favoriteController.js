@@ -2,7 +2,7 @@ const Favorite = require('../models/Favorite');
 const Activity = require('../models/Activity');
 const userService = require('../services/userService');
 
-exports.addFavorite = async (req, res, next) => {
+const addFavorite = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect('/member/login');
     try {
         const { place_id, reason } = req.body;
@@ -48,7 +48,7 @@ exports.addFavorite = async (req, res, next) => {
     }
 };
 
-exports.deleteFavorite = async (req, res, next) => {
+const deleteFavorite = async (req, res, next) => {
     if (!req.isAuthenticated()) return res.redirect('/member/login');
     try {
         const { place_id } = req.body;
@@ -66,3 +66,5 @@ exports.deleteFavorite = async (req, res, next) => {
         next(error);
     }
 };
+
+module.exports = { addFavorite, deleteFavorite };

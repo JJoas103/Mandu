@@ -34,10 +34,6 @@ router.get('/info', userController.getMemberInfo);
 router.get('/modify', userController.getModify);
 router.post('/modify', uploadProfile.single('uploadFile'), userController.postModify);
 
-// 소셜 온보딩
-router.get('/social-join', userController.getSocialJoin);
-router.post('/social-join', uploadProfile.single('uploadFile'), userController.postSocialJoin);
-
 //회원 탈퇴
 router.get('/favorites', userController.getFavorites);
 router.post('/notify-settings', userController.postNotifySettings);
@@ -51,6 +47,4 @@ router.delete('/notifications/read', userController.deleteReadNotifications);
 router.get('/delete', userController.getDelete);
 router.post('/delete', userController.postDelete);
 
-//지도 가져오기
-router.get('/map', userController.getMapView);
 module.exports = router;

@@ -8,7 +8,7 @@ const WEATHER_DESC = {
     'Heavy snow': '강한 눈', 'Thundery outbreaks': '천둥번개', 'Blizzard': '눈보라'
 };
 
-async function getWeather(lat, lng) {
+const getWeather = async (lat, lng) => {
     try {
         const response = await axios.get(`https://wttr.in/${lat},${lng}?format=j1`, {
             timeout: 5000,
@@ -23,6 +23,6 @@ async function getWeather(lat, lng) {
         console.warn('날씨 API 호출 실패:', e.message);
         return null;
     }
-}
+};
 
 module.exports = { getWeather };

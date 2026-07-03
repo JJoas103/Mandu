@@ -5,16 +5,16 @@ const KAKAO_GEO_URL = 'https://dapi.kakao.com/v2/local/geo/coord2regioncode.json
 const SEOUL_API_BASE = 'http://openapi.seoul.go.kr:8088';
 const headers = { Authorization: `KakaoAK ${process.env.KAKAO_REST_API}` };
 
-function calcDistance(lat1, lng1, lat2, lng2) {
+const calcDistance = (lat1, lng1, lat2, lng2) => {
     const R = 6371000;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLng = (lng2 - lng1) * Math.PI / 180;
     const a = Math.sin(dLat / 2) ** 2 +
               Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
     return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
-}
+};
 
-async function getNearbyParking(lat, lng) {
+const getNearbyParking = async (lat, lng) => {
     try {
         const response = await axios.get(KAKAO_LOCAL_URL, {
             headers,
@@ -25,9 +25,9 @@ async function getNearbyParking(lat, lng) {
         console.warn('주차장 API 호출 실패:', e.message);
         return [];
     }
-}
+};
 
-async function getNearbyRestrooms(lat, lng) {
+const getNearbyRestrooms = async (lat, lng) => {
     // 1단계: 카카오 키워드 검색 (반경 1000m, 다중 키워드 시도)
     for (const keyword of ['공중화장실', '화장실', '공용화장실']) {
         try {
@@ -72,9 +72,9 @@ async function getNearbyRestrooms(lat, lng) {
         console.warn('서울 화장실 API 호출 실패:', e.message);
         return [];
     }
-}
+};
 
-async function getNearbyTransit(lat, lng) {
+const getNearbyTransit = async (lat, lng) => {
     try {
         let response = await axios.get(KAKAO_LOCAL_URL, {
             headers,
@@ -97,10 +97,10 @@ async function getNearbyTransit(lat, lng) {
         console.warn('대중교통 API 호출 실패:', e.message);
         return null;
     }
-}
+};
 
-async function getPlaceImage(placeName) {
+const getPlaceImage = async (placeName) => {
     return `/images/places/${encodeURIComponent(placeName)}.jpg`;
-}
+};
 
 module.exports = { getNearbyParking, getNearbyRestrooms, getNearbyTransit, getPlaceImage };

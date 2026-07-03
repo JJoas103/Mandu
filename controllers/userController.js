@@ -2,7 +2,7 @@ const userService = require("../services/userService");
 const Meeting = require("../models/Meeting");
 const Feed = require("../models/Feed");
 const Favorite = require("../models/Favorite");
-const Place = require("../models/place");
+const Place = require("../models/Place");
 const Notification = require("../models/Notification");
 const Activity = require("../models/Activity");
 const placeService = require("../services/placeService");
@@ -104,15 +104,6 @@ const logout = (req, res, next) => {
         }
         res.redirect('/member/login');
     })
-}
-
-const getMapView = async (req, res, next) => {
-    try{
-        const Mapview = await userService.getMapView();
-        res.render('/', { Mapview });
-    } catch(error) {
-        next(error);
-    }
 }
 
 // 마이페이지
@@ -321,10 +312,9 @@ module.exports = {
     getSocialJoin, 
     postSocialJoin, 
     checkEmail, 
-    getLogin, 
-    logout, 
-    getMapView, 
-    getMemberInfo, 
+    getLogin,
+    logout,
+    getMemberInfo,
     getModify, 
     getFavorites, 
     postModify, 
