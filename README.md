@@ -141,8 +141,6 @@
 | `GET /auth/google` | 구글 로그인 | - |
 | `GET /auth/naver` | 네이버 로그인 | - |
 
-> ✅ 표시된 경로는 `middlewares/authMiddleware.js`의 `isLoggedIn` 미들웨어를 거칩니다. 비로그인 접근 시 일반 페이지 이동은 confirm 후 로그인 페이지 이동/뒤로가기, fetch 기반 요청(`Accept: application/json`)은 `401 { authRequired: true }` JSON으로 응답합니다.
-
 ### 데이터 처리 (POST / PATCH / DELETE)
 
 | 경로 | 설명 | 인증 | 비고 |
@@ -200,7 +198,3 @@
 | 스케줄러 | 주기 | 동작 |
 |----------|------|------|
 | `congestionScheduler.js` | 10분 (`*/10 * * * *`) | 서울시 실시간 도시데이터 API 호출 → `Congestion`, `Place` 컬렉션 갱신 |
-
----
-
-© 2026 모여봄 · 1조 프로젝트
