@@ -6,8 +6,8 @@ const mongoose = require('mongoose');
 const Place = require('../models/Place');
 const ParkingInfo = require('../models/ParkingInfo');
 
-const EXCEL_PATH = process.env.EXCEL_PATH || 'C:/Users/kyumi/Downloads/서울시 주요 121장소 목록 (1).xlsx';
-const API_KEY = process.env.SEOUL_API_KEY || '516f6562436b79753932784c6f6568';
+const EXCEL_PATH = process.env.EXCEL_PATH;
+const API_KEY = process.env.SEOUL_RTD_API;
 const API_BASE = `http://openapi.seoul.go.kr:8088/${API_KEY}/json/citydata/1/5`;
 const DELAY_MS = 300;
 

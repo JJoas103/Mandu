@@ -3,7 +3,7 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 const ParkingInfo = require('../models/ParkingInfo');
 
-const API_KEY = process.env.SEOUL_API_KEY || '516f6562436b79753932784c6f6568';
+const API_KEY = process.env.SEOUL_RTD_API;
 const API_BASE = `http://openapi.seoul.go.kr:8088/${API_KEY}/json/GetParkingInfo`;
 const BATCH_SIZE = 1000; // 한 번에 가져올 레코드 수
 

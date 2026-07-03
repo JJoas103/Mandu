@@ -34,6 +34,7 @@
    - Google / Naver 소셜 로그인 Client ID & Secret
 
 3. **시드 데이터 주입** (최초 실행 시)
+   - `npm run seed:places`는 서울시 공공데이터 기반 121개 장소 목록 엑셀 파일이 필요합니다. 라이선스 조건상 파일 자체는 레포에 포함하지 않았으니, `.env`의 `EXCEL_PATH`에 직접 준비한 엑셀 파일의 경로를 지정해주세요.
    ```bash
    npm run seed:places
    npm run seed:parking

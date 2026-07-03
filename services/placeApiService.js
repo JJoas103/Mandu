@@ -3,7 +3,7 @@ const Place = require('../models/Place');
 const Congestion = require('../models/Congestion');
 
 const CONGEST_SCORE = { '여유': 0, '보통': 1, '약간 붐빔': 2, '붐빔': 3 };
-const API_KEY = process.env.SEOUL_API_KEY || '516f6562436b79753932784c6f6568';
+const API_KEY = process.env.SEOUL_RTD_API;
 const API_BASE = `http://openapi.seoul.go.kr:8088/${API_KEY}/json/citydata/1/5`;
 const DELAY_MS = 300;
 
