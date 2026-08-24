@@ -85,14 +85,14 @@ passport.use(new NaverStrategy({
     callbackURL: "/auth/naver/callback"
 }, naverVerify));
 
-// 구글 전략
+// 리액트 구글 전략
 passport.use('google-api', new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     callbackURL: "/api/auth/google/callback"
 }, googleVerify));
 
-// 네이버 전략
+// 리액트 네이버 전략
 passport.use('naver-api', new NaverStrategy({
     clientID: process.env.NAVER_CLIENT_ID,
     clientSecret: process.env.NAVER_CLIENT_SECRET,
